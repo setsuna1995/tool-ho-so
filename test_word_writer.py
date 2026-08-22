@@ -94,3 +94,29 @@ def test_replace_text_wildcard_strips_matched_text_on_docx_backend(tmp_path):
     check = docx.Document(str(src))
     text = "\n".join(p.text for p in check.paragraphs)
     assert "Cu nhan ABC" not in text
+
+
+def test_replace_text_wildcard_paragraph_mark_suffix_leaves_blank_paragraph(tmp_path, capsys):
+    path = tmp_path / "wildcard_paragraph_mark.docx"
+    d = docx.Document()
+    d.add_paragraph("Truoc.")
+    d.add_paragraph("Cu nhan ABC")
+    d.add_paragraph("Sau.")
+    d.save(str(path))
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        doc = session.open(path)
+        ok = session.replace_text(doc, "Cu nhan ABC^13", "", wildcards=True)
+        assert ok is True
+        session.save_close(doc)
+    finally:
+        session.quit()
+
+    captured = capsys.readouterr()
+    assert "CANH BAO" in captured.out
+
+    check = docx.Document(str(path))
+    assert len(check.paragraphs) == 3
+    text = "\n".join(p.text for p in check.paragraphs)
+    assert "Cu nhan ABC" not in text
