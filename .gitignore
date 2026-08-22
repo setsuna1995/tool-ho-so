@@ -1,9 +1,5 @@
 *.zip
 01. Hồ sơ đạo đức mẫu HUPH/
-01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/
-02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/
-03. CV mời chuyên gia - mẫu COLOSTRUM/
-04. Hồ sơ nghiệm thu/
 05. Hồ sơ - Tư vấn hiệu quả công thức sản phẩm Bánh ăn dặm VIAM (2027)/
 Hồ sơ - */
 scratch_full.txt
@@ -14,3 +10,4 @@ Form checklist hồ sơ dự án.xlsx.bak
 __pycache__/
 *.pyc
 .pytest_cache/
+.worktrees/
