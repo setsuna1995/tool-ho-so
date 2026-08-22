@@ -96,13 +96,20 @@ class Session:
         if doc.backend == "com":
             rng = doc.handle.Content
             rng.Find.ClearFormatting()
-            return bool(
+            found = bool(
                 rng.Find.Execute(
                     find, False, False, wildcards, False, False, True,
                     WD_FIND_WRAP_STOP, False, replace, WD_REPLACE_ALL,
                 )
             )
-        return _docx_replace_text(doc.handle, find, replace, wildcards)
+        else:
+            found = _docx_replace_text(doc.handle, find, replace, wildcards)
+
+        if not found:
+            preview = find if len(find) <= 60 else find[:60] + "..."
+            print(f"  [CANH BAO] Khong tim thay: '{preview}' trong {doc.path.name}")
+
+        return found
 
     def set_cell(self, doc: OpenDoc, table_index: int, row: int, col: int, text: str) -> None:
         if doc.backend == "com":

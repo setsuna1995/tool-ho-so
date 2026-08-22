@@ -10,7 +10,9 @@ Công cụ này giúp bạn tự động tạo một bộ hồ sơ đạo đức
 - **Python:** Phiên bản 3.9 hoặc cao hơn (cần được cài đặt)
 - **Microsoft Word:** Tùy chọn
   - Nếu có Word: Kết quả chính xác nhất, định dạng tuyệt vời
-  - Nếu không có Word: Công cụ sẽ tự động chuyển sang chế độ fallback (python-docx). Lúc này, một vài dòng trống trong file "00. QĐ Giao đề tài" có thể không được xóa hoàn toàn — script sẽ in cảnh báo cụ thể nếu gặp tình huống này.
+  - Nếu không có Word: Công cụ sẽ tự động chuyển sang chế độ fallback (python-docx). Chế độ này có một số giới hạn đã biết:
+    - Một vài dòng trống trong file "00. QĐ Giao đề tài" có thể không được xóa hoàn toàn — script sẽ in cảnh báo cụ thể nếu gặp tình huống này.
+    - Với những câu chữ vốn bị chia thành nhiều đoạn định dạng nhỏ (runs) trong file Word gốc, sau khi thay thế nội dung có thể mất định dạng chi tiết (ví dụ: in đậm một phần trong câu) — chữ vẫn đúng, chỉ định dạng ở cấp ký tự trong câu đã thay có thể bị đơn giản hóa. Tình trạng này không xảy ra nếu máy có cài Word.
 
 ## 2. Cài đặt lần đầu
 
@@ -55,7 +57,7 @@ Sheet mới sẽ có các ô được tô nền **vàng** — đây là những 
 - **Đơn vị chủ trì** (A04)
 - **Năm thực hiện, dự kiến hoàn thành** (A05) — ví dụ: "2026–2027"
 - **Chủ nhiệm đề tài** (B01) — tên, học vị (ví dụ: PGS.TS.), và đơn vị công tác
-- **Thư ký hội đồng đạo đức** (C09, C10) — **bắt buộc** phải có ít nhất 1-2 người (tên, học vị, đơn vị)
+- **Thư ký hội đồng đạo đức** (C09, C10) — **bắt buộc** phải điền đủ cả 2 người (tên, học vị, đơn vị)
 - **Thư ký hội đồng khoa học** (D09, D10) — **bắt buộc**
 - **Thư ký hội đồng nghiệm thu** (E09, E10) — **bắt buộc**
 - **Các thành viên hội đồng** (Chủ tịch, phản biện, ủy viên của 3 hội đồng)
@@ -130,6 +132,20 @@ Bạn nên kiểm tra lại một số file quan trọng:
    - Kiểm tra **đơn vị** của các thành viên có đúng không
 
 Nếu tất cả đều chính xác, hồ sơ của bạn đã sẵn sàng gửi đi!
+
+## Những điều cần tự kiểm tra/sửa tay cho dự án mới
+
+Công cụ tự động hóa được phần lớn công việc, nhưng có một số chỗ **chưa** tự động — bạn cần tự kiểm tra và sửa tay cho từng dự án mới:
+
+- **Danh sách thành viên nhóm nghiên cứu trong file "00. QĐ Giao đề tài.docx":** File này vẫn giữ nguyên danh sách tên thành viên nhóm nghiên cứu từ mẫu cũ — công cụ **chưa** tự động cập nhật danh sách này theo các trường thành viên nhóm nghiên cứu bạn điền trong checklist Excel. Hãy mở file này và đối chiếu kỹ xem danh sách có khớp với nhóm nghiên cứu thực tế của dự án bạn không, trước khi gửi hồ sơ đi.
+
+- **Phiếu chấm điểm nghiệm thu:** Công cụ luôn tạo ra bản "TVCT_ĐGHQ". Nếu kiểu nghiên cứu của dự án bạn (mã mục A02) là **"TNLS"** thay vì "TVCT_ĐGHQ", bạn cần tự thay thủ công đúng mẫu phiếu chấm điểm phù hợp.
+
+- **File CV chuyên gia đính kèm hồ sơ đạo đức:** File CV hiện đang cố định là CV của một người cụ thể (theo mẫu COLOSTRUM cũ). Nếu dự án mới của bạn có chủ nhiệm đề tài khác, bạn cần tự thay file CV này bằng CV đúng người.
+
+- **Mốc thời gian nghiên cứu:** Các mốc thời gian dạng "01/2027 đến 12/2027" xuất hiện trong nhiều tài liệu được công cụ tự suy ra **chỉ từ trường năm thực hiện (A03)**, chứ không dựa vào nội dung mốc thời gian chi tiết hơn mà bạn có thể đã điền ở checklist (A05). Hãy kiểm tra kỹ xem tháng/ngày trong các tài liệu có đúng với thực tế dự án của bạn không.
+
+- **Các dấu "……" hoặc "20xx"/"20XX" còn sót lại:** Một số file có thể vẫn còn các chỗ đánh dấu chưa điền (ví dụ: ngày họp cụ thể, số quyết định...) cần bạn tự điền tay sau khi hồ sơ được tạo ra. Đây là tình trạng đã có từ quy trình cũ (script PowerShell) và chưa thay đổi trong công cụ này.
 
 ## 6. Về các script chạy một lần duy nhất
 

@@ -22,7 +22,6 @@ def generate(session: word_writer.Session, dest_dir: Path, info: ProjectInfo, ti
         "Nhằm đánh giá tình trạng suy dinh dưỡng ở trẻ dưới 5 tuổi và hiệu quả của sản phẩm bổ sung dinh dưỡng LOF KUN COLOSTRUM, Viện Y học ứng dụng Việt Nam tiến hành triển khai nghiên cứu",
         "Viện Y học ứng dụng Việt Nam tiến hành triển khai đề tài",
     )
-    session.replace_text(doc, f"“{title_old}”.", f"“{info.title}”.")
     session.replace_text(
         doc,
         "Nghiên cứu được triển khai trong 06 tháng, trong đó thời gian can thiệp là 04 tháng.",
@@ -34,5 +33,6 @@ def generate(session: word_writer.Session, dest_dir: Path, info: ProjectInfo, ti
         f"Thời gian: …… giờ ……, ngày …… tháng …… năm {info.year}.",
     )
     session.replace_text(doc, "2024", str(info.year))
+    session.replace_text(doc, f"“{title_old}”.", f"“{info.title}”.")
 
     session.save_close(doc)

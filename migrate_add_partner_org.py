@@ -35,10 +35,12 @@ def _has_partner_org_field(ws) -> bool:
 
 def add_partner_org_field() -> None:
     wb = openpyxl.load_workbook(CHECKLIST_PATH)
+    changed = False
     for sheet_name in SHEET_NAMES:
         ws = wb[sheet_name]
         if _has_partner_org_field(ws):
             continue
+        changed = True
         ws.insert_rows(INSERT_AT_ROW)
 
         for col in range(1, 7):
@@ -59,7 +61,8 @@ def add_partner_org_field() -> None:
 
         _fix_status_formula_row_refs(ws)
 
-    wb.save(CHECKLIST_PATH)
+    if changed:
+        wb.save(CHECKLIST_PATH)
 
 
 if __name__ == "__main__":

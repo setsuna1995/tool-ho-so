@@ -64,8 +64,12 @@ def _bb_kiem_phieu_nghiem_thu(session, dest_dir, info):
 
 def _qd_cong_nhan_ket_qua(session, dest_dir, info):
     doc = session.open(dest_dir / "12. Quyết định công nhận kết quả đề tài.docx")
+    # Template nay dung "20XX" hoa o tieu de nhung "20xx" thuong o bang tieu de
+    # (khac voi cac file 9/10/11 dung "20xx" thuong nhat quan o moi noi) - can
+    # thay ca hai de dung tren backend docx (case-sensitive).
+    session.replace_text(doc, "20XX", str(info.year))
     session.replace_text(doc, "20xx", str(info.year))
-    session.replace_text(doc, '"Tên đề tài"', f"“{info.title}”")
+    session.replace_text(doc, "“Tên đề tài”", f"“{info.title}”")
     session.save_close(doc)
 
 

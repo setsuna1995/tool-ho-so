@@ -18,8 +18,8 @@ def generate(session: word_writer.Session, dest_dir: Path, info: ProjectInfo, ti
 
 def _quyet_dinh_giao_de_tai(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "00. QĐ Giao đề tài.docx")
-    session.replace_text(doc, title_old, info.title)
     session.replace_text(doc, "2024", str(info.year))
+    session.replace_text(doc, title_old, info.title)
     session.replace_text(doc, "Cử nhân HOÀNG HÀ LINH^13", "", wildcards=True)
     session.replace_text(doc, "Cử nhân PHẠM HỒNG NGỌC^13", "", wildcards=True)
     session.replace_text(doc, "Cử nhân TRƯƠNG PHAN HỒNG HÀ", "")
@@ -28,8 +28,8 @@ def _quyet_dinh_giao_de_tai(session, dest_dir, info, title_old):
 
 def _qdtlhd_dao_duc(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "01. QĐTLHĐ đạo đức đề cương.docx")
-    session.replace_text(doc, title_old, info.title)
     session.replace_text(doc, "2024", str(info.year))
+    session.replace_text(doc, title_old, info.title)
     committee_writer.write_committee_roster(
         session, doc, 2, info.ethics_committee, roles=ROLES, name_col=1, org_col=2, role_col=3
     )
@@ -55,17 +55,17 @@ def _bb_hop_hd_dao_duc(session, dest_dir, info, title_old):
 
 def _bb_kiem_phieu_hd_dao_duc(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "03. BB kiểm phiếu HĐ đạo đức.docx")
-    session.replace_text(doc, f"Tên đề tài: {title_old}.", f"Tên đề tài: {info.title}.")
     session.replace_text(doc, "2024", str(info.year))
+    session.replace_text(doc, f"Tên đề tài: {title_old}.", f"Tên đề tài: {info.title}.")
     session.save_close(doc)
 
 
 def _qd_chap_nhan_dao_duc(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "04. QĐ chấp nhận đạo đức.docx")
-    session.replace_text(doc, f"“{title_old}”.", f"“{info.title}”.")
     session.replace_text(doc, "Địa điểm triển khai nghiên cứu: tỉnh Thái Nguyên.", "Địa điểm triển khai nghiên cứu: ……………………………….")
     session.replace_text(doc, "Thời gian nghiên cứu: Từ 12/2024 đến 05/2024", f"Thời gian nghiên cứu: Từ 01/{info.year} đến 12/{info.year}")
     session.replace_text(doc, "2024", str(info.year))
+    session.replace_text(doc, f"“{title_old}”.", f"“{info.title}”.")
     chair = info.ethics_committee.chair
     session.set_cell(doc, 2, 1, 2, f"CHỦ TỊCH HỘI ĐỒNG\r{chair.degree} {chair.name}".strip())
     session.save_close(doc)

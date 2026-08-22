@@ -5,6 +5,8 @@ from pathlib import Path
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
+import openpyxl
+
 import excel_reader
 import paths
 import section_dao_duc
@@ -48,6 +50,9 @@ COPIES = [
 ]
 
 
+ILLEGAL_FOLDER_CHARS = ':/\\*?"<>|'
+
+
 def copy_templates(root: Path, dest_root: Path) -> None:
     for rel_src, rel_dst in COPIES:
         src = root / rel_src
@@ -56,42 +61,81 @@ def copy_templates(root: Path, dest_root: Path) -> None:
         dst.write_bytes(src.read_bytes())
 
 
+def _sanitize_folder_name(name: str) -> str:
+    """Thay cac ky tu khong hop le trong ten thu muc Windows bang khoang trang."""
+    for ch in ILLEGAL_FOLDER_CHARS:
+        name = name.replace(ch, " ")
+    return name
+
+
 def main() -> None:
     root = paths.project_root()
 
-    print("Dang doc du lieu tu Excel checklist...")
-    info = excel_reader.load_project_data(root / excel_reader.CHECKLIST_FILENAME, SHEET_NAME)
-
-    session = word_writer.Session()
-    print(f"Che do ghi Word dang dung: {session.backend}")
-    if session.backend == "docx":
-        print(
-            "  [LUU Y] Khong co Word COM - dung fallback python-docx thuan.\n"
-            "  Mot vai cho xoa dong trong co the con sot dong trong, script se canh bao khi gap."
-        )
-
-    dest_dir_name = f"Hồ sơ - {info.title} ({info.year})"
-    dest_root = root / dest_dir_name
-
-    print(f"Dang sao chep file mau vao '{dest_dir_name}'...")
-    copy_templates(root, dest_root)
-
     try:
-        print("Dang sinh ho so dao duc...")
-        section_dao_duc.generate(session, dest_root / "01. Hồ sơ đạo đức đề cương", info, TITLE_OLD)
+        print("Dang doc du lieu tu Excel checklist...")
+        info = excel_reader.load_project_data(root / excel_reader.CHECKLIST_FILENAME, SHEET_NAME)
 
-        print("Dang sinh ho so khoa hoc de cuong...")
-        section_khoa_hoc.generate(session, dest_root / "02. Hồ sơ khoa học đề cương", info, TITLE_OLD)
+        session = word_writer.Session()
+        print(f"Che do ghi Word dang dung: {session.backend}")
+        if session.backend == "docx":
+            print(
+                "  [LUU Y] Khong co Word COM - dung fallback python-docx thuan.\n"
+                "  Mot vai cho xoa dong trong co the con sot dong trong, script se canh bao khi gap."
+            )
 
-        print("Dang sinh cong van moi chuyen gia...")
-        section_moi_chuyen_gia.generate(session, dest_root / "03. Công văn mời chuyên gia", info, TITLE_OLD)
+        dest_dir_name = f"Hồ sơ - {_sanitize_folder_name(info.title)} ({info.year})"
+        dest_root = root / dest_dir_name
 
-        print("Dang sinh ho so nghiem thu...")
-        section_nghiem_thu.generate(session, dest_root / "04. Hồ sơ nghiệm thu", info)
-    finally:
-        session.quit()
+        print(f"Dang sao chep file mau vao '{dest_dir_name}'...")
+        copy_templates(root, dest_root)
 
-    print(f"XONG. Bo ho so da tao tai: {dest_root}")
+        try:
+            print("Dang sinh ho so dao duc...")
+            section_dao_duc.generate(session, dest_root / "01. Hồ sơ đạo đức đề cương", info, TITLE_OLD)
+
+            print("Dang sinh ho so khoa hoc de cuong...")
+            section_khoa_hoc.generate(session, dest_root / "02. Hồ sơ khoa học đề cương", info, TITLE_OLD)
+
+            print("Dang sinh cong van moi chuyen gia...")
+            section_moi_chuyen_gia.generate(session, dest_root / "03. Công văn mời chuyên gia", info, TITLE_OLD)
+
+            print("Dang sinh ho so nghiem thu...")
+            section_nghiem_thu.generate(session, dest_root / "04. Hồ sơ nghiệm thu", info)
+        finally:
+            session.quit()
+
+        print(f"XONG. Bo ho so da tao tai: {dest_root}")
+
+    except KeyError as e:
+        # KeyError thuong xay ra khi SHEET_NAME sai ten, nhung cung co the la
+        # ma muc (vd C09) bi thieu trong sheet dung - kiem tra ten sheet truoc
+        # de dua ra thong bao dung trong tam.
+        try:
+            wb = openpyxl.load_workbook(root / excel_reader.CHECKLIST_FILENAME)
+            sheet_names = wb.sheetnames
+        except Exception:
+            sheet_names = None
+
+        if sheet_names is not None and SHEET_NAME not in sheet_names:
+            print(f"[LOI] Khong tim thay sheet '{SHEET_NAME}' trong file Excel checklist.")
+            print("Cac sheet hien co trong file:")
+            for name in sheet_names:
+                print(f"  - {name}")
+            print(
+                "Vui long sua bien SHEET_NAME trong tao_ho_so_moi.py cho khop chinh xac "
+                "ten sheet (xem HUONG_DAN.md muc 7)."
+            )
+        else:
+            print("Da xay ra loi khi tao ho so. Chi tiet loi:")
+            print(f"  {e}")
+            print("Vui long xem HUONG_DAN.md muc 7 de biet cach khac phuc.")
+        sys.exit(1)
+
+    except Exception as e:
+        print("Da xay ra loi khi tao ho so. Chi tiet loi:")
+        print(f"  {e}")
+        print("Vui long xem HUONG_DAN.md muc 7 de biet cach khac phuc.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
