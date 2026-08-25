@@ -6,7 +6,7 @@ scratch_full.txt
 scratch_sheets.txt
 long_strings_report.txt
 Form checklist hồ sơ dự án.xlsx.bak
-.superpowers/
+# .superpowers/
 __pycache__/
 *.pyc
 .pytest_cache/
