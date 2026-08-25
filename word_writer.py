@@ -92,7 +92,9 @@ class Session:
             handle = docx.Document(str(path))
         return OpenDoc(backend=self.backend, handle=handle, path=path)
 
-    def replace_text(self, doc: OpenDoc, find: str, replace: str, wildcards: bool = False) -> bool:
+    def replace_text(
+        self, doc: OpenDoc, find: str, replace: str, wildcards: bool = False, warn_if_missing: bool = True
+    ) -> bool:
         if doc.backend == "com":
             rng = doc.handle.Content
             rng.Find.ClearFormatting()
@@ -105,11 +107,29 @@ class Session:
         else:
             found = _docx_replace_text(doc.handle, find, replace, wildcards)
 
-        if not found:
+        if not found and warn_if_missing:
             preview = find if len(find) <= 60 else find[:60] + "..."
             print(f"  [CANH BAO] Khong tim thay: '{preview}' trong {doc.path.name}")
 
         return found
+
+    def replace_text_any(self, doc: OpenDoc, candidates: list, replace: str, wildcards: bool = False) -> bool:
+        """Thử thay từng biến thể trong `candidates`, chỉ cảnh báo nếu KHÔNG biến thể nào khớp.
+
+        Dùng cho các mẫu trộn lẫn nhiều cách viết hoa/thường của cùng một chỗ giữ
+        chỗ (vd "20xx"/"20XX") - tránh cảnh báo giả khi backend Word COM đã thay
+        cả hai kiểu chữ cùng lúc trong một lần tìm-thay không phân biệt hoa/thường.
+        """
+        found_any = False
+        for find in candidates:
+            if self.replace_text(doc, find, replace, wildcards=wildcards, warn_if_missing=False):
+                found_any = True
+
+        if not found_any:
+            preview = ", ".join(f"'{c}'" for c in candidates)
+            print(f"  [CANH BAO] Khong tim thay bat ky bien the nao trong [{preview}] trong {doc.path.name}")
+
+        return found_any
 
     def set_cell(self, doc: OpenDoc, table_index: int, row: int, col: int, text: str) -> None:
         if doc.backend == "com":

@@ -1,3 +1,4 @@
+import dataclasses
 import shutil
 
 import docx
@@ -15,21 +16,21 @@ TITLE_OLD = (
     "tình trạng dinh dưỡng, miễn dịch, tiêu hóa và giấc ngủ của trẻ từ 24 đến 72 tháng tuổi"
 )
 
-SOURCE_DIR = paths.project_root() / "02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM"
-RENAME_MAP = {
-    "05. Dr.Kun QD TLHDKH đề cương.docx": "05. QĐ TLHĐ khoa học xét đề cương.docx",
-    "06. Dr.Kun Bien ban hop thong qua de cuong de tai.docx": "06. BB họp thông qua đề cương.docx",
-    "07. Dr.Kun Bien ban kiem phieu thong qua de cuong.docx": "07. BB kiểm phiếu thông qua đề cương.docx",
-    "08. Dr.Kun QĐ phe-duyet-de-tai.docx": "08. QĐ phê duyệt đề tài.docx",
-    "Dr.Kun Phieu cham diem HD de cuong.docx": "Phiếu chấm điểm HĐ đề cương.docx",
-    "Dr.Kun Phieu nhan xet danh gia ho so.docx": "Phiếu nhận xét đánh giá hồ sơ.docx",
-}
+SOURCE_DIR = paths.project_root() / "02. Hồ sơ khoa học đề cương - MẪU"
+FILES = [
+    "05. QĐ TLHĐ khoa học xét đề cương.docx",
+    "06. BB họp thông qua đề cương.docx",
+    "07. BB kiểm phiếu thông qua đề cương.docx",
+    "08. QĐ phê duyệt đề tài.docx",
+    "Phiếu chấm điểm HĐ đề cương.docx",
+    "Phiếu nhận xét đánh giá hồ sơ.docx",
+]
 
 
 @pytest.fixture()
 def dest_dir(tmp_path):
-    for src_name, dst_name in RENAME_MAP.items():
-        shutil.copy2(SOURCE_DIR / src_name, tmp_path / dst_name)
+    for filename in FILES:
+        shutil.copy2(SOURCE_DIR / filename, tmp_path / filename)
     return tmp_path
 
 
@@ -49,3 +50,16 @@ def test_generate_fixes_proposal_secretary_org(dest_dir, info):
     secretary_table = doc.tables[2]
     assert secretary_table.cell(0, 1).text.strip() == "Hoàng Hà Linh"
     assert secretary_table.cell(0, 2).text.strip() == "Trung tâm NCKH - Viện VIAM"
+
+
+def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
+    custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
+    session = word_writer.Session(force_backend="docx")
+    try:
+        section_khoa_hoc.generate(session, dest_dir, custom_info, TITLE_OLD)
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "08. QĐ phê duyệt đề tài.docx"))
+    full_text = "\n".join(p.text for p in doc.paragraphs)
+    assert "từ tháng 03/2027 đến tháng 09/2028" in full_text

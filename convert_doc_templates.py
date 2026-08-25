@@ -1,17 +1,8 @@
 from pathlib import Path
 
 import paths
+import template_config
 import word_writer
-
-DOC_FILES = [
-    "01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/Bảng kiểm đánh giá đạo đức.doc",
-    "03. CV mời chuyên gia - mẫu COLOSTRUM/CV mời chuyên gia.doc",
-    "04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/9. Quyết định THÀNH LẬP HĐ nghiệm thu.doc",
-    "04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/10. Biên bản HỌP HĐ nghiệm thu.doc",
-    "04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/11. Biên bản KIỂM PHIẾU nghiệm thu.doc",
-    "04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/12. Quyết định công nhận kết quả đề tài.doc",
-    "04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/Phiếu NHẬN XÉT nghiệm thu.doc",
-]
 
 
 def convert_one(session: word_writer.Session, src: Path, dst: Path) -> tuple:
@@ -33,10 +24,11 @@ def convert_all() -> list:
             "Can Microsoft Word tren may nay de chuyen doi file .doc sang .docx"
         )
     root = paths.project_root()
+    doc_files = template_config.discover_doc_files(root)
     session = word_writer.Session(force_backend="com")
     results = []
     try:
-        for rel_path in DOC_FILES:
+        for rel_path in doc_files:
             src = root / rel_path
             dst = src.with_suffix(".docx")
             before, after = convert_one(session, src, dst)

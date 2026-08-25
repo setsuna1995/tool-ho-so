@@ -96,6 +96,42 @@ def test_replace_text_wildcard_strips_matched_text_on_docx_backend(tmp_path):
     assert "Cu nhan ABC" not in text
 
 
+def test_replace_text_any_does_not_warn_when_one_candidate_matches(tmp_path, capsys):
+    src = _make_paragraph_fixture(tmp_path, "Nam 20xx la nam thuc hien")
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        doc = session.open(src)
+        ok = session.replace_text_any(doc, ["20XX", "20xx"], "2027")
+        session.save_close(doc)
+    finally:
+        session.quit()
+
+    captured = capsys.readouterr()
+    assert "CANH BAO" not in captured.out
+    assert ok is True
+
+    check = docx.Document(str(src))
+    text = "\n".join(p.text for p in check.paragraphs)
+    assert "2027" in text
+
+
+def test_replace_text_any_warns_once_when_no_candidate_matches(tmp_path, capsys):
+    src = _make_paragraph_fixture(tmp_path, "Khong co gi lien quan")
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        doc = session.open(src)
+        ok = session.replace_text_any(doc, ["20XX", "20xx"], "2027")
+        session.save_close(doc)
+    finally:
+        session.quit()
+
+    captured = capsys.readouterr()
+    assert captured.out.count("CANH BAO") == 1
+    assert ok is False
+
+
 def test_replace_text_wildcard_paragraph_mark_suffix_leaves_blank_paragraph(tmp_path, capsys):
     path = tmp_path / "wildcard_paragraph_mark.docx"
     d = docx.Document()

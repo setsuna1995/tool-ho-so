@@ -1,10 +1,26 @@
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import openpyxl
 
 CHECKLIST_FILENAME = "Form checklist hồ sơ dự án.xlsx"
+
+TIMELINE_PATTERN = re.compile(r"(\d{2})/(\d{4}).*?(\d{2})/(\d{4})")
+
+
+def parse_timeline(text: str) -> Tuple[str, str]:
+    """Tách mốc bắt đầu/kết thúc dạng MM/YYYY từ nội dung mốc thời gian (A05)."""
+    match = TIMELINE_PATTERN.search(text)
+    if not match:
+        raise ValueError(
+            f"Không đọc được mốc thời gian nghiên cứu (A05) từ nội dung '{text}'. "
+            "Vui lòng nhập đúng định dạng có 2 mốc MM/YYYY, ví dụ: "
+            "'Tháng 01/2027 đến tháng 12/2027'."
+        )
+    start_month, start_year, end_month, end_year = match.groups()
+    return f"{start_month}/{start_year}", f"{end_month}/{end_year}"
 
 
 @dataclass
@@ -37,6 +53,7 @@ class ProjectInfo:
     ethics_committee: CommitteeData
     proposal_committee: CommitteeData
     acceptance_committee: CommitteeData
+    head_cv_filename: str
 
 
 def _build_code_index(ws) -> dict:
@@ -126,6 +143,10 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
 
     partner_org = _read_text(ws, index, "A06") if "A06" in index else ""
 
+    head_cv_filename = _cell_text(ws, index["F01"], 5) if "F01" in index else ""
+    if not head_cv_filename:
+        raise ValueError("Tên file CV của chủ nhiệm đề tài (F01) là bắt buộc nhưng đang trống")
+
     return ProjectInfo(
         title=title,
         research_type=_read_text(ws, index, "A02"),
@@ -140,4 +161,5 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         ethics_committee=parse_committee(ws, index, "C"),
         proposal_committee=parse_committee(ws, index, "D"),
         acceptance_committee=parse_committee(ws, index, "E"),
+        head_cv_filename=head_cv_filename,
     )

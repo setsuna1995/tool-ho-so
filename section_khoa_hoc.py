@@ -2,7 +2,7 @@ from pathlib import Path
 
 import committee_writer
 import word_writer
-from excel_reader import ProjectInfo
+from excel_reader import ProjectInfo, parse_timeline
 
 ROLES = ["Chủ tịch Hội đồng", "Phản biện 1", "Phản biện 2", "Ủy viên", "Ủy viên"]
 
@@ -55,10 +55,11 @@ def _bb_kiem_phieu_thong_qua_de_cuong(session, dest_dir, info, title_old):
 
 def _qd_phe_duyet_de_tai(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "08. QĐ phê duyệt đề tài.docx")
+    start, end = parse_timeline(info.timeline)
     session.replace_text(
         doc,
         "Thời gian thực hiện của đề tài: từ tháng 12/2024 đến tháng 05/2025",
-        f"Thời gian thực hiện của đề tài: từ tháng 01/{info.year} đến tháng 12/{info.year}",
+        f"Thời gian thực hiện của đề tài: từ tháng {start} đến tháng {end}",
     )
     session.replace_text(doc, "2025", str(info.year))
     session.replace_text(doc, "2024", str(info.year))

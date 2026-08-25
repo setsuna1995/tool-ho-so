@@ -2,7 +2,7 @@ from pathlib import Path
 
 import committee_writer
 import word_writer
-from excel_reader import ProjectInfo
+from excel_reader import ProjectInfo, parse_timeline
 
 ROLES = ["Chủ tịch Hội đồng", "Thành viên", "Thành viên", "Thành viên", "Thành viên"]
 
@@ -20,9 +20,14 @@ def _quyet_dinh_giao_de_tai(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "00. QĐ Giao đề tài.docx")
     session.replace_text(doc, "2024", str(info.year))
     session.replace_text(doc, title_old, info.title)
-    session.replace_text(doc, "Cử nhân HOÀNG HÀ LINH^13", "", wildcards=True)
-    session.replace_text(doc, "Cử nhân PHẠM HỒNG NGỌC^13", "", wildcards=True)
-    session.replace_text(doc, "Cử nhân TRƯƠNG PHAN HỒNG HÀ", "")
+
+    head_text = f"{info.head.degree} {info.head.name}".strip()
+    head_org = f" - {info.head.org}" if info.head.org else ""
+    session.set_cell(doc, 3, 2, 3, f"Chủ nhiệm đề tài: \n{head_text}{head_org}.")
+
+    members_text = "\n".join(f"{p.degree} {p.name}".strip() for p in info.researchers)
+    session.set_cell(doc, 3, 3, 3, f"Thành viên thực hiện:\n{members_text}")
+
     session.save_close(doc)
 
 
@@ -63,7 +68,8 @@ def _bb_kiem_phieu_hd_dao_duc(session, dest_dir, info, title_old):
 def _qd_chap_nhan_dao_duc(session, dest_dir, info, title_old):
     doc = session.open(dest_dir / "04. QĐ chấp nhận đạo đức.docx")
     session.replace_text(doc, "Địa điểm triển khai nghiên cứu: tỉnh Thái Nguyên.", "Địa điểm triển khai nghiên cứu: ……………………………….")
-    session.replace_text(doc, "Thời gian nghiên cứu: Từ 12/2024 đến 05/2024", f"Thời gian nghiên cứu: Từ 01/{info.year} đến 12/{info.year}")
+    start, end = parse_timeline(info.timeline)
+    session.replace_text(doc, "Thời gian nghiên cứu: Từ 12/2024 đến 05/2024", f"Thời gian nghiên cứu: Từ {start} đến {end}")
     session.replace_text(doc, "2024", str(info.year))
     session.replace_text(doc, f"“{title_old}”.", f"“{info.title}”.")
     chair = info.ethics_committee.chair

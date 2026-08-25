@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import word_writer
-from excel_reader import ProjectInfo
+from excel_reader import ProjectInfo, parse_timeline
 
 
 def generate(session: word_writer.Session, dest_dir: Path, info: ProjectInfo, title_old: str) -> None:
@@ -22,10 +22,11 @@ def generate(session: word_writer.Session, dest_dir: Path, info: ProjectInfo, ti
         "Nhằm đánh giá tình trạng suy dinh dưỡng ở trẻ dưới 5 tuổi và hiệu quả của sản phẩm bổ sung dinh dưỡng LOF KUN COLOSTRUM, Viện Y học ứng dụng Việt Nam tiến hành triển khai nghiên cứu",
         "Viện Y học ứng dụng Việt Nam tiến hành triển khai đề tài",
     )
+    start, end = parse_timeline(info.timeline)
     session.replace_text(
         doc,
         "Nghiên cứu được triển khai trong 06 tháng, trong đó thời gian can thiệp là 04 tháng.",
-        f"Thời gian thực hiện dự kiến: 01/{info.year} đến 12/{info.year}.",
+        f"Thời gian thực hiện dự kiến: {start} đến {end}.",
     )
     session.replace_text(
         doc,

@@ -2,9 +2,6 @@ import io
 import sys
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
-
 import openpyxl
 
 import excel_reader
@@ -13,52 +10,71 @@ import section_dao_duc
 import section_khoa_hoc
 import section_moi_chuyen_gia
 import section_nghiem_thu
+import template_config
 import word_writer
 
-SHEET_NAME = "Đề tài - Bánh ăn dặm VIAM 2027"
+PROJECT_SHEET_PREFIX = "Đề tài - "
 
 TITLE_OLD = (
     "Đánh giá hiệu quả sản phẩm sữa dinh dưỡng pha sẵn KUN DOCTOR COLOSTRUM lên "
     "tình trạng dinh dưỡng, miễn dịch, tiêu hóa và giấc ngủ của trẻ từ 24 đến 72 tháng tuổi"
 )
 
-COPIES = [
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/00. QĐ Giao đề tài.docx", "01. Hồ sơ đạo đức đề cương/00. QĐ Giao đề tài.docx"),
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/01. QĐTLHĐ đạo đức đề cương.docx", "01. Hồ sơ đạo đức đề cương/01. QĐTLHĐ đạo đức đề cương.docx"),
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/02. BB họp HĐ đạo đức - KUN COLOSTRUM.docx", "01. Hồ sơ đạo đức đề cương/02. BB họp HĐ đạo đức.docx"),
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/03. BB kiểm phiếu HĐ đạo đức.docx", "01. Hồ sơ đạo đức đề cương/03. BB kiểm phiếu HĐ đạo đức.docx"),
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/04. Dr.Kun QĐ chấp nhận đạo đức.docx", "01. Hồ sơ đạo đức đề cương/04. QĐ chấp nhận đạo đức.docx"),
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/Bảng kiểm đánh giá đạo đức.docx", "01. Hồ sơ đạo đức đề cương/Bảng kiểm đánh giá đạo đức.docx"),
-    ("01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM/Truong_Hong_Son_ly-lich-khoa-hoc-2024.docx", "01. Hồ sơ đạo đức đề cương/Lý lịch khoa học - Trương Hồng Sơn.docx"),
-
-    ("02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/05. Dr.Kun QD TLHDKH đề cương.docx", "02. Hồ sơ khoa học đề cương/05. QĐ TLHĐ khoa học xét đề cương.docx"),
-    ("02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/06. Dr.Kun Bien ban hop thong qua de cuong de tai.docx", "02. Hồ sơ khoa học đề cương/06. BB họp thông qua đề cương.docx"),
-    ("02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/07. Dr.Kun Bien ban kiem phieu thong qua de cuong.docx", "02. Hồ sơ khoa học đề cương/07. BB kiểm phiếu thông qua đề cương.docx"),
-    ("02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/08. Dr.Kun QĐ phe-duyet-de-tai.docx", "02. Hồ sơ khoa học đề cương/08. QĐ phê duyệt đề tài.docx"),
-    ("02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/Dr.Kun Phieu cham diem HD de cuong.docx", "02. Hồ sơ khoa học đề cương/Phiếu chấm điểm HĐ đề cương.docx"),
-    ("02. Hồ sơ khoa học đề cương - mẫu COLOSTRUM/Dr.Kun Phieu nhan xet danh gia ho so.docx", "02. Hồ sơ khoa học đề cương/Phiếu nhận xét đánh giá hồ sơ.docx"),
-
-    ("03. CV mời chuyên gia - mẫu COLOSTRUM/CV mời chuyên gia.docx", "03. Công văn mời chuyên gia/Công văn mời chuyên gia.docx"),
-
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/9. Quyết định THÀNH LẬP HĐ nghiệm thu.docx", "04. Hồ sơ nghiệm thu/9. Quyết định thành lập HĐ nghiệm thu.docx"),
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/10. Biên bản HỌP HĐ nghiệm thu.docx", "04. Hồ sơ nghiệm thu/10. Biên bản họp HĐ nghiệm thu.docx"),
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/11. Biên bản KIỂM PHIẾU nghiệm thu.docx", "04. Hồ sơ nghiệm thu/11. Biên bản kiểm phiếu nghiệm thu.docx"),
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/12. Quyết định công nhận kết quả đề tài.docx", "04. Hồ sơ nghiệm thu/12. Quyết định công nhận kết quả đề tài.docx"),
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/Phiếu CHẤM ĐIỂM nghiệm thu-(TVCT_ĐGHQ).docx", "04. Hồ sơ nghiệm thu/Phiếu chấm điểm nghiệm thu (TVCT_ĐGHQ).docx"),
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/Phiếu ký nhận tiền.docx", "04. Hồ sơ nghiệm thu/Phiếu ký nhận tiền.docx"),
-    ("04. Hồ sơ nghiệm thu/04. Hồ sơ nghiệm thu/Phiếu NHẬN XÉT nghiệm thu.docx", "04. Hồ sơ nghiệm thu/Phiếu nhận xét nghiệm thu.docx"),
-]
-
-
 ILLEGAL_FOLDER_CHARS = ':/\\*?"<>|'
 
 
+def list_project_sheets(xlsx_path: Path) -> list:
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True)
+    try:
+        return [name for name in wb.sheetnames if name.startswith(PROJECT_SHEET_PREFIX)]
+    finally:
+        wb.close()
+
+
+def choose_sheet_name(xlsx_path: Path) -> str:
+    if len(sys.argv) > 1:
+        return sys.argv[1]
+
+    sheets = list_project_sheets(xlsx_path)
+    if not sheets:
+        raise RuntimeError(
+            f"Khong tim thay sheet nao bat dau bang '{PROJECT_SHEET_PREFIX}' trong file {xlsx_path.name}."
+        )
+    if len(sheets) == 1:
+        print(f"Dung sheet du an: '{sheets[0]}'")
+        return sheets[0]
+
+    print("Chon sheet du an muon tao ho so:")
+    for i, name in enumerate(sheets, start=1):
+        print(f"  {i}. {name}")
+
+    while True:
+        raw = input(f"Nhap so thu tu (1-{len(sheets)}): ").strip()
+        if raw.isdigit() and 1 <= int(raw) <= len(sheets):
+            return sheets[int(raw) - 1]
+        print(f"  [LOI] Vui long nhap so tu 1 den {len(sheets)}.")
+
+
 def copy_templates(root: Path, dest_root: Path) -> None:
-    for rel_src, rel_dst in COPIES:
+    copies = template_config.discover_copies(root)
+    for rel_src, rel_dst in copies:
         src = root / rel_src
         dst = dest_root / rel_dst
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(src.read_bytes())
+
+
+def copy_head_cv(root: Path, dest_root: Path, info) -> None:
+    src = root / "CV chuyên gia" / info.head_cv_filename
+    if not src.exists():
+        raise FileNotFoundError(
+            f"Không tìm thấy file CV '{info.head_cv_filename}' (khai báo ở mã mục F01) "
+            f"trong thư mục 'CV chuyên gia/'. Vui lòng đặt đúng file vào đó hoặc sửa lại "
+            "tên file trong checklist cho khớp."
+        )
+    dst = dest_root / "01. Hồ sơ đạo đức đề cương" / info.head_cv_filename
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_bytes(src.read_bytes())
 
 
 def _sanitize_folder_name(name: str) -> str:
@@ -71,9 +87,14 @@ def _sanitize_folder_name(name: str) -> str:
 def main() -> None:
     root = paths.project_root()
 
+    checklist_path = root / excel_reader.CHECKLIST_FILENAME
+    sheet_name = None
+
     try:
+        sheet_name = choose_sheet_name(checklist_path)
+
         print("Dang doc du lieu tu Excel checklist...")
-        info = excel_reader.load_project_data(root / excel_reader.CHECKLIST_FILENAME, SHEET_NAME)
+        info = excel_reader.load_project_data(checklist_path, sheet_name)
 
         session = word_writer.Session()
         print(f"Che do ghi Word dang dung: {session.backend}")
@@ -88,6 +109,9 @@ def main() -> None:
 
         print(f"Dang sao chep file mau vao '{dest_dir_name}'...")
         copy_templates(root, dest_root)
+
+        print("Dang sao chep CV chu nhiem de tai...")
+        copy_head_cv(root, dest_root, info)
 
         try:
             print("Dang sinh ho so dao duc...")
@@ -116,14 +140,14 @@ def main() -> None:
         except Exception:
             sheet_names = None
 
-        if sheet_names is not None and SHEET_NAME not in sheet_names:
-            print(f"[LOI] Khong tim thay sheet '{SHEET_NAME}' trong file Excel checklist.")
+        if sheet_names is not None and sheet_name is not None and sheet_name not in sheet_names:
+            print(f"[LOI] Khong tim thay sheet '{sheet_name}' trong file Excel checklist.")
             print("Cac sheet hien co trong file:")
             for name in sheet_names:
                 print(f"  - {name}")
             print(
-                "Vui long sua bien SHEET_NAME trong tao_ho_so_moi.py cho khop chinh xac "
-                "ten sheet (xem HUONG_DAN.md muc 7)."
+                "Neu ban truyen ten sheet qua dong lenh, hay kiem tra lai chinh ta "
+                "(xem HUONG_DAN.md muc 7)."
             )
         else:
             print("Da xay ra loi khi tao ho so. Chi tiet loi:")
@@ -139,4 +163,6 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
     main()

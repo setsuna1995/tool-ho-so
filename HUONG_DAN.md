@@ -52,57 +52,66 @@ Bạn sẽ thấy file Excel có 2 sheet hiện tại:
 Sheet mới sẽ có các ô được tô nền **vàng** — đây là những ô **BẮT BUỘC** phải điền. Bạn cần nhập:
 
 - **Tên đề tài** (A01)
-- **Kiểu nghiên cứu** (A02) — ví dụ: "Nghiên cứu can thiệp"
+- **Kiểu nghiên cứu** (A02) — **chỉ chấp nhận đúng 2 giá trị:** `TVCT_ĐGHQ` hoặc `TNLS`. Công cụ dùng đúng giá trị này để **tự chọn đúng mẫu phiếu chấm điểm nghiệm thu tương ứng** — gõ sai chính tả (thừa/thiếu dấu, khoảng trắng...) sẽ khiến script báo lỗi khi chạy.
 - **Năm thực hiện** (A03) — ví dụ: 2026
 - **Đơn vị chủ trì** (A04)
-- **Năm thực hiện, dự kiến hoàn thành** (A05) — ví dụ: "2026–2027"
+- **Thời gian triển khai NC** (A05) — **bắt buộc** phải có đủ 2 mốc dạng `MM/YYYY`, ví dụ: "Tháng 01/2027 đến tháng 12/2027" hoặc "Từ 03/2027 đến 09/2028". Công cụ tự tách mốc bắt đầu/kết thúc từ đây để điền vào các văn bản — sai định dạng sẽ khiến script báo lỗi rõ ràng khi chạy.
 - **Chủ nhiệm đề tài** (B01) — tên, học vị (ví dụ: PGS.TS.), và đơn vị công tác
+- **Nghiên cứu viên** (B04–B20) — điền tên các thành viên nhóm nghiên cứu; danh sách này sẽ được **tự động điền** vào bảng "danh sách đơn vị triển khai" trong file "00. QĐ Giao đề tài.docx"
 - **Thư ký hội đồng đạo đức** (C09, C10) — **bắt buộc** phải điền đủ cả 2 người (tên, học vị, đơn vị)
 - **Thư ký hội đồng khoa học** (D09, D10) — **bắt buộc**
 - **Thư ký hội đồng nghiệm thu** (E09, E10) — **bắt buộc**
 - **Các thành viên hội đồng** (Chủ tịch, phản biện, ủy viên của 3 hội đồng)
+- **Hồ sơ Chủ nhiệm đề tài** (F01) — **bắt buộc**. Cột "TÊN FILE CV" phải ghi **đúng tên file** (kể cả hoa/thường, khoảng trắng) của file CV chủ nhiệm đề tài — xem chi tiết ở mục 3.5.
 
 **Lưu ý:** Bạn có thể điền thêm các ô không tô vàng (như đơn vị đối tác, cộng tác viên), nhưng nó không bắt buộc.
 
-### 3.4 Lưu file Excel
+### 3.4 Chuẩn bị file CV chủ nhiệm đề tài
+
+Công cụ tự động đính kèm CV chủ nhiệm đề tài vào hồ sơ đạo đức, lấy theo đúng tên file bạn khai ở mã mục **F01** (cột "TÊN FILE CV"). Để việc này chạy đúng:
+
+1. Đặt file CV (`.docx`) của chủ nhiệm đề tài vào thư mục **`CV chuyên gia/`** ở thư mục gốc công cụ.
+2. Mở Excel, vào ô F01 (cột thứ 3 trong bảng — "TÊN FILE CV"), gõ **đúng tên file** bạn vừa đặt vào thư mục đó, kể cả hoa/thường và khoảng trắng.
+3. Nếu chủ nhiệm đề tài dự án mới khác với dự án trước, chỉ cần đổi tên file trong ô F01 cho khớp file CV mới — **không cần sửa code**.
+
+Nếu tên file trong F01 không khớp file nào trong thư mục `CV chuyên gia/`, script sẽ báo lỗi rõ ràng ngay khi chạy, kèm hướng dẫn khắc phục.
+
+### 3.5 Lưu file Excel
 - Nhấn **Ctrl + S** để lưu
 
 ## 4. Chạy tạo hồ sơ
 
 Sau khi đã chuẩn bị đủ dữ liệu trong Excel, các bước tiếp theo:
 
-### 4.1 Mở file Python
-1. Tìm file `tao_ho_so_moi.py` trong thư mục công cụ
-2. Mở file bằng một text editor (ví dụ: Notepad)
+### 4.1 Mở Terminal trong thư mục công cụ
+- Cách dễ nhất: Trong File Explorer, click phải trong thư mục công cụ → chọn "Open in Terminal" (hoặc "Open PowerShell window here")
 
-### 4.2 Sửa tên sheet
-Trong file, bạn sẽ thấy dòng:
-```
-SHEET_NAME = "Đề tài - Bánh ăn dặm VIAM 2027"
-```
-
-Đổi tên này thành **tên sheet bạn vừa tạo** (cũng là tên dự án). Ví dụ:
-```
-SHEET_NAME = "Đề tài - Nghiên cứu về dinh dưỡng 2026"
-```
-
-**Lưu ý:** Tên phải khớp **chính xác** với tên sheet trong Excel (có khoảng trắng, dấu, chữ hoa-thường đều phải đúng)
-
-### 4.3 Lưu file Python
-- Nhấn **Ctrl + S** để lưu
-
-### 4.4 Chạy script
-1. Mở **Command Prompt** hoặc **PowerShell** trong thư mục công cụ
-   - Cách dễ nhất: Trong File Explorer, click phải trong thư mục công cụ → chọn "Open in Terminal"
-2. Gõ lệnh:
+### 4.2 Chạy script và chọn dự án
+1. Gõ lệnh:
    ```
    python tao_ho_so_moi.py
    ```
-3. Nhấn **Enter** và đợi script chạy xong
+2. Nhấn **Enter**. Script sẽ hiện danh sách các sheet dự án đang có trong file Excel, đánh số thứ tự, ví dụ:
+   ```
+   Chon sheet du an muon tao ho so:
+     1. Đề tài - Bánh ăn dặm VIAM 2027
+     2. Đề tài - Nghiên cứu về dinh dưỡng 2026
+   Nhap so thu tu (1-2):
+   ```
+3. Gõ **số thứ tự** đúng với sheet dự án bạn vừa tạo (ví dụ: `2`), rồi nhấn **Enter**.
+
+**Không cần sửa file `.py` nào nữa** — chỉ cần chọn đúng số trong danh sách.
+
+**Mẹo cho người dùng thành thạo:** có thể bỏ qua bước chọn bằng cách truyền thẳng tên sheet làm đối số dòng lệnh:
+```
+python tao_ho_so_moi.py "Đề tài - Nghiên cứu về dinh dưỡng 2026"
+```
+(tên phải khớp **chính xác** với tên sheet trong Excel — khoảng trắng, dấu, chữ hoa-thường đều phải đúng)
 
 Script sẽ in ra các bước đang xử lý:
 - "Dang doc du lieu tu Excel checklist..."
 - "Dang sao chep file mau..."
+- "Dang sao chep CV chu nhiem de tai..."
 - "Dang sinh ho so dao duc..."
 - "Dang sinh ho so khoa hoc de cuong..."
 - "Dang sinh cong van moi chuyen gia..."
@@ -127,53 +136,69 @@ Bạn nên kiểm tra lại một số file quan trọng:
 3. Mở file `00. QĐ Giao đề tài.docx`
    - Kiểm tra **tên đề tài** có chính xác không
    - Kiểm tra **năm** có đúng không
-4. Vào thư mục con `01. Hồ sơ đạo đức đề cương` → mở file `01. QĐTLHĐ đạo đức đề cương.docx`
+   - Kiểm tra **danh sách chủ nhiệm + thành viên** trong bảng "danh sách đơn vị triển khai" có khớp với nhóm nghiên cứu thực tế không
+4. Kiểm tra file CV (`Lý lịch khoa học ...docx` hoặc tên bạn khai ở F01) đã có mặt trong cùng thư mục và đúng là CV của chủ nhiệm đề tài
+5. Vào thư mục con `01. Hồ sơ đạo đức đề cương` → mở file `01. QĐTLHĐ đạo đức đề cương.docx`
    - Kiểm tra **tên chủ tịch hội đồng** có chính xác không
    - Kiểm tra **đơn vị** của các thành viên có đúng không
+6. Vào thư mục con `04. Hồ sơ nghiệm thu`, xác nhận chỉ có **đúng một** file "Phiếu chấm điểm nghiệm thu" khớp với kiểu nghiên cứu (A02) của dự án
 
 Nếu tất cả đều chính xác, hồ sơ của bạn đã sẵn sàng gửi đi!
 
 ## Những điều cần tự kiểm tra/sửa tay cho dự án mới
 
-Công cụ tự động hóa được phần lớn công việc, nhưng có một số chỗ **chưa** tự động — bạn cần tự kiểm tra và sửa tay cho từng dự án mới:
+Công cụ tự động hóa được phần lớn công việc. Các mục sau **đã được tự động hóa** (không cần sửa tay nữa, chỉ cần điền đúng dữ liệu Excel):
 
-- **Danh sách thành viên nhóm nghiên cứu trong file "00. QĐ Giao đề tài.docx":** File này vẫn giữ nguyên danh sách tên thành viên nhóm nghiên cứu từ mẫu cũ — công cụ **chưa** tự động cập nhật danh sách này theo các trường thành viên nhóm nghiên cứu bạn điền trong checklist Excel. Hãy mở file này và đối chiếu kỹ xem danh sách có khớp với nhóm nghiên cứu thực tế của dự án bạn không, trước khi gửi hồ sơ đi.
+- **Danh sách thành viên nhóm nghiên cứu** trong "00. QĐ Giao đề tài.docx" — tự điền từ B01 (chủ nhiệm) và B04–B20 (nghiên cứu viên).
+- **Phiếu chấm điểm nghiệm thu** — tự chọn đúng mẫu "TVCT_ĐGHQ" hoặc "TNLS" theo giá trị bạn điền ở A02.
+- **File CV chuyên gia đính kèm hồ sơ đạo đức** — tự copy đúng file theo tên khai ở F01 (xem mục 3.5).
+- **Mốc thời gian nghiên cứu** — tự tách mốc bắt đầu/kết thúc thật từ A05, không còn suy đại từ tháng 01 đến tháng 12 của năm thực hiện nữa.
 
-- **Phiếu chấm điểm nghiệm thu:** Công cụ luôn tạo ra bản "TVCT_ĐGHQ". Nếu kiểu nghiên cứu của dự án bạn (mã mục A02) là **"TNLS"** thay vì "TVCT_ĐGHQ", bạn cần tự thay thủ công đúng mẫu phiếu chấm điểm phù hợp.
+Vẫn còn một chỗ **chưa** tự động, cần tự kiểm tra/điền tay:
 
-- **File CV chuyên gia đính kèm hồ sơ đạo đức:** File CV hiện đang cố định là CV của một người cụ thể (theo mẫu COLOSTRUM cũ). Nếu dự án mới của bạn có chủ nhiệm đề tài khác, bạn cần tự thay file CV này bằng CV đúng người.
-
-- **Mốc thời gian nghiên cứu:** Các mốc thời gian dạng "01/2027 đến 12/2027" xuất hiện trong nhiều tài liệu được công cụ tự suy ra **chỉ từ trường năm thực hiện (A03)**, chứ không dựa vào nội dung mốc thời gian chi tiết hơn mà bạn có thể đã điền ở checklist (A05). Hãy kiểm tra kỹ xem tháng/ngày trong các tài liệu có đúng với thực tế dự án của bạn không.
-
-- **Các dấu "……" hoặc "20xx"/"20XX" còn sót lại:** Một số file có thể vẫn còn các chỗ đánh dấu chưa điền (ví dụ: ngày họp cụ thể, số quyết định...) cần bạn tự điền tay sau khi hồ sơ được tạo ra. Đây là tình trạng đã có từ quy trình cũ (script PowerShell) và chưa thay đổi trong công cụ này.
+- **Các dấu "……" còn sót lại:** Một số file có thể vẫn còn các chỗ đánh dấu chưa điền (ví dụ: ngày họp cụ thể, số quyết định...) cần bạn tự điền tay sau khi hồ sơ được tạo ra. Đây là tình trạng đã có từ quy trình cũ (script PowerShell) và chưa thay đổi trong công cụ này.
 
 ## 6. Về các script chạy một lần duy nhất
 
-Trong thư mục công cụ, có 2 file script sau:
+Trong thư mục công cụ, có các file script chạy một lần sau:
 - `migrate_add_partner_org.py`
+- `migrate_remove_template_config_sheet.py`
+- `migrate_fix_f01_cv_filename.py`
 - `convert_doc_templates.py`
 
-**Những script này chỉ cần chạy MỘT LẦN duy nhất** khi công cụ được thiết lập lần đầu. Bạn **KHÔNG** cần chạy lại chúng cho mỗi dự án mới.
+**Những script này chỉ cần chạy MỘT LẦN duy nhất** khi công cụ được thiết lập lần đầu (hoặc khi có hướng dẫn nâng cấp). Bạn **KHÔNG** cần chạy lại chúng cho mỗi dự án mới.
 
-Bạn chỉ cần chạy lại chúng nếu:
-- Bạn thêm các file mẫu `.doc` mới vào thư mục công cụ
-- Quản trị viên yêu cầu cập nhật cấu hình
+Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.1) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
 
 Nếu không chắc, hãy liên hệ với người tạo công cụ.
 
-### 6.1 Khi cần thêm một mẫu tài liệu hoàn toàn mới
+### 6.1 Quy ước đặt tên và tổ chức thư mục/file mẫu
 
-**Lưu ý:** Phần này dành cho người quản trị/lập trình viên của công cụ, không dành cho người dùng thông thường. Nếu bạn không rành Python, hãy liên hệ người tạo công cụ thay vì tự làm theo phần này.
+Toàn bộ 4 thư mục mẫu gốc ở thư mục gốc dự án (`01. Hồ sơ đạo đức đề cương - MẪU`, `02. Hồ sơ khoa học đề cương - MẪU`, `03. Công văn mời chuyên gia - MẪU`, `04. Hồ sơ nghiệm thu - MẪU`) đều theo **đúng một quy ước duy nhất**:
 
-Khác với việc chỉ đổi tên sheet Excel (mục 4), **thêm một loại tài liệu mẫu mới** (ví dụ thêm một file quyết định/biên bản mới chưa từng có trong bộ hồ sơ) không thể làm được chỉ bằng cách bỏ file `.doc`/`.docx` vào thư mục — công cụ không tự động dò tìm file mới. Cần sửa code theo đúng thứ tự sau:
+- **Tên thư mục** = `<STT>. <Tên phần hồ sơ đầu ra> - MẪU` (luôn có hậu tố `" - MẪU"` ở cuối).
+- **Tên file bên trong** phải **giống hệt 100%** tên file sẽ xuất hiện trong hồ sơ đầu ra (đúng từng chữ hoa/thường, không có tiền tố/hậu tố thừa như tên người, tên dự án cũ...).
+- **Mỗi thư mục "- MẪU" chỉ được chứa đúng những file sẽ copy vào hồ sơ đầu ra** — công cụ **tự quét** toàn bộ file `.docx` trong 4 thư mục này, không đọc danh sách khai báo từ Excel nữa (sheet "Cấu hình mẫu" đã bị xoá). File tham khảo/slide/PDF/biến thể không thuộc luồng chuẩn phải để ở thư mục riêng **`Tài liệu tham khảo (không dùng tạo hồ sơ)/`**, không được để lẫn trong 4 thư mục "- MẪU".
 
-1. **Đặt file mẫu mới** vào đúng thư mục mẫu tương ứng (ví dụ mẫu cho hồ sơ nghiệm thu thì đặt vào thư mục `04. Hồ sơ nghiệm thu\04. Hồ sơ nghiệm thu\`).
-2. **Nếu file gốc là `.doc`:** mở `convert_doc_templates.py`, thêm đường dẫn file mới vào danh sách `DOC_FILES`, rồi chạy lại script này (máy cần có cài Word) để tự động tạo ra bản `.docx` tương ứng bên cạnh file `.doc` gốc.
-3. **Đăng ký file mẫu để được copy vào hồ sơ đầu ra:** mở `tao_ho_so_moi.py`, thêm một dòng vào danh sách `COPIES` gồm cặp (đường dẫn file mẫu `.docx`, đường dẫn file đích trong bộ hồ sơ sẽ tạo ra).
-4. **Viết hàm điền dữ liệu cho mẫu mới:** mở file `section_*.py` tương ứng với phần hồ sơ đó (ví dụ `section_nghiem_thu.py` cho hồ sơ nghiệm thu), viết thêm một hàm `_ten_ham(session, dest_dir, info)` mở file `.docx` vừa copy và thay thế các chỗ giữ chỗ (tên đề tài, năm, tên chủ nhiệm, danh sách hội đồng...) bằng dữ liệu lấy từ `info` (đối tượng `ProjectInfo`). Sau đó gọi hàm này trong hàm `generate()` của file đó.
-5. **Nếu mẫu cần một trường dữ liệu chưa có trong checklist Excel:** phải thêm cột/ô mới vào file `Form checklist hồ sơ dự án.xlsx` (cả 2 sheet) và cập nhật `excel_reader.py` để đọc trường đó vào `ProjectInfo`.
-6. **Viết/cập nhật test:** nên thêm test tương ứng vào file `test_section_*.py` để đảm bảo thay đổi không làm hỏng các mẫu khác đang chạy tốt.
-7. **Chạy thử toàn bộ** `python tao_ho_so_moi.py` với một sheet Excel thử nghiệm để kiểm tra mẫu mới được điền đúng, trước khi dùng cho dự án thật.
+Nhờ quy ước này, đường dẫn **đích** trong bộ hồ sơ đầu ra luôn tự suy ra được từ đường dẫn **nguồn** — chỉ cần bỏ hậu tố `" - MẪU"` khỏi tên thư mục gốc, giữ nguyên phần còn lại. Ví dụ:
+
+```
+Nguồn: 01. Hồ sơ đạo đức đề cương - MẪU/00. QĐ Giao đề tài.docx
+Đích:  01. Hồ sơ đạo đức đề cương/00. QĐ Giao đề tài.docx
+```
+
+### 6.2 Khi cần thêm một mẫu tài liệu hoàn toàn mới
+
+Từ nay, công cụ **tự quét** 4 thư mục "- MẪU" để biết file nào cần chuyển `.doc` → `.docx` và file nào cần copy vào hồ sơ đầu ra — **không cần khai báo gì trong Excel nữa**. Thêm một loại tài liệu mẫu mới (ví dụ thêm một file quyết định/biên bản mới chưa từng có trong bộ hồ sơ) gồm các bước:
+
+1. **Đặt file mẫu mới** vào đúng thư mục mẫu tương ứng (ví dụ mẫu cho hồ sơ nghiệm thu thì đặt vào thư mục `04. Hồ sơ nghiệm thu - MẪU\`), và **đặt tên file đúng theo tên sẽ xuất hiện trong hồ sơ đầu ra** (xem quy ước mục 6.1). Xong bước này là công cụ **đã tự nhận ra** file để copy vào hồ sơ đầu ra — không cần sửa gì thêm ở Excel hay code cho việc copy.
+2. **Nếu file gốc là `.doc`:** cứ đặt file `.doc` đó vào đúng thư mục mẫu, rồi chạy `python convert_doc_templates.py` (máy cần có cài Word) — công cụ tự nhận ra file `.doc` nào chưa có bản `.docx` song song và tự tạo ra bản `.docx` tương ứng bên cạnh.
+3. **Viết hàm điền dữ liệu cho mẫu mới (cần biết lập trình):** mở file `section_*.py` tương ứng với phần hồ sơ đó (ví dụ `section_nghiem_thu.py` cho hồ sơ nghiệm thu), viết thêm một hàm `_ten_ham(session, dest_dir, info)` mở file `.docx` vừa copy và thay thế các chỗ giữ chỗ (tên đề tài, năm, tên chủ nhiệm, danh sách hội đồng...) bằng dữ liệu lấy từ `info` (đối tượng `ProjectInfo`). Sau đó gọi hàm này trong hàm `generate()` của file đó.
+4. **Nếu mẫu cần một trường dữ liệu chưa có trong checklist Excel:** phải thêm cột/ô mới vào các sheet đề tài của `Form checklist hồ sơ dự án.xlsx` và cập nhật `excel_reader.py` để đọc trường đó vào `ProjectInfo`.
+5. **Viết/cập nhật test:** nên thêm test tương ứng vào file `test_section_*.py` để đảm bảo thay đổi không làm hỏng các mẫu khác đang chạy tốt.
+6. **Chạy thử toàn bộ** `python tao_ho_so_moi.py` với một sheet Excel thử nghiệm để kiểm tra mẫu mới được điền đúng, trước khi dùng cho dự án thật.
+
+**Lưu ý:** Bước 1–2 (đặt file mẫu đúng chỗ, đúng tên) không cần biết lập trình. Nhưng bước 3 trở đi (điền dữ liệu vào mẫu) vẫn cần biết Python — nếu không rành, hãy liên hệ người tạo công cụ.
 
 ## 7. Xử lý lỗi thường gặp
 
@@ -206,6 +231,30 @@ Nếu gặp lỗi, bạn có thể tham khảo danh sách các lỗi phổ biế
 3. Điền dữ liệu đầy đủ
 4. Lưu Excel
 5. Chạy lại script
+
+### 7.2b Lỗi: Kiểu nghiên cứu (A02) không hợp lệ
+**Dấu hiệu:** Script báo lỗi kiểu: "Loại hình nghiên cứu 'xxx' (mã A02) không hợp lệ - chỉ chấp nhận ['TNLS', 'TVCT_ĐGHQ']"
+
+**Nguyên nhân:** Ô A02 bị gõ sai chính tả/khoảng trắng — công cụ dùng đúng giá trị này để tự chọn mẫu phiếu chấm điểm nghiệm thu.
+
+**Cách khắc phục:** Sửa ô A02 thành đúng một trong hai giá trị `TVCT_ĐGHQ` hoặc `TNLS` (không thêm khoảng trắng, đúng dấu), lưu Excel rồi chạy lại.
+
+### 7.2c Lỗi: Không đọc được mốc thời gian nghiên cứu (A05)
+**Dấu hiệu:** Script báo lỗi kiểu: "Không đọc được mốc thời gian nghiên cứu (A05) từ nội dung '...'"
+
+**Nguyên nhân:** Ô A05 không chứa đủ 2 mốc dạng `MM/YYYY`.
+
+**Cách khắc phục:** Sửa ô A05 theo đúng mẫu có 2 mốc `MM/YYYY`, ví dụ "Tháng 01/2027 đến tháng 12/2027", lưu Excel rồi chạy lại.
+
+### 7.2d Lỗi: Không tìm thấy file CV chuyên gia
+**Dấu hiệu:** Script báo lỗi kiểu: "Không tìm thấy file CV '...' (khai báo ở mã mục F01) trong thư mục 'CV chuyên gia/'"
+
+**Nguyên nhân:** Tên file khai ở ô F01 không khớp (kể cả sai một ký tự, hoa/thường, khoảng trắng) với tên file thật trong thư mục `CV chuyên gia/`, hoặc bạn quên đặt file CV vào đó.
+
+**Cách khắc phục:**
+1. Mở thư mục `CV chuyên gia/`, kiểm tra tên file CV thật
+2. Sửa ô F01 cho khớp chính xác tên file đó (hoặc đổi tên file cho khớp ô F01)
+3. Lưu Excel rồi chạy lại
 
 ### 7.3 Lỗi: File đang mở trong Word
 **Dấu hiệu:**

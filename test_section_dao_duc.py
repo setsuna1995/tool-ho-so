@@ -1,3 +1,4 @@
+import dataclasses
 import shutil
 from pathlib import Path
 
@@ -16,26 +17,21 @@ TITLE_OLD = (
     "tình trạng dinh dưỡng, miễn dịch, tiêu hóa và giấc ngủ của trẻ từ 24 đến 72 tháng tuổi"
 )
 
-SOURCE_DIR = paths.project_root() / "01. Hồ sơ đạo đức đề cương - mẫu COLOSTRUM"
+SOURCE_DIR = paths.project_root() / "01. Hồ sơ đạo đức đề cương - MẪU"
 FILES = [
     "00. QĐ Giao đề tài.docx",
     "01. QĐTLHĐ đạo đức đề cương.docx",
-    "02. BB họp HĐ đạo đức - KUN COLOSTRUM.docx",
+    "02. BB họp HĐ đạo đức.docx",
     "03. BB kiểm phiếu HĐ đạo đức.docx",
-    "04. Dr.Kun QĐ chấp nhận đạo đức.docx",
+    "04. QĐ chấp nhận đạo đức.docx",
     "Bảng kiểm đánh giá đạo đức.docx",
 ]
-RENAME_MAP = {
-    "02. BB họp HĐ đạo đức - KUN COLOSTRUM.docx": "02. BB họp HĐ đạo đức.docx",
-    "04. Dr.Kun QĐ chấp nhận đạo đức.docx": "04. QĐ chấp nhận đạo đức.docx",
-}
 
 
 @pytest.fixture()
 def dest_dir(tmp_path):
     for filename in FILES:
-        dst_name = RENAME_MAP.get(filename, filename)
-        shutil.copy2(SOURCE_DIR / filename, tmp_path / dst_name)
+        shutil.copy2(SOURCE_DIR / filename, tmp_path / filename)
     return tmp_path
 
 
@@ -69,3 +65,34 @@ def test_generate_replaces_title_everywhere(dest_dir, info):
         full_text = "\n".join(p.text for p in doc.paragraphs)
         assert info.title in full_text
         assert TITLE_OLD not in full_text
+
+
+def test_generate_writes_head_and_researchers_into_giao_de_tai(dest_dir, info):
+    session = word_writer.Session(force_backend="docx")
+    try:
+        section_dao_duc.generate(session, dest_dir, info, TITLE_OLD)
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "00. QĐ Giao đề tài.docx"))
+    unit_table = doc.tables[2]
+    head_cell_text = unit_table.cell(1, 2).text
+    members_cell_text = unit_table.cell(2, 2).text
+
+    assert f"{info.head.degree} {info.head.name}".strip() in head_cell_text
+    assert "Cử nhân HOÀNG HÀ LINH" not in members_cell_text
+    for researcher in info.researchers:
+        assert f"{researcher.degree} {researcher.name}".strip() in members_cell_text
+
+
+def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
+    custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
+    session = word_writer.Session(force_backend="docx")
+    try:
+        section_dao_duc.generate(session, dest_dir, custom_info, TITLE_OLD)
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "04. QĐ chấp nhận đạo đức.docx"))
+    full_text = "\n".join(p.text for p in doc.paragraphs)
+    assert "Từ 03/2027 đến 09/2028" in full_text

@@ -6,6 +6,11 @@ from excel_reader import ProjectInfo
 
 ROLES = ["Chủ tịch\rHội đồng", "Phản biện 1", "Phản biện 2", "Ủy viên", "Uỷ viên"]
 
+SCORING_FORM_FILENAMES = {
+    "TVCT_ĐGHQ": "Phiếu chấm điểm nghiệm thu (TVCT_ĐGHQ).docx",
+    "TNLS": "Phiếu chấm điểm nghiệm thu (TNLS).docx",
+}
+
 
 def generate(session: word_writer.Session, dest_dir: Path, info: ProjectInfo) -> None:
     _quyet_dinh_thanh_lap(session, dest_dir, info)
@@ -65,16 +70,30 @@ def _bb_kiem_phieu_nghiem_thu(session, dest_dir, info):
 def _qd_cong_nhan_ket_qua(session, dest_dir, info):
     doc = session.open(dest_dir / "12. Quyết định công nhận kết quả đề tài.docx")
     # Template nay dung "20XX" hoa o tieu de nhung "20xx" thuong o bang tieu de
-    # (khac voi cac file 9/10/11 dung "20xx" thuong nhat quan o moi noi) - can
-    # thay ca hai de dung tren backend docx (case-sensitive).
-    session.replace_text(doc, "20XX", str(info.year))
-    session.replace_text(doc, "20xx", str(info.year))
+    # (khac voi cac file 9/10/11 dung "20xx" thuong nhat quan o moi noi). Dung
+    # replace_text_any de thu ca 2 kieu chu va chi canh bao neu KHONG kieu nao
+    # khop - tren backend Word COM (khong phan biet hoa/thuong khi tim-thay),
+    # lan thay dau da xu ly ca hai nen goi rieng le se bao "khong tim thay" gia.
+    session.replace_text_any(doc, ["20XX", "20xx"], str(info.year))
     session.replace_text(doc, "“Tên đề tài”", f"“{info.title}”")
     session.save_close(doc)
 
 
 def _phieu_cham_diem_nghiem_thu(session, dest_dir, info):
-    doc = session.open(dest_dir / "Phiếu chấm điểm nghiệm thu (TVCT_ĐGHQ).docx")
+    if info.research_type not in SCORING_FORM_FILENAMES:
+        raise ValueError(
+            f"Loại hình nghiên cứu '{info.research_type}' (mã A02) không hợp lệ - "
+            f"chỉ chấp nhận {sorted(SCORING_FORM_FILENAMES)}"
+        )
+
+    selected_filename = SCORING_FORM_FILENAMES[info.research_type]
+    for research_type, filename in SCORING_FORM_FILENAMES.items():
+        if filename != selected_filename:
+            unused_path = dest_dir / filename
+            if unused_path.exists():
+                unused_path.unlink()
+
+    doc = session.open(dest_dir / selected_filename)
     session.replace_text(doc, "1. Tên đề tài: Tên đề tài", f"1. Tên đề tài: {info.title}")
     session.replace_text(doc, "Chủ nhiệm đề tài: Tên 1", f"Chủ nhiệm đề tài: {info.head.name}")
     session.save_close(doc)
