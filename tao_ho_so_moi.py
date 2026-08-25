@@ -1,5 +1,7 @@
 import io
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import openpyxl
@@ -84,6 +86,42 @@ def _sanitize_folder_name(name: str) -> str:
     return name
 
 
+def generate_all(root: Path, dest_root: Path, info, session: word_writer.Session) -> None:
+    """Tao toan bo ho so o mot thu muc tam local, roi moi copy nguyen bo vao dest_root.
+
+    Lam viec truc tiep tren thu muc dich khi no nam trong OneDrive/SharePoint de
+    dong bo de bi AutoSave/Protected View/khoa file cua OneDrive lam gian doan
+    thao tac COM cua Word giua chung - xu ly o thu muc tam local (khong dong bo)
+    roi copy file thuan (khong qua Word) vao dich se tranh duoc van de nay.
+    """
+    staging_root = Path(tempfile.mkdtemp(prefix="tao_ho_so_"))
+    try:
+        print("Dang sao chep file mau...")
+        copy_templates(root, staging_root)
+
+        print("Dang sao chep CV chu nhiem de tai...")
+        copy_head_cv(root, staging_root, info)
+
+        print("Dang sinh ho so dao duc...")
+        section_dao_duc.generate(session, staging_root / "01. Hồ sơ đạo đức đề cương", info, TITLE_OLD)
+
+        print("Dang sinh ho so khoa hoc de cuong...")
+        section_khoa_hoc.generate(session, staging_root / "02. Hồ sơ khoa học đề cương", info, TITLE_OLD)
+
+        print("Dang sinh cong van moi chuyen gia...")
+        section_moi_chuyen_gia.generate(session, staging_root / "03. Công văn mời chuyên gia", info, TITLE_OLD)
+
+        print("Dang sinh ho so nghiem thu...")
+        section_nghiem_thu.generate(session, staging_root / "04. Hồ sơ nghiệm thu", info)
+
+        shutil.copytree(staging_root, dest_root, dirs_exist_ok=True)
+    except Exception:
+        print(f"  [LUU Y] Cac file da xu ly tam thoi con luu tai: {staging_root} (de kiem tra loi)")
+        raise
+    else:
+        shutil.rmtree(staging_root, ignore_errors=True)
+
+
 def main() -> None:
     root = paths.project_root()
 
@@ -107,24 +145,8 @@ def main() -> None:
         dest_dir_name = f"Hồ sơ - {_sanitize_folder_name(info.title)} ({info.year})"
         dest_root = root / dest_dir_name
 
-        print(f"Dang sao chep file mau vao '{dest_dir_name}'...")
-        copy_templates(root, dest_root)
-
-        print("Dang sao chep CV chu nhiem de tai...")
-        copy_head_cv(root, dest_root, info)
-
         try:
-            print("Dang sinh ho so dao duc...")
-            section_dao_duc.generate(session, dest_root / "01. Hồ sơ đạo đức đề cương", info, TITLE_OLD)
-
-            print("Dang sinh ho so khoa hoc de cuong...")
-            section_khoa_hoc.generate(session, dest_root / "02. Hồ sơ khoa học đề cương", info, TITLE_OLD)
-
-            print("Dang sinh cong van moi chuyen gia...")
-            section_moi_chuyen_gia.generate(session, dest_root / "03. Công văn mời chuyên gia", info, TITLE_OLD)
-
-            print("Dang sinh ho so nghiem thu...")
-            section_nghiem_thu.generate(session, dest_root / "04. Hồ sơ nghiệm thu", info)
+            generate_all(root, dest_root, info, session)
         finally:
             session.quit()
 

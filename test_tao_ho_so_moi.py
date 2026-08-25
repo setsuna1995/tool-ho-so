@@ -5,6 +5,7 @@ import pytest
 import excel_reader
 import paths
 import tao_ho_so_moi
+import word_writer
 
 CHECKLIST_PATH = paths.project_root() / excel_reader.CHECKLIST_FILENAME
 SHEET_VIAM = "Đề tài - Bánh ăn dặm VIAM 2027"
@@ -75,3 +76,65 @@ def test_copy_head_cv_raises_clear_error_when_file_missing(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         tao_ho_so_moi.copy_head_cv(root, tmp_path, bad_info)
+
+
+def test_generate_all_stages_locally_then_copies_into_dest_root(tmp_path):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    dest_root = tmp_path / "Hồ sơ output"
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        tao_ho_so_moi.generate_all(root, dest_root, info, session)
+    finally:
+        session.quit()
+
+    assert (dest_root / "01. Hồ sơ đạo đức đề cương" / "00. QĐ Giao đề tài.docx").exists()
+    assert (dest_root / "04. Hồ sơ nghiệm thu" / "Phiếu chấm điểm nghiệm thu (TVCT_ĐGHQ).docx").exists()
+
+
+def test_generate_all_cleans_up_local_staging_dir_on_success(tmp_path, monkeypatch):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    dest_root = tmp_path / "Hồ sơ output"
+    staging_dir = tmp_path / "staging"
+
+    def fake_mkdtemp(prefix=None):
+        staging_dir.mkdir(exist_ok=True)
+        return str(staging_dir)
+
+    monkeypatch.setattr(tao_ho_so_moi.tempfile, "mkdtemp", fake_mkdtemp)
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        tao_ho_so_moi.generate_all(root, dest_root, info, session)
+    finally:
+        session.quit()
+
+    assert not staging_dir.exists()
+
+
+def test_generate_all_keeps_staging_dir_and_reports_path_on_failure(tmp_path, monkeypatch, capsys):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    bad_info = dataclasses.replace(info, head_cv_filename="không tồn tại.docx")
+    dest_root = tmp_path / "Hồ sơ output"
+    staging_dir = tmp_path / "staging"
+
+    def fake_mkdtemp(prefix=None):
+        staging_dir.mkdir(exist_ok=True)
+        return str(staging_dir)
+
+    monkeypatch.setattr(tao_ho_so_moi.tempfile, "mkdtemp", fake_mkdtemp)
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        with pytest.raises(FileNotFoundError):
+            tao_ho_so_moi.generate_all(root, dest_root, bad_info, session)
+    finally:
+        session.quit()
+
+    assert staging_dir.exists()
+    captured = capsys.readouterr()
+    assert str(staging_dir) in captured.out
+    assert not dest_root.exists()

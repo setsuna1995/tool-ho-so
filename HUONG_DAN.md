@@ -267,6 +267,17 @@ Nếu gặp lỗi, bạn có thể tham khảo danh sách các lỗi phổ biế
 1. Đóng tất cả các file Word đang mở
 2. Chạy lại script
 
+### 7.3b Lỗi COM chung chung khi công cụ nằm trong OneDrive/SharePoint đồng bộ
+**Dấu hiệu:** Script báo lỗi kiểu `(-2147352567, 'Exception occurred.', (0, 'Microsoft Word', 'Command failed', ...))`, thường ngay khi đang mở hoặc ghi vào một file `.docx` nào đó (thông báo lỗi mới sẽ cho biết rõ tên file và ô đang xử lý).
+
+**Nguyên nhân:** Nếu thư mục công cụ nằm trong một thư mục **đồng bộ OneDrive/SharePoint** (ví dụ đường dẫn có chữ "OneDrive"), tính năng AutoSave, chính sách Protected View của tài khoản Office 365 tổ chức, hoặc việc OneDrive đang khoá file để đồng bộ lên cloud có thể làm gián đoạn Word đang chạy ngầm (COM), gây ra lỗi chung chung này.
+
+**Công cụ đã tự xử lý phần lớn vấn đề này:** từ phiên bản hiện tại, toàn bộ việc mở/ghi/lưu bằng Word được thực hiện ở một **thư mục tạm hoàn toàn local** (không nằm trong OneDrive) — chỉ khi xong xuôi mới copy nguyên bộ hồ sơ vào đúng thư mục đích (thao tác copy file thuần, không qua Word). Nếu vẫn gặp lỗi này:
+1. Đọc kỹ thông báo lỗi mới — nó cho biết chính xác file/ô nào đang xử lý khi lỗi xảy ra, gửi lại thông tin này để được hỗ trợ tiếp
+2. Nếu lỗi xảy ra, các file dang dở sẽ được **giữ lại** ở một thư mục tạm (đường dẫn được in ra trong thông báo lỗi, dạng `...\AppData\Local\Temp\tao_ho_so_...`) để kiểm tra — thư mục đích trong OneDrive sẽ **không** bị tạo dở dang
+3. Thử tắt tạm AutoSave (thanh công cụ trên cùng cửa sổ Word, nút gạt "Lưu tự động") trước khi chạy script, rồi bật lại sau
+4. Nếu vẫn không được, thử tạm dừng đồng bộ OneDrive (click phải biểu tượng OneDrive ở khay hệ thống → "Pause syncing") trong lúc chạy script, rồi bật lại sau khi xong
+
 ### 7.4 Lỗi: Quá nhiều phản biện hoặc ủy viên
 **Dấu hiệu:**
 - Script báo lỗi kiểu: "Số thành viên hội đồng (7) không khớp số vai trò truyền vào (5)"
