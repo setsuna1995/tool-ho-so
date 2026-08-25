@@ -96,6 +96,18 @@ def test_replace_text_wildcard_strips_matched_text_on_docx_backend(tmp_path):
     assert "Cu nhan ABC" not in text
 
 
+def test_com_call_returns_action_result_on_success():
+    assert word_writer._com_call(lambda: 42, "ctx") == 42
+
+
+def test_com_call_wraps_exception_with_context():
+    def boom():
+        raise RuntimeError("boom goc")
+
+    with pytest.raises(RuntimeError, match="ngu canh loi: boom goc"):
+        word_writer._com_call(boom, "ngu canh loi")
+
+
 def test_replace_text_any_does_not_warn_when_one_candidate_matches(tmp_path, capsys):
     src = _make_paragraph_fixture(tmp_path, "Nam 20xx la nam thuc hien")
 

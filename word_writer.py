@@ -18,6 +18,18 @@ WD_REPLACE_ALL = 2
 WD_FORMAT_DOCX = 16
 
 
+def _com_call(action, context: str):
+    """Chạy `action` và bọc mọi exception với `context` để biết chính xác thao tác nào đang lỗi.
+
+    Word COM chỉ trả về mã lỗi chung chung (vd "Command failed") không nói rõ
+    đang thao tác ở file/ô nào - bọc lại giúp chẩn đoán nhanh hơn khi có lỗi.
+    """
+    try:
+        return action()
+    except Exception as e:
+        raise RuntimeError(f"{context}: {e}") from e
+
+
 def com_available() -> bool:
     if not _WIN32COM_IMPORTED:
         return False
@@ -87,7 +99,10 @@ class Session:
     def open(self, path: Path) -> OpenDoc:
         path = Path(path)
         if self.backend == "com":
-            handle = self._word.Documents.Open(str(path), False, False)
+            handle = _com_call(
+                lambda: self._word.Documents.Open(str(path), False, False),
+                f"Loi khi mo file '{path.name}' bang Word",
+            )
         else:
             handle = docx.Document(str(path))
         return OpenDoc(backend=self.backend, handle=handle, path=path)
@@ -96,14 +111,18 @@ class Session:
         self, doc: OpenDoc, find: str, replace: str, wildcards: bool = False, warn_if_missing: bool = True
     ) -> bool:
         if doc.backend == "com":
-            rng = doc.handle.Content
-            rng.Find.ClearFormatting()
-            found = bool(
-                rng.Find.Execute(
-                    find, False, False, wildcards, False, False, True,
-                    WD_FIND_WRAP_STOP, False, replace, WD_REPLACE_ALL,
+            def _do_find():
+                rng = doc.handle.Content
+                rng.Find.ClearFormatting()
+                return bool(
+                    rng.Find.Execute(
+                        find, False, False, wildcards, False, False, True,
+                        WD_FIND_WRAP_STOP, False, replace, WD_REPLACE_ALL,
+                    )
                 )
-            )
+
+            preview_ctx = find if len(find) <= 60 else find[:60] + "..."
+            found = _com_call(_do_find, f"Loi khi thay the '{preview_ctx}' trong file '{doc.path.name}'")
         else:
             found = _docx_replace_text(doc.handle, find, replace, wildcards)
 
@@ -133,14 +152,20 @@ class Session:
 
     def set_cell(self, doc: OpenDoc, table_index: int, row: int, col: int, text: str) -> None:
         if doc.backend == "com":
-            doc.handle.Tables.Item(table_index).Cell(row, col).Range.Text = text
+            _com_call(
+                lambda: setattr(doc.handle.Tables.Item(table_index).Cell(row, col).Range, "Text", text),
+                f"Loi khi ghi vao bang {table_index}, dong {row}, cot {col} trong file '{doc.path.name}'",
+            )
         else:
             doc.handle.tables[table_index - 1].cell(row - 1, col - 1).text = text
 
     def save_close(self, doc: OpenDoc) -> None:
         if doc.backend == "com":
-            doc.handle.Save()
-            doc.handle.Close()
+            def _do_save_close():
+                doc.handle.Save()
+                doc.handle.Close()
+
+            _com_call(_do_save_close, f"Loi khi luu/dong file '{doc.path.name}'")
         else:
             doc.handle.save(str(doc.path))
 
