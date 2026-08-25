@@ -161,6 +161,20 @@ Bạn chỉ cần chạy lại chúng nếu:
 
 Nếu không chắc, hãy liên hệ với người tạo công cụ.
 
+### 6.1 Khi cần thêm một mẫu tài liệu hoàn toàn mới
+
+**Lưu ý:** Phần này dành cho người quản trị/lập trình viên của công cụ, không dành cho người dùng thông thường. Nếu bạn không rành Python, hãy liên hệ người tạo công cụ thay vì tự làm theo phần này.
+
+Khác với việc chỉ đổi tên sheet Excel (mục 4), **thêm một loại tài liệu mẫu mới** (ví dụ thêm một file quyết định/biên bản mới chưa từng có trong bộ hồ sơ) không thể làm được chỉ bằng cách bỏ file `.doc`/`.docx` vào thư mục — công cụ không tự động dò tìm file mới. Cần sửa code theo đúng thứ tự sau:
+
+1. **Đặt file mẫu mới** vào đúng thư mục mẫu tương ứng (ví dụ mẫu cho hồ sơ nghiệm thu thì đặt vào thư mục `04. Hồ sơ nghiệm thu\04. Hồ sơ nghiệm thu\`).
+2. **Nếu file gốc là `.doc`:** mở `convert_doc_templates.py`, thêm đường dẫn file mới vào danh sách `DOC_FILES`, rồi chạy lại script này (máy cần có cài Word) để tự động tạo ra bản `.docx` tương ứng bên cạnh file `.doc` gốc.
+3. **Đăng ký file mẫu để được copy vào hồ sơ đầu ra:** mở `tao_ho_so_moi.py`, thêm một dòng vào danh sách `COPIES` gồm cặp (đường dẫn file mẫu `.docx`, đường dẫn file đích trong bộ hồ sơ sẽ tạo ra).
+4. **Viết hàm điền dữ liệu cho mẫu mới:** mở file `section_*.py` tương ứng với phần hồ sơ đó (ví dụ `section_nghiem_thu.py` cho hồ sơ nghiệm thu), viết thêm một hàm `_ten_ham(session, dest_dir, info)` mở file `.docx` vừa copy và thay thế các chỗ giữ chỗ (tên đề tài, năm, tên chủ nhiệm, danh sách hội đồng...) bằng dữ liệu lấy từ `info` (đối tượng `ProjectInfo`). Sau đó gọi hàm này trong hàm `generate()` của file đó.
+5. **Nếu mẫu cần một trường dữ liệu chưa có trong checklist Excel:** phải thêm cột/ô mới vào file `Form checklist hồ sơ dự án.xlsx` (cả 2 sheet) và cập nhật `excel_reader.py` để đọc trường đó vào `ProjectInfo`.
+6. **Viết/cập nhật test:** nên thêm test tương ứng vào file `test_section_*.py` để đảm bảo thay đổi không làm hỏng các mẫu khác đang chạy tốt.
+7. **Chạy thử toàn bộ** `python tao_ho_so_moi.py` với một sheet Excel thử nghiệm để kiểm tra mẫu mới được điền đúng, trước khi dùng cho dự án thật.
+
 ## 7. Xử lý lỗi thường gặp
 
 Nếu gặp lỗi, bạn có thể tham khảo danh sách các lỗi phổ biến dưới đây:
