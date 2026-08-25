@@ -85,6 +85,22 @@ def test_generate_writes_head_and_researchers_into_giao_de_tai(dest_dir, info):
         assert f"{researcher.degree} {researcher.name}".strip() in members_cell_text
 
 
+def test_generate_with_word_com_writes_head_without_raising(dest_dir, info):
+    if not word_writer.com_available():
+        pytest.skip("Can Word COM de chay test nay")
+
+    session = word_writer.Session(force_backend="com")
+    try:
+        section_dao_duc.generate(session, dest_dir, info, TITLE_OLD)
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "00. QĐ Giao đề tài.docx"))
+    unit_table = doc.tables[2]
+    head_cell_text = unit_table.cell(1, 2).text
+    assert f"{info.head.degree} {info.head.name}".strip() in head_cell_text
+
+
 def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
     custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
     session = word_writer.Session(force_backend="docx")

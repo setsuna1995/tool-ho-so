@@ -23,10 +23,10 @@ def _quyet_dinh_giao_de_tai(session, dest_dir, info, title_old):
 
     head_text = f"{info.head.degree} {info.head.name}".strip()
     head_org = f" - {info.head.org}" if info.head.org else ""
-    session.set_cell(doc, 3, 2, 3, f"Chủ nhiệm đề tài: \n{head_text}{head_org}.")
+    session.set_cell(doc, 3, 2, 3, f"Chủ nhiệm đề tài: \r{head_text}{head_org}.")
 
-    members_text = "\n".join(f"{p.degree} {p.name}".strip() for p in info.researchers)
-    session.set_cell(doc, 3, 3, 3, f"Thành viên thực hiện:\n{members_text}")
+    members_text = "\r".join(f"{p.degree} {p.name}".strip() for p in info.researchers)
+    session.set_cell(doc, 3, 3, 3, f"Thành viên thực hiện:\r{members_text}")
 
     session.save_close(doc)
 
