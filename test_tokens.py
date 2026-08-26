@@ -65,3 +65,15 @@ def test_build_common_tokens_fills_secretary_and_co_head_when_present():
     t = tokens.build_common_tokens(info)
     assert t["{{DONG_CHU_NHIEM_TEN}}"] == "Đồng chủ nhiệm B"
     assert t["{{THU_KY_DE_TAI}}"] == "ThS. Thư ký C"
+
+
+def test_build_common_tokens_blank_partner_org_is_empty_string():
+    info = _make_info(partner_org=None)
+    t = tokens.build_common_tokens(info)
+    assert t["{{DON_VI_DOI_TAC}}"] == ""
+
+
+def test_build_common_tokens_fills_partner_org_when_present():
+    info = _make_info(partner_org="Đại học Bách khoa Hà Nội")
+    t = tokens.build_common_tokens(info)
+    assert t["{{DON_VI_DOI_TAC}}"] == "Đại học Bách khoa Hà Nội"
