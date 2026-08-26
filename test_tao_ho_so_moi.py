@@ -59,6 +59,14 @@ def test_copy_templates_does_not_copy_archived_reference_files(tmp_path):
     assert not (tmp_path / "01. Hồ sơ đạo đức đề cương" / "Hồ sơ đạo đức COLOSTRUM .docx").exists()
 
 
+def test_copy_templates_does_not_copy_relocated_expert_cvs(tmp_path):
+    root = paths.project_root()
+
+    tao_ho_so_moi.copy_templates(root, tmp_path)
+
+    assert not (tmp_path / "CV chuyên gia").exists()
+
+
 def test_copy_head_cv_copies_file_named_in_f01(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)

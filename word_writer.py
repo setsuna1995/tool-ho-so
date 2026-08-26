@@ -16,6 +16,7 @@ import docx
 WD_FIND_WRAP_STOP = 0
 WD_REPLACE_ALL = 2
 WD_FORMAT_DOCX = 16
+WD_FORMAT_DOC = 0
 
 
 def _com_call(action, context: str):

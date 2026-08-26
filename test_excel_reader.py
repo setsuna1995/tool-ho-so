@@ -181,7 +181,6 @@ def test_read_expert_cvs_reads_declared_rows(tmp_path):
     assert codes["F03"].filename == "cv_thuky.docx"
 
 
-@pytest.mark.skip(reason="populated in Task 6")
 def test_real_checklist_expert_cvs_has_at_least_one_entry():
     data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
     assert len(data.expert_cvs) >= 1
