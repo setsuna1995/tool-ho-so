@@ -157,3 +157,31 @@ def test_missing_f01_cv_filename_raises_value_error(tmp_path):
 def test_real_checklist_head_cv_filename():
     data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
     assert data.head_cv_filename
+
+
+def test_read_expert_cvs_skips_blank_filename_rows(tmp_path):
+    path = _build_minimal_workbook(tmp_path)
+    data = excel_reader.load_project_data(path, "Test")
+    assert data.expert_cvs == []
+
+
+def test_read_expert_cvs_reads_declared_rows(tmp_path):
+    path = _build_minimal_workbook(
+        tmp_path,
+        overrides={
+            "F03": ("Thư ký C", "Thư ký Đề tài", "cv_thuky.docx"),
+            "F04": ("Chuyên gia D", "Ủy viên", "cv_d.docx"),
+        },
+    )
+    data = excel_reader.load_project_data(path, "Test")
+    codes = {e.code: e for e in data.expert_cvs}
+    assert set(codes) == {"F03", "F04"}
+    assert codes["F03"].name == "Thư ký C"
+    assert codes["F03"].role == "Thư ký Đề tài"
+    assert codes["F03"].filename == "cv_thuky.docx"
+
+
+@pytest.mark.skip(reason="populated in Task 6")
+def test_real_checklist_expert_cvs_has_at_least_one_entry():
+    data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    assert len(data.expert_cvs) >= 1

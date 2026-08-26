@@ -31,6 +31,14 @@ class Person:
 
 
 @dataclass
+class ExpertCvEntry:
+    code: str
+    name: str
+    role: str
+    filename: str
+
+
+@dataclass
 class CommitteeData:
     chair: Person
     reviewers: List[Person] = field(default_factory=list)
@@ -55,6 +63,7 @@ class ProjectInfo:
     proposal_committee: CommitteeData
     acceptance_committee: CommitteeData
     head_cv_filename: str
+    expert_cvs: List[ExpertCvEntry]
 
 
 def _build_code_index(ws) -> dict:
@@ -116,6 +125,28 @@ def parse_committee(ws, index: dict, prefix: str) -> CommitteeData:
     return CommitteeData(chair=chair, reviewers=reviewers, members=members, secretaries=secretaries)
 
 
+def read_expert_cvs(ws, index: dict) -> List[ExpertCvEntry]:
+    """Doc PHAN F, ma F02-F10 (F01 la CV chu nhiem, da co duong doc rieng bat buoc)."""
+    entries = []
+    for i in range(2, 11):
+        code = f"F{i:02d}"
+        row = index.get(code)
+        if row is None:
+            continue
+        filename = _cell_text(ws, row, 5)
+        if not filename:
+            continue
+        entries.append(
+            ExpertCvEntry(
+                code=code,
+                name=_cell_text(ws, row, 3),
+                role=_cell_text(ws, row, 4),
+                filename=filename,
+            )
+        )
+    return entries
+
+
 def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     wb = openpyxl.load_workbook(xlsx_path, data_only=True)
     ws = wb[sheet_name]
@@ -165,4 +196,5 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         proposal_committee=parse_committee(ws, index, "D"),
         acceptance_committee=parse_committee(ws, index, "E"),
         head_cv_filename=head_cv_filename,
+        expert_cvs=read_expert_cvs(ws, index),
     )
