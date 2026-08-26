@@ -168,3 +168,36 @@ def test_replace_text_wildcard_paragraph_mark_suffix_leaves_blank_paragraph(tmp_
     assert len(check.paragraphs) == 3
     text = "\n".join(p.text for p in check.paragraphs)
     assert "Cu nhan ABC" not in text
+
+
+def test_fill_tokens_replaces_every_present_token(tmp_path):
+    src = _make_paragraph_fixture(tmp_path, "De tai {{TEN_DE_TAI}}, nam {{NAM}}.")
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        doc = session.open(src)
+        filled = session.fill_tokens(doc, {"{{TEN_DE_TAI}}": "ABC", "{{NAM}}": "2027"})
+        session.save_close(doc)
+    finally:
+        session.quit()
+
+    assert filled == {"{{TEN_DE_TAI}}", "{{NAM}}"}
+    check = docx.Document(str(src))
+    text = "\n".join(p.text for p in check.paragraphs)
+    assert text == "De tai ABC, nam 2027."
+
+
+def test_fill_tokens_silently_skips_absent_tokens_without_warning(tmp_path, capsys):
+    src = _make_paragraph_fixture(tmp_path, "Chi co {{NAM}} o day.")
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        doc = session.open(src)
+        filled = session.fill_tokens(doc, {"{{NAM}}": "2027", "{{TEN_DE_TAI}}": "ABC"})
+        session.save_close(doc)
+    finally:
+        session.quit()
+
+    assert filled == {"{{NAM}}"}
+    captured = capsys.readouterr()
+    assert "CANH BAO" not in captured.out

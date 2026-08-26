@@ -150,6 +150,16 @@ class Session:
 
         return found_any
 
+    def fill_tokens(self, doc: OpenDoc, tokens: dict[str, str]) -> set[str]:
+        """Ap dung moi token trong `tokens` vao `doc`, bo qua lang le token nao khong co mat.
+
+        Khong phai template nao cung chua moi common token, nen luon goi voi
+        warn_if_missing=False - mot token bi go sai/xoa nham se hien nguyen van
+        '{{...}}' trong file .docx sinh ra, tu no da la dau hieu ro rang sai
+        khi xem lai bang mat, khong can dua vao canh bao console.
+        """
+        return {token for token, value in tokens.items() if self.replace_text(doc, token, value, warn_if_missing=False)}
+
     def set_cell(self, doc: OpenDoc, table_index: int, row: int, col: int, text: str) -> None:
         if doc.backend == "com":
             _com_call(
