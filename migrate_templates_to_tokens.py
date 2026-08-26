@@ -55,7 +55,7 @@ MIGRATIONS = {
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
         ("Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
         ("Cơ quan thực hiện đề tài:  Viện Y học ứng dụng Việt Nam.", f"Cơ quan thực hiện đề tài:  {TOKEN_DON_VI_CHU_TRI}."),
-        ("Địa điểm triển khai nghiên cứu: tỉnh Thái Nguyên.", f"Địa điểm triển khai nghiên cứu: {TOKEN_DIA_DIEM_TRIEN_KHAI}"),
+        ("Địa điểm triển khai nghiên cứu: tỉnh Thái Nguyên.", f"Địa điểm triển khai nghiên cứu: {TOKEN_DIA_DIEM_TRIEN_KHAI}."),
         (
             "Thời gian nghiên cứu: Từ 12/2024 đến 05/2024",
             f"Thời gian nghiên cứu: Từ {TOKEN_THOI_GIAN_BAT_DAU} đến {TOKEN_THOI_GIAN_KET_THUC}",
@@ -140,7 +140,10 @@ MIGRATIONS = {
     ],
     f"{NGHIEM_THU}/12. Quyết định công nhận kết quả đề tài.docx": [
         ("“Tên đề tài”", f"“{TOKEN_TEN_DE_TAI}”"),
-        ("20XX", TOKEN_NAM),
+        # Gop "20XX" va "20xx" thanh MOT entry: COM Find.Execute chay khong
+        # phan biet hoa/thuong (MatchCase=False), nen entry dau se da khop ca
+        # hai bien the chu hoa/thuong - entry thu hai se khong con gi de thay
+        # va lam apply_mapping bao RuntimeError.
         ("20xx", TOKEN_NAM),
     ],
     f"{NGHIEM_THU}/Phiếu chấm điểm nghiệm thu (TNLS).docx": [
@@ -168,7 +171,23 @@ MIGRATIONS = {
 
 
 def apply_mapping(path: Path, mapping: list) -> None:
-    session = word_writer.Session(force_backend="docx")
+    # Bat buoc dung backend COM: fallback docx dung _docx_replace_in_paragraph,
+    # ham nay ghi toan bo van ban moi vao run dau tien va xoa trang cac run con
+    # lai - lam mat dinh dang ky tu (bold/italic/font size) cua nhung doan van
+    # co nhieu run. COM's Find.Execute thay the tai cho va giu nguyen dinh dang
+    # cac phan khong bi thay, dung nhu cach sinh ho so o production
+    # (word_writer.Session() trong tao_ho_so_moi.py cung tu chon COM khi co
+    # Word). Khong cho phep am tham roi ve docx - phai bao loi ro rang.
+    session = word_writer.Session()
+    if session.backend != "com":
+        session.quit()
+        raise RuntimeError(
+            "Khong tim thay Word COM tren may nay - script nay BAT BUOC dung "
+            "backend COM de giu nguyen dinh dang ky tu (bold/italic/font size) "
+            "trong cac file mau khi migrate. Backend docx (fallback) se lam "
+            "phang dinh dang cua moi doan van bi thay the. Cai/mo Microsoft "
+            "Word roi chay lai."
+        )
     try:
         doc = session.open(path)
         for old_text, new_text in mapping:

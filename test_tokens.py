@@ -41,7 +41,7 @@ def test_build_common_tokens_maps_scalar_fields():
 def test_build_common_tokens_blank_research_location_falls_back_to_dots():
     info = _make_info(research_location=None)
     t = tokens.build_common_tokens(info)
-    assert t["{{DIA_DIEM_TRIEN_KHAI}}"] == "……………………………."
+    assert t["{{DIA_DIEM_TRIEN_KHAI}}"] == "……………………………"
 
 
 def test_build_common_tokens_uses_real_research_location_when_present():

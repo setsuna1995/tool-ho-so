@@ -1,6 +1,6 @@
 from excel_reader import ProjectInfo, parse_timeline
 
-DIA_DIEM_PLACEHOLDER = "……………………………."
+DIA_DIEM_PLACEHOLDER = "……………………………"
 
 
 def build_common_tokens(info: ProjectInfo) -> dict:
