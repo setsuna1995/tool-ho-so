@@ -86,6 +86,39 @@ def test_copy_head_cv_raises_clear_error_when_file_missing(tmp_path):
         tao_ho_so_moi.copy_head_cv(root, tmp_path, bad_info)
 
 
+def test_copy_expert_cvs_copies_every_declared_file(tmp_path):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+
+    tao_ho_so_moi.copy_expert_cvs(root, tmp_path, info)
+
+    dest_dir = tmp_path / "03. Công văn mời chuyên gia"
+    for entry in info.expert_cvs:
+        assert (dest_dir / entry.filename).exists()
+
+
+def test_copy_expert_cvs_raises_clear_error_when_file_missing(tmp_path):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    bad_entry = dataclasses.replace(info.expert_cvs[0], filename="không tồn tại.pdf")
+    bad_info = dataclasses.replace(info, expert_cvs=[bad_entry])
+
+    with pytest.raises(FileNotFoundError):
+        tao_ho_so_moi.copy_expert_cvs(root, tmp_path, bad_info)
+
+    assert not (tmp_path / "03. Công văn mời chuyên gia").exists()
+
+
+def test_copy_expert_cvs_does_nothing_when_list_is_empty(tmp_path):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    empty_info = dataclasses.replace(info, expert_cvs=[])
+
+    tao_ho_so_moi.copy_expert_cvs(root, tmp_path, empty_info)
+
+    assert not (tmp_path / "03. Công văn mời chuyên gia").exists()
+
+
 def test_generate_all_stages_locally_then_copies_into_dest_root(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
