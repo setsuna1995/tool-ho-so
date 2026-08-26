@@ -88,6 +88,9 @@ def copy_expert_cvs(root: Path, dest_root: Path, info) -> None:
                 f"{entry.name}) trong thư mục 'CV chuyên gia/'. Vui lòng đặt đúng file vào đó "
                 "hoặc sửa lại tên file trong checklist cho khớp."
             )
+
+    for entry in info.expert_cvs:
+        src = root / "CV chuyên gia" / entry.filename
         dst = dest_root / "03. Công văn mời chuyên gia" / entry.filename
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(src.read_bytes())

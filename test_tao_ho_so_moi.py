@@ -100,8 +100,9 @@ def test_copy_expert_cvs_copies_every_declared_file(tmp_path):
 def test_copy_expert_cvs_raises_clear_error_when_file_missing(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
-    bad_entry = dataclasses.replace(info.expert_cvs[0], filename="không tồn tại.pdf")
-    bad_info = dataclasses.replace(info, expert_cvs=[bad_entry])
+    good_entry = info.expert_cvs[0]
+    bad_entry = dataclasses.replace(info.expert_cvs[1], filename="không tồn tại.pdf")
+    bad_info = dataclasses.replace(info, expert_cvs=[good_entry, bad_entry])
 
     with pytest.raises(FileNotFoundError):
         tao_ho_so_moi.copy_expert_cvs(root, tmp_path, bad_info)
