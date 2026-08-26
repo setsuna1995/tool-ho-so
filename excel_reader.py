@@ -45,6 +45,7 @@ class ProjectInfo:
     year: int
     host_org: str
     partner_org: Optional[str]
+    research_location: Optional[str]
     timeline: str
     head: Person
     co_head: Optional[Person]
@@ -142,6 +143,7 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
             researchers.append(person)
 
     partner_org = _read_text(ws, index, "A06") if "A06" in index else ""
+    research_location = _read_text(ws, index, "A07") if "A07" in index else ""
 
     head_cv_filename = _cell_text(ws, index["F01"], 5) if "F01" in index else ""
     if not head_cv_filename:
@@ -153,6 +155,7 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         year=int(year_raw),
         host_org=_read_text(ws, index, "A04"),
         partner_org=partner_org or None,
+        research_location=research_location or None,
         timeline=_read_text(ws, index, "A05"),
         head=head,
         co_head=_read_person(ws, index, "B02"),

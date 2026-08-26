@@ -90,6 +90,18 @@ def test_optional_partner_org_is_none_when_blank():
     assert data.partner_org is None
 
 
+def test_research_location_is_none_when_field_absent(tmp_path):
+    path = _build_minimal_workbook(tmp_path)
+    data = excel_reader.load_project_data(path, "Test")
+    assert data.research_location is None
+
+
+def test_research_location_is_read_when_present(tmp_path):
+    path = _build_minimal_workbook(tmp_path, overrides={"A07": ("tỉnh Thái Bình", None, None)})
+    data = excel_reader.load_project_data(path, "Test")
+    assert data.research_location == "tỉnh Thái Bình"
+
+
 def test_ethics_committee_has_required_counts():
     data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
     c = data.ethics_committee
