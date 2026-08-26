@@ -55,7 +55,6 @@ class ProjectInfo:
     proposal_committee: CommitteeData
     acceptance_committee: CommitteeData
     head_cv_filename: str
-    expert_cvs: List[str] = field(default_factory=list)
 
 
 def _build_code_index(ws) -> dict:
@@ -166,5 +165,4 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         proposal_committee=parse_committee(ws, index, "D"),
         acceptance_committee=parse_committee(ws, index, "E"),
         head_cv_filename=head_cv_filename,
-        expert_cvs=[],
     )
