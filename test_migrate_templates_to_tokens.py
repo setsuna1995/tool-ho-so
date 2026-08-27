@@ -2,8 +2,17 @@ import shutil
 from pathlib import Path
 
 import docx
+import pytest
 
 import migrate_templates_to_tokens as migrate
+import word_writer
+
+# apply_mapping BAT BUOC dung backend COM (xem chu thich trong ham do), nen ca
+# hai test duoi day can Word tren may. Theo dung quy uoc san co cua repo cho
+# test phu thuoc COM - xem test_convert_doc_templates.py.
+pytestmark = pytest.mark.skipif(
+    not word_writer.com_available(), reason="Can Word COM de chay test nay"
+)
 
 
 def test_apply_mapping_replaces_old_text_with_token(tmp_path):
