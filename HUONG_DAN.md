@@ -236,7 +236,13 @@ Công cụ hỗ trợ dropdown tự động để chọn tên nhân sự và aut
 
 - Khi bạn click vào ô column C (tên nhân sự) trong bất kỳ dòng người nào ở sheet dự án, bạn sẽ thấy một dropdown danh sách chọn tên
 - Khi bạn chọn một tên từ dropdown, column D (học hàm) và column E (đơn vị) sẽ **tự động điền** dữ liệu tương ứng từ sheet `_NhanSu` thông qua công thức VLOOKUP
-- Nếu người dùng muốn sửa đơi học hàm/đơn vị riêng cho dự án này (khác với trong `_NhanSu`), họ có thể click vào ô đó và gõ trực tiếp — công thức sẽ được giữ lại, chỉ giá trị hiển thị sẽ thay đổi
+
+**Quan trọng — Cột D/E là cột dẫn xuất, không phải ô nhập tay:**
+
+- Column D (học hàm) và E (đơn vị) được **quản lý bởi công thức VLOOKUP**, không phải ô để nhập tay
+- Nếu bạn click vào ô D hoặc E và gõ một giá trị tay, giá trị đó sẽ **thay thế công thức** (công thức sẽ bị xóa vĩnh viễn)
+- Nếu bạn chạy lại script `capnhat_nhan_su.bat` sau đó (ví dụ: sau khi thêm người mới vào `_NhanSu`), **công thức VLOOKUP sẽ được viết lại**, ghi đè lên bất kỳ giá trị tay nào bạn đã nhập — những sửa đổi tay sẽ bị mất
+- **Cách đúng để sửa thông tin:** Nếu một người cần có học hàm/đơn vị khác với những người khác có cùng tên, hãy sửa trực tiếp trong sheet `_NhanSu` (cột B, C), không phải gõ trong ô D/E của sheet dự án
 
 **Lưu ý quan trọng về công thức Excel và cached values:**
 
