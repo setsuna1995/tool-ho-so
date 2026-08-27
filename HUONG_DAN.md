@@ -189,16 +189,9 @@ Nguồn: 01. Hồ sơ đạo đức đề cương - MẪU/00. QĐ Giao đề tà
 
 ### 6.2 Khi cần thêm một mẫu tài liệu hoàn toàn mới
 
-Từ nay, công cụ **tự quét** 4 thư mục "- MẪU" để biết file nào cần chuyển `.doc` → `.docx` và file nào cần copy vào hồ sơ đầu ra — **không cần khai báo gì trong Excel nữa**. Thêm một loại tài liệu mẫu mới (ví dụ thêm một file quyết định/biên bản mới chưa từng có trong bộ hồ sơ) gồm các bước:
-
-1. **Đặt file mẫu mới** vào đúng thư mục mẫu tương ứng (ví dụ mẫu cho hồ sơ nghiệm thu thì đặt vào thư mục `04. Hồ sơ nghiệm thu - MẪU\`), và **đặt tên file đúng theo tên sẽ xuất hiện trong hồ sơ đầu ra** (xem quy ước mục 6.1). Xong bước này là công cụ **đã tự nhận ra** file để copy vào hồ sơ đầu ra — không cần sửa gì thêm ở Excel hay code cho việc copy.
-2. **Nếu file gốc là `.doc`:** cứ đặt file `.doc` đó vào đúng thư mục mẫu, rồi chạy `python convert_doc_templates.py` (máy cần có cài Word) — công cụ tự nhận ra file `.doc` nào chưa có bản `.docx` song song và tự tạo ra bản `.docx` tương ứng bên cạnh.
-3. **Viết hàm điền dữ liệu cho mẫu mới (cần biết lập trình):** mở file `section_*.py` tương ứng với phần hồ sơ đó (ví dụ `section_nghiem_thu.py` cho hồ sơ nghiệm thu), viết thêm một hàm `_ten_ham(session, dest_dir, info)` mở file `.docx` vừa copy và thay thế các chỗ giữ chỗ (tên đề tài, năm, tên chủ nhiệm, danh sách hội đồng...) bằng dữ liệu lấy từ `info` (đối tượng `ProjectInfo`). Sau đó gọi hàm này trong hàm `generate()` của file đó.
-4. **Nếu mẫu cần một trường dữ liệu chưa có trong checklist Excel:** phải thêm cột/ô mới vào các sheet đề tài của `Form checklist hồ sơ dự án.xlsx` và cập nhật `excel_reader.py` để đọc trường đó vào `ProjectInfo`.
-5. **Viết/cập nhật test:** nên thêm test tương ứng vào file `test_section_*.py` để đảm bảo thay đổi không làm hỏng các mẫu khác đang chạy tốt.
-6. **Chạy thử toàn bộ** `python tao_ho_so_moi.py` với một sheet Excel thử nghiệm để kiểm tra mẫu mới được điền đúng, trước khi dùng cho dự án thật.
-
-**Lưu ý:** Bước 1–2 (đặt file mẫu đúng chỗ, đúng tên) không cần biết lập trình. Nhưng bước 3 trở đi (điền dữ liệu vào mẫu) vẫn cần biết Python — nếu không rành, hãy liên hệ người tạo công cụ.
+Xem hướng dẫn chi tiết tại [`HUONG_DAN_LAM_MAU_MOI.md`](HUONG_DAN_LAM_MAU_MOI.md)
+— quy trình đã đổi sang dùng token `{{TEN_BIEN}}` thay vì tìm-thay theo câu
+chữ mẫu cũ.
 
 ## 7. Xử lý lỗi thường gặp
 
