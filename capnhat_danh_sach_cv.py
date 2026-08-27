@@ -11,6 +11,10 @@ TEMPLATE_SHEET = "Đề tài - Mẫu trắng dự án mới"
 LISTS_SHEET = "_Lists"
 RESEARCH_TYPES = ["TVCT_ĐGHQ", "TNLS"]
 
+# Ky tu dau ten file co the khien Excel doc nham thanh cong thuc thay vi chuoi
+# van ban (Excel/CSV formula injection) - ep kieu du lieu ve chuoi de vo hieu hoa.
+FORMULA_TRIGGER_CHARS = ("=", "+", "-", "@")
+
 
 def _refresh_lists_sheet(wb, cv_filenames: list) -> int:
     if LISTS_SHEET in wb.sheetnames:
@@ -18,7 +22,9 @@ def _refresh_lists_sheet(wb, cv_filenames: list) -> int:
     ws = wb.create_sheet(LISTS_SHEET)
     ws.sheet_state = "hidden"
     for i, name in enumerate(sorted(cv_filenames), start=1):
-        ws.cell(row=i, column=1, value=name)
+        cell = ws.cell(row=i, column=1, value=name)
+        if name.startswith(FORMULA_TRIGGER_CHARS):
+            cell.data_type = "s"
     return len(cv_filenames)
 
 
@@ -40,6 +46,12 @@ def _build_code_index(ws) -> dict:
 
 
 def refresh(checklist_path: Path = CHECKLIST_PATH, cv_dir: Path = CV_DIR) -> None:
+    if not cv_dir.is_dir():
+        raise FileNotFoundError(
+            f"Không tìm thấy thư mục '{cv_dir.name}/' ở thư mục gốc công cụ. "
+            "Vui lòng kiểm tra lại tên thư mục có bị đổi tên hoặc xoá nhầm không, "
+            "tạo lại đúng thư mục này rồi chạy lại."
+        )
     cv_filenames = [p.name for p in cv_dir.iterdir() if p.is_file()]
 
     wb = openpyxl.load_workbook(checklist_path)

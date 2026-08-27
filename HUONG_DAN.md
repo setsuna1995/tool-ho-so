@@ -76,6 +76,8 @@ Công cụ tự động đính kèm CV chủ nhiệm đề tài vào hồ sơ đ
 
 Nếu tên file trong F01 không khớp file nào trong thư mục `CV chuyên gia/`, script sẽ báo lỗi rõ ràng ngay khi chạy, kèm hướng dẫn khắc phục.
 
+Ngoài chủ nhiệm đề tài, nếu dự án có thêm chuyên gia cần đính kèm CV (ví dụ chuyên gia mời họp, cộng tác viên...), khai báo ở **PHẦN F, các mã mục F02–F10**: mỗi dòng gồm tên chuyên gia, vai trò và tên file CV (cột "TÊN FILE CV", ghi giống hệt tên file bạn đặt trong thư mục `CV chuyên gia/`). Dòng nào để trống tên file thì công cụ bỏ qua, không bắt buộc phải điền hết cả 9 dòng. Với mỗi dòng có khai tên file, công cụ (hàm `copy_expert_cvs`) sẽ tự copy đúng file đó vào thư mục `03. Công văn mời chuyên gia` của hồ sơ đầu ra — giống cách F01 hoạt động ở trên, chỉ khác là copy vào thư mục khác.
+
 ### 3.5 Lưu file Excel
 - Nhấn **Ctrl + S** để lưu
 
@@ -153,6 +155,7 @@ Công cụ tự động hóa được phần lớn công việc. Các mục sau 
 - **Phiếu chấm điểm nghiệm thu** — tự chọn đúng mẫu "TVCT_ĐGHQ" hoặc "TNLS" theo giá trị bạn điền ở A02.
 - **File CV chuyên gia đính kèm hồ sơ đạo đức** — tự copy đúng file theo tên khai ở F01 (xem mục 3.5).
 - **Mốc thời gian nghiên cứu** — tự tách mốc bắt đầu/kết thúc thật từ A05, không còn suy đại từ tháng 01 đến tháng 12 của năm thực hiện nữa.
+- **Địa điểm triển khai nghiên cứu** — tự điền từ A07 vào các mẫu cần đến; nếu A07 để trống, mẫu giữ nguyên dấu "……" để điền tay như trước.
 
 Vẫn còn một chỗ **chưa** tự động, cần tự kiểm tra/điền tay:
 
@@ -162,17 +165,36 @@ Vẫn còn một chỗ **chưa** tự động, cần tự kiểm tra/điền tay
 
 Trong thư mục công cụ, có các file script chạy một lần sau:
 - `migrate_add_partner_org.py`
+- `migrate_add_research_location.py`
 - `migrate_remove_template_config_sheet.py`
 - `migrate_fix_f01_cv_filename.py`
 - `convert_doc_templates.py`
 
 **Những script này chỉ cần chạy MỘT LẦN duy nhất** khi công cụ được thiết lập lần đầu (hoặc khi có hướng dẫn nâng cấp). Bạn **KHÔNG** cần chạy lại chúng cho mỗi dự án mới.
 
-Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.1) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
+Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.2) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
 
 Nếu không chắc, hãy liên hệ với người tạo công cụ.
 
-### 6.1 Quy ước đặt tên và tổ chức thư mục/file mẫu
+### 6.1 Script cần chạy LẠI mỗi khi đổi danh sách CV chuyên gia
+
+Khác với các script một-lần ở trên, `capnhat_danh_sach_cv.bat` (chạy
+`capnhat_danh_sach_cv.py`) là script bạn cần chạy **lại mỗi khi** thêm, xoá
+hoặc đổi tên file trong thư mục `CV chuyên gia/`. Nó cập nhật lại danh sách
+dropdown chọn "TÊN FILE CV" (cột F01, F02–F10) trong Excel checklist, để
+dropdown luôn khớp với các file CV thật đang có trong thư mục.
+
+Cách chạy: double-click `capnhat_danh_sach_cv.bat` trong thư mục công cụ,
+đợi đến khi thấy dòng "Da cap nhat...", rồi đóng cửa sổ Terminal.
+
+**Lưu ý:** việc cập nhật này chỉ áp dụng cho sheet mẫu trắng
+`Đề tài - Mẫu trắng dự án mới`. Nếu bạn đã **copy** sheet mẫu trắng thành
+sheet dự án mới (xem mục 3.2) **trước khi** chạy cập nhật, sheet dự án đó
+vẫn giữ nguyên dropdown cũ tại thời điểm copy — hãy chạy
+`capnhat_danh_sach_cv.bat` **trước** khi tạo sheet dự án mới nếu muốn
+dropdown của sheet mới là danh sách CV mới nhất.
+
+### 6.2 Quy ước đặt tên và tổ chức thư mục/file mẫu
 
 Toàn bộ 4 thư mục mẫu gốc ở thư mục gốc dự án (`01. Hồ sơ đạo đức đề cương - MẪU`, `02. Hồ sơ khoa học đề cương - MẪU`, `03. Công văn mời chuyên gia - MẪU`, `04. Hồ sơ nghiệm thu - MẪU`) đều theo **đúng một quy ước duy nhất**:
 
@@ -187,7 +209,7 @@ Nguồn: 01. Hồ sơ đạo đức đề cương - MẪU/00. QĐ Giao đề tà
 Đích:  01. Hồ sơ đạo đức đề cương/00. QĐ Giao đề tài.docx
 ```
 
-### 6.2 Khi cần thêm một mẫu tài liệu hoàn toàn mới
+### 6.3 Khi cần thêm một mẫu tài liệu hoàn toàn mới
 
 Xem hướng dẫn chi tiết tại [`HUONG_DAN_LAM_MAU_MOI.md`](HUONG_DAN_LAM_MAU_MOI.md)
 — quy trình đã đổi sang dùng token `{{TEN_BIEN}}` thay vì tìm-thay theo câu
@@ -242,11 +264,16 @@ Nếu gặp lỗi, bạn có thể tham khảo danh sách các lỗi phổ biế
 ### 7.2d Lỗi: Không tìm thấy file CV chuyên gia
 **Dấu hiệu:** Script báo lỗi kiểu: "Không tìm thấy file CV '...' (khai báo ở mã mục F01) trong thư mục 'CV chuyên gia/'"
 
-**Nguyên nhân:** Tên file khai ở ô F01 không khớp (kể cả sai một ký tự, hoa/thường, khoảng trắng) với tên file thật trong thư mục `CV chuyên gia/`, hoặc bạn quên đặt file CV vào đó.
+Nếu file CV thiếu là của một chuyên gia khai ở PHẦN F (F02–F10, xem mục 3.4)
+thay vì của chủ nhiệm đề tài, lỗi có dạng tương tự nhưng nêu đúng mã mục và
+tên chuyên gia đó, ví dụ: "Không tìm thấy file CV '...' (khai báo ở mã mục
+F04 - Nguyễn Văn A) trong thư mục 'CV chuyên gia/'".
+
+**Nguyên nhân:** Tên file khai ở ô F01 (hoặc F02–F10) không khớp (kể cả sai một ký tự, hoa/thường, khoảng trắng) với tên file thật trong thư mục `CV chuyên gia/`, hoặc bạn quên đặt file CV vào đó.
 
 **Cách khắc phục:**
 1. Mở thư mục `CV chuyên gia/`, kiểm tra tên file CV thật
-2. Sửa ô F01 cho khớp chính xác tên file đó (hoặc đổi tên file cho khớp ô F01)
+2. Sửa ô F01 (hoặc mã mục F02–F10 được nêu trong thông báo lỗi) cho khớp chính xác tên file đó (hoặc đổi tên file cho khớp)
 3. Lưu Excel rồi chạy lại
 
 ### 7.3 Lỗi: File đang mở trong Word

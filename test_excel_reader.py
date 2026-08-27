@@ -160,7 +160,7 @@ def test_real_checklist_head_cv_filename():
 
 
 def test_read_expert_cvs_skips_blank_filename_rows(tmp_path):
-    path = _build_minimal_workbook(tmp_path)
+    path = _build_minimal_workbook(tmp_path, overrides={"F03": ("Tên", "Vai trò", None)})
     data = excel_reader.load_project_data(path, "Test")
     assert data.expert_cvs == []
 

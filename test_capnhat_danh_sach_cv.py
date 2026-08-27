@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import openpyxl
+import pytest
 from openpyxl.worksheet.datavalidation import DataValidation
 
 import capnhat_danh_sach_cv as refresh
@@ -97,3 +98,24 @@ def test_refresh_does_not_delete_unrelated_validation_on_superstring_cell(tmp_pa
 
     a02_validations = [dv for dv in ws.data_validations.dataValidation if "C7" in str(dv.sqref).split()]
     assert len(a02_validations) == 1
+
+
+def test_refresh_raises_clear_error_when_cv_dir_missing(tmp_path):
+    checklist_path, cv_dir = _make_checklist(tmp_path, ["a.docx"])
+    missing_cv_dir = tmp_path / "khong ton tai"
+
+    with pytest.raises(FileNotFoundError, match="Không tìm thấy thư mục"):
+        refresh.refresh(checklist_path, missing_cv_dir)
+
+
+def test_refresh_writes_formula_looking_filename_as_inert_text(tmp_path):
+    """Mot file ten "=1+1.docx" khong duoc de Excel doc nham thanh cong thuc
+    khi mo lai sheet _Lists - phai la van ban that, khong phai formula."""
+    checklist_path, cv_dir = _make_checklist(tmp_path, ["=1+1.docx"])
+
+    refresh.refresh(checklist_path, cv_dir)
+
+    wb = openpyxl.load_workbook(checklist_path)
+    cell = wb["_Lists"]["A1"]
+    assert cell.value == "=1+1.docx"
+    assert cell.data_type == "s"

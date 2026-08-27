@@ -146,6 +146,7 @@ def test_generate_all_copies_expert_cvs_into_output(tmp_path):
     finally:
         session.quit()
 
+    assert info.expert_cvs
     for entry in info.expert_cvs:
         assert (dest_root / "03. Công văn mời chuyên gia" / entry.filename).exists()
 

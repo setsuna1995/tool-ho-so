@@ -37,6 +37,16 @@ def info():
     return excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
 
 
+def _available_backends():
+    backends = ["docx"]
+    if word_writer.com_available():
+        backends.append("com")
+    return backends
+
+
+BACKENDS = _available_backends()
+
+
 def test_generate_fixes_ethics_secretary_org(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
@@ -50,8 +60,9 @@ def test_generate_fixes_ethics_secretary_org(dest_dir, info):
     assert secretary_table.cell(0, 1).text.strip() == "Trung tâm NCKH - Viện VIAM"
 
 
-def test_generate_replaces_title_everywhere(dest_dir, info):
-    session = word_writer.Session(force_backend="docx")
+@pytest.mark.parametrize("backend", BACKENDS)
+def test_generate_replaces_title_everywhere(dest_dir, info, backend):
+    session = word_writer.Session(force_backend=backend)
     try:
         section_dao_duc.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
