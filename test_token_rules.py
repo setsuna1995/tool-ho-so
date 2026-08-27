@@ -2,7 +2,9 @@
 import openpyxl
 import pytest
 
+import paths
 import token_rules
+import excel_reader
 
 
 def _code_index(ws):
@@ -139,3 +141,23 @@ def test_resolve_tokens_missing_tokens_sheet_returns_empty_dict(tmp_path):
     ws2 = wb2["Đề tài - Test"]
     result = token_rules.resolve_tokens(wb2, ws2, _code_index(ws2))
     assert result == {}
+
+
+CHECKLIST_PATH = paths.project_root() / excel_reader.CHECKLIST_FILENAME
+SHEET_VIAM = "Đề tài - Bánh ăn dặm VIAM 2027"
+
+
+def test_real_checklist_resolves_new_and_existing_tokens_correctly():
+    import excel_reader as er
+
+    data = er.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+
+    assert data.common_tokens["{{CHU_NHIEM_HO_TEN}}"] == f"{data.head.degree} {data.head.name}".strip()
+    assert data.common_tokens["{{DONG_CHU_NHIEM_HO_TEN}}"] == (
+        f"{data.co_head.degree} {data.co_head.name}".strip() if data.co_head else ""
+    )
+    assert data.common_tokens["{{THU_KY_DE_TAI}}"] == (
+        f"{data.project_secretary.degree} {data.project_secretary.name}".strip()
+        if data.project_secretary
+        else ""
+    )
