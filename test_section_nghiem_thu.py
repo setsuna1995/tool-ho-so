@@ -63,6 +63,32 @@ def test_generate_uses_dynamic_member_count_not_hardcoded_05(dest_dir, info):
     assert "là 05 người" in full_text
 
 
+def test_generate_writes_acceptance_committee_chair_name(dest_dir, info):
+    session = word_writer.Session(force_backend="docx")
+    try:
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "10. Biên bản họp HĐ nghiệm thu.docx"))
+    full_text = "\n".join(p.text for p in doc.paragraphs)
+    assert info.acceptance_committee.chair.name in full_text
+    assert "Tên 3" not in full_text
+
+
+def test_generate_writes_secretary_name_without_degree_in_payment_slip(dest_dir, info):
+    session = word_writer.Session(force_backend="docx")
+    try:
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "Phiếu ký nhận tiền.docx"))
+    secretary = info.acceptance_committee.secretaries[0]
+    cell_text = doc.tables[1].cell(6, 1).text.strip()
+    assert cell_text == secretary.name
+
+
 def test_generate_replaces_both_year_cases_without_false_warning(dest_dir, info, capsys):
     session = word_writer.Session(force_backend="docx")
     try:

@@ -37,6 +37,12 @@ def _quyet_dinh_thanh_lap(session, dest_dir, info, common_tokens):
 def _bb_hop_hd_nghiem_thu(session, dest_dir, info, common_tokens):
     doc = session.open(dest_dir / "10. Biên bản họp HĐ nghiệm thu.docx")
     session.fill_tokens(doc, common_tokens)
+    chair = info.acceptance_committee.chair
+    session.replace_text(
+        doc,
+        "Tên 3 - Chủ tịch Hội đồng điều khiển phiên họp",
+        f"{chair.name} - Chủ tịch Hội đồng điều khiển phiên họp",
+    )
     member_count = committee_writer.roster_size(info.acceptance_committee)
     session.replace_text(
         doc,
@@ -81,7 +87,7 @@ def _phieu_ky_nhan_tien(session, dest_dir, info, common_tokens):
     doc = session.open(dest_dir / "Phiếu ký nhận tiền.docx")
     session.fill_tokens(doc, common_tokens)
     secretary = info.acceptance_committee.secretaries[0]
-    session.set_cell(doc, 2, 7, 2, f"{secretary.degree} {secretary.name}".strip())
+    session.set_cell(doc, 2, 7, 2, secretary.name)
     session.save_close(doc)
 
 
