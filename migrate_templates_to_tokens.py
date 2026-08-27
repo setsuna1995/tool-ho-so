@@ -32,6 +32,18 @@ NGHIEM_THU = "04. Hồ sơ nghiệm thu - MẪU"
 # cau khac), nen neu chay truoc, no se "an" mat chuoi cu the ma cac ham
 # generate() trong section_*.py (Task 9) con tim bang session.replace_text()
 # sau nay, khien cau do khong con duoc dien du lieu (loi am tham, khong crash).
+#
+# QUAN TRONG ve pham vi tim-thay cua tung entry ("neo nhan" vs "chi gia tri"):
+# Mot so entry chi tim-thay CHI GIA TRI (vd "Ts. Bs. Trương Hồng Sơn") thay vi
+# ca cum "Nhan: Gia tri" - dieu nay CHI an toan khi gia tri do xuat hien DUY
+# NHAT MOT LAN trong toan bo file (kiem tra bang script rieng, xem bao cao
+# Task 8 fix round 3). Khi gia tri xuat hien nhieu hon 1 lan trong file (vd
+# "Viện Y học ứng dụng Việt Nam" lap lai o letterhead/chu ky), entry PHAI giu
+# nguyen dang neo nhan ("Nhan: Gia tri") de tranh thay nham nhung cho khac -
+# viec nay lam nhan bi mat dinh dang rieng (vd chu dam) trong bang nay, nhung
+# do la dong bo da co tu truoc khi Task 8 chay (code section_*.py cu da tung
+# thay ca cum "Nhan: Gia tri" nay qua COM khi sinh ho so, nen no CHUA BAO GIO
+# giu duoc dinh dang rieng cho nhan - khong phai loi Task 8 gay ra).
 MIGRATIONS = {
     f"{DAO_DUC}/00. QĐ Giao đề tài.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
@@ -43,17 +55,21 @@ MIGRATIONS = {
     ],
     f"{DAO_DUC}/02. BB họp HĐ đạo đức.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 3 lan trong file nay - giu
+        # dang neo nhan.
         ("Cơ quan thực hiện đề tài: Viện Y học ứng dụng Việt Nam", f"Cơ quan thực hiện đề tài: {TOKEN_DON_VI_CHU_TRI}"),
     ],
     f"{DAO_DUC}/03. BB kiểm phiếu HĐ đạo đức.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("Chủ nhiệm: Ts. Bs. Trương Hồng Sơn", f"Chủ nhiệm: {TOKEN_CHU_NHIEM_HO_TEN}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
         ("2024", TOKEN_NAM),
     ],
     f"{DAO_DUC}/04. QĐ chấp nhận đạo đức.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 7 lan trong file nay (khong
+        # chi trong dong "Co quan thuc hien de tai") - giu dang neo nhan.
         ("Cơ quan thực hiện đề tài:  Viện Y học ứng dụng Việt Nam.", f"Cơ quan thực hiện đề tài:  {TOKEN_DON_VI_CHU_TRI}."),
         ("Địa điểm triển khai nghiên cứu: tỉnh Thái Nguyên.", f"Địa điểm triển khai nghiên cứu: {TOKEN_DIA_DIEM_TRIEN_KHAI}."),
         (
@@ -64,8 +80,8 @@ MIGRATIONS = {
     ],
     f"{DAO_DUC}/Bảng kiểm đánh giá đạo đức.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
-        ("Đơn vị chủ trì: Viện Y học ứng dụng Việt Nam", f"Đơn vị chủ trì: {TOKEN_DON_VI_CHU_TRI}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        ("Viện Y học ứng dụng Việt Nam", TOKEN_DON_VI_CHU_TRI),
         ("2024", TOKEN_NAM),
     ],
     f"{KHOA_HOC}/05. QĐ TLHĐ khoa học xét đề cương.docx": [
@@ -78,13 +94,15 @@ MIGRATIONS = {
     ],
     f"{KHOA_HOC}/07. BB kiểm phiếu thông qua đề cương.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
-        ("Đơn vị thực hiện: Viện Y học ứng dụng Việt nam", f"Đơn vị thực hiện: {TOKEN_DON_VI_CHU_TRI}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        ("Viện Y học ứng dụng Việt nam", TOKEN_DON_VI_CHU_TRI),
         ("2024", TOKEN_NAM),
     ],
     f"{KHOA_HOC}/08. QĐ phê duyệt đề tài.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("- Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn", f"- Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 6 lan trong file nay - giu
+        # dang neo nhan.
         ("- Đơn vị thực hiện đề tài: Viện Y học ứng dụng Việt Nam", f"- Đơn vị thực hiện đề tài: {TOKEN_DON_VI_CHU_TRI}"),
         (
             "Thời gian thực hiện của đề tài: từ tháng 12/2024 đến tháng 05/2025",
@@ -95,20 +113,22 @@ MIGRATIONS = {
     ],
     f"{KHOA_HOC}/Phiếu chấm điểm HĐ đề cương.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("2. Chủ nhiệm Đề tài: Ts. Bs. Trương Hồng Sơn", f"2. Chủ nhiệm Đề tài: {TOKEN_CHU_NHIEM_HO_TEN}"),
-        ("3. Đơn vị chủ trì đề tài:  Viện Y học ứng dụng Việt Nam", f"3. Đơn vị chủ trì đề tài:  {TOKEN_DON_VI_CHU_TRI}"),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        ("Viện Y học ứng dụng Việt Nam", TOKEN_DON_VI_CHU_TRI),
         ("2024", TOKEN_NAM),
     ],
     f"{KHOA_HOC}/Phiếu nhận xét đánh giá hồ sơ.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("- Chủ nhiệm đề tài: Ts. Bs Trương Hồng Sơn ", f"- Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN} "),
-        ("- Đơn vị chủ trì đề tài: Viện Y học ứng dụng Việt Nam", f"- Đơn vị chủ trì đề tài: {TOKEN_DON_VI_CHU_TRI}"),
+        ("Ts. Bs Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        ("Viện Y học ứng dụng Việt Nam", TOKEN_DON_VI_CHU_TRI),
         ("2024", TOKEN_NAM),
     ],
     f"{MOI_CHUYEN_GIA}/Công văn mời chuyên gia.docx": [
         (TITLE_OLD, TOKEN_TEN_DE_TAI),
-        ("Chủ nhiệm đề tài: Ts. Bs. Trương Hồng Sơn.", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_HO_TEN}."),
-        ("Thư ký đề tài: Ths. Lưu Liên Hương.", f"Thư ký đề tài: {TOKEN_THU_KY_DE_TAI}."),
+        ("Ts. Bs. Trương Hồng Sơn", TOKEN_CHU_NHIEM_HO_TEN),
+        ("Ths. Lưu Liên Hương", TOKEN_THU_KY_DE_TAI),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 4 lan trong file nay - giu
+        # dang neo nhan.
         ("Đơn vị thực hiện đề tài: Viện Y học ứng dụng Việt Nam.", f"Đơn vị thực hiện đề tài: {TOKEN_DON_VI_CHU_TRI}."),
         (
             "Nghiên cứu được triển khai trong 06 tháng, trong đó thời gian can thiệp là 04 tháng.",
@@ -128,6 +148,8 @@ MIGRATIONS = {
         ("1. Tên đề tài: Tên đề tài", f"1. Tên đề tài: {TOKEN_TEN_DE_TAI}"),
         ("Chủ nhiệm đề tài: Tên 1", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_TEN}"),
         ("Đồng chủ nhiệm đề tài: Tên 2", f"Đồng chủ nhiệm đề tài: {TOKEN_DONG_CHU_NHIEM_TEN}"),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 4 lan trong file nay - giu
+        # dang neo nhan.
         ("Đơn vị chủ trì: Viện Y học ứng dụng Việt Nam.", f"Đơn vị chủ trì: {TOKEN_DON_VI_CHU_TRI}."),
         ("20xx", TOKEN_NAM),
     ],
@@ -135,6 +157,8 @@ MIGRATIONS = {
         ("1. Tên đề tài: Tên đề tài", f"1. Tên đề tài: {TOKEN_TEN_DE_TAI}"),
         ("Chủ nhiệm đề tài: Tên 1", f"Chủ nhiệm đề tài: {TOKEN_CHU_NHIEM_TEN}"),
         ("Đồng chủ nhiệm đề tài: Tên 2", f"Đồng chủ nhiệm đề tài: {TOKEN_DONG_CHU_NHIEM_TEN}"),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 2 lan trong file nay - giu
+        # dang neo nhan.
         ("Đơn vị chủ trì: Viện Y học ứng dụng Việt Nam", f"Đơn vị chủ trì: {TOKEN_DON_VI_CHU_TRI}"),
         ("20xx", TOKEN_NAM),
     ],
@@ -164,6 +188,8 @@ MIGRATIONS = {
         ("Tên đề tài: Tên đề tài", f"Tên đề tài: {TOKEN_TEN_DE_TAI}"),
         ("Chủ nhiệm: Tên 1", f"Chủ nhiệm: {TOKEN_CHU_NHIEM_TEN}"),
         ("Đồng chủ nhiệm: Tên 2", f"Đồng chủ nhiệm: {TOKEN_DONG_CHU_NHIEM_TEN}"),
+        # "Viện Y học ứng dụng Việt Nam" xuat hien 2 lan trong file nay - giu
+        # dang neo nhan.
         ("Đơn vị chủ trì: Viện Y học ứng dụng Việt Nam", f"Đơn vị chủ trì: {TOKEN_DON_VI_CHU_TRI}"),
         ("20xx", TOKEN_NAM),
     ],
