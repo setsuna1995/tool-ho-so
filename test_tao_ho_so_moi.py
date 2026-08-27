@@ -135,6 +135,21 @@ def test_generate_all_stages_locally_then_copies_into_dest_root(tmp_path):
     assert (dest_root / "04. Hồ sơ nghiệm thu" / "Phiếu chấm điểm nghiệm thu (TVCT_ĐGHQ).docx").exists()
 
 
+def test_generate_all_copies_expert_cvs_into_output(tmp_path):
+    root = paths.project_root()
+    info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    dest_root = tmp_path / "Hồ sơ output"
+
+    session = word_writer.Session(force_backend="docx")
+    try:
+        tao_ho_so_moi.generate_all(root, dest_root, info, session)
+    finally:
+        session.quit()
+
+    for entry in info.expert_cvs:
+        assert (dest_root / "03. Công văn mời chuyên gia" / entry.filename).exists()
+
+
 def test_generate_all_cleans_up_local_staging_dir_on_success(tmp_path, monkeypatch):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)

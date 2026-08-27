@@ -8,14 +8,11 @@ import pytest
 import excel_reader
 import paths
 import section_dao_duc
+import tokens
 import word_writer
 
 CHECKLIST_PATH = paths.project_root() / excel_reader.CHECKLIST_FILENAME
 SHEET_VIAM = "Đề tài - Bánh ăn dặm VIAM 2027"
-TITLE_OLD = (
-    "Đánh giá hiệu quả sản phẩm sữa dinh dưỡng pha sẵn KUN DOCTOR COLOSTRUM lên "
-    "tình trạng dinh dưỡng, miễn dịch, tiêu hóa và giấc ngủ của trẻ từ 24 đến 72 tháng tuổi"
-)
 
 SOURCE_DIR = paths.project_root() / "01. Hồ sơ đạo đức đề cương - MẪU"
 FILES = [
@@ -43,7 +40,7 @@ def info():
 def test_generate_fixes_ethics_secretary_org(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_dao_duc.generate(session, dest_dir, info, TITLE_OLD)
+        section_dao_duc.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -56,7 +53,7 @@ def test_generate_fixes_ethics_secretary_org(dest_dir, info):
 def test_generate_replaces_title_everywhere(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_dao_duc.generate(session, dest_dir, info, TITLE_OLD)
+        section_dao_duc.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -64,13 +61,13 @@ def test_generate_replaces_title_everywhere(dest_dir, info):
         doc = docx.Document(str(dest_dir / filename))
         full_text = "\n".join(p.text for p in doc.paragraphs)
         assert info.title in full_text
-        assert TITLE_OLD not in full_text
+        assert "{{TEN_DE_TAI}}" not in full_text
 
 
 def test_generate_writes_head_and_researchers_into_giao_de_tai(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_dao_duc.generate(session, dest_dir, info, TITLE_OLD)
+        section_dao_duc.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -91,7 +88,7 @@ def test_generate_with_word_com_writes_head_without_raising(dest_dir, info):
 
     session = word_writer.Session(force_backend="com")
     try:
-        section_dao_duc.generate(session, dest_dir, info, TITLE_OLD)
+        section_dao_duc.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -105,7 +102,7 @@ def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
     custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
     session = word_writer.Session(force_backend="docx")
     try:
-        section_dao_duc.generate(session, dest_dir, custom_info, TITLE_OLD)
+        section_dao_duc.generate(session, dest_dir, custom_info, tokens.build_common_tokens(custom_info))
     finally:
         session.quit()
 

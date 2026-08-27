@@ -7,14 +7,11 @@ import pytest
 import excel_reader
 import paths
 import section_moi_chuyen_gia
+import tokens
 import word_writer
 
 CHECKLIST_PATH = paths.project_root() / excel_reader.CHECKLIST_FILENAME
 SHEET_VIAM = "Đề tài - Bánh ăn dặm VIAM 2027"
-TITLE_OLD = (
-    "Đánh giá hiệu quả sản phẩm sữa dinh dưỡng pha sẵn KUN DOCTOR COLOSTRUM lên "
-    "tình trạng dinh dưỡng, miễn dịch, tiêu hóa và giấc ngủ của trẻ từ 24 đến 72 tháng tuổi"
-)
 
 SOURCE_FILE = paths.project_root() / "03. Công văn mời chuyên gia - MẪU" / "Công văn mời chuyên gia.docx"
 
@@ -33,7 +30,7 @@ def info():
 def test_generate_replaces_title_and_removes_colostrum_intro(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_moi_chuyen_gia.generate(session, dest_dir, info, TITLE_OLD)
+        section_moi_chuyen_gia.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -48,7 +45,7 @@ def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
     custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
     session = word_writer.Session(force_backend="docx")
     try:
-        section_moi_chuyen_gia.generate(session, dest_dir, custom_info, TITLE_OLD)
+        section_moi_chuyen_gia.generate(session, dest_dir, custom_info, tokens.build_common_tokens(custom_info))
     finally:
         session.quit()
 

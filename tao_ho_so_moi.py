@@ -13,14 +13,10 @@ import section_khoa_hoc
 import section_moi_chuyen_gia
 import section_nghiem_thu
 import template_config
+import tokens
 import word_writer
 
 PROJECT_SHEET_PREFIX = "Đề tài - "
-
-TITLE_OLD = (
-    "Đánh giá hiệu quả sản phẩm sữa dinh dưỡng pha sẵn KUN DOCTOR COLOSTRUM lên "
-    "tình trạng dinh dưỡng, miễn dịch, tiêu hóa và giấc ngủ của trẻ từ 24 đến 72 tháng tuổi"
-)
 
 ILLEGAL_FOLDER_CHARS = ':/\\*?"<>|'
 
@@ -113,23 +109,28 @@ def generate_all(root: Path, dest_root: Path, info, session: word_writer.Session
     """
     staging_root = Path(tempfile.mkdtemp(prefix="tao_ho_so_"))
     try:
+        common_tokens = tokens.build_common_tokens(info)
+
         print("Dang sao chep file mau...")
         copy_templates(root, staging_root)
 
         print("Dang sao chep CV chu nhiem de tai...")
         copy_head_cv(root, staging_root, info)
 
+        print("Dang sao chep CV chuyen gia da khai...")
+        copy_expert_cvs(root, staging_root, info)
+
         print("Dang sinh ho so dao duc...")
-        section_dao_duc.generate(session, staging_root / "01. Hồ sơ đạo đức đề cương", info, TITLE_OLD)
+        section_dao_duc.generate(session, staging_root / "01. Hồ sơ đạo đức đề cương", info, common_tokens)
 
         print("Dang sinh ho so khoa hoc de cuong...")
-        section_khoa_hoc.generate(session, staging_root / "02. Hồ sơ khoa học đề cương", info, TITLE_OLD)
+        section_khoa_hoc.generate(session, staging_root / "02. Hồ sơ khoa học đề cương", info, common_tokens)
 
         print("Dang sinh cong van moi chuyen gia...")
-        section_moi_chuyen_gia.generate(session, staging_root / "03. Công văn mời chuyên gia", info, TITLE_OLD)
+        section_moi_chuyen_gia.generate(session, staging_root / "03. Công văn mời chuyên gia", info, common_tokens)
 
         print("Dang sinh ho so nghiem thu...")
-        section_nghiem_thu.generate(session, staging_root / "04. Hồ sơ nghiệm thu", info)
+        section_nghiem_thu.generate(session, staging_root / "04. Hồ sơ nghiệm thu", info, common_tokens)
 
         shutil.copytree(staging_root, dest_root, dirs_exist_ok=True)
     except Exception:

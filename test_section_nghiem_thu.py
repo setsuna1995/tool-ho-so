@@ -7,6 +7,7 @@ import pytest
 import excel_reader
 import paths
 import section_nghiem_thu
+import tokens
 import word_writer
 
 CHECKLIST_PATH = paths.project_root() / excel_reader.CHECKLIST_FILENAME
@@ -40,7 +41,7 @@ def info():
 def test_generate_writes_correct_secretary_org(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_nghiem_thu.generate(session, dest_dir, info)
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -53,7 +54,7 @@ def test_generate_writes_correct_secretary_org(dest_dir, info):
 def test_generate_uses_dynamic_member_count_not_hardcoded_05(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_nghiem_thu.generate(session, dest_dir, info)
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -65,7 +66,7 @@ def test_generate_uses_dynamic_member_count_not_hardcoded_05(dest_dir, info):
 def test_generate_replaces_both_year_cases_without_false_warning(dest_dir, info, capsys):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_nghiem_thu.generate(session, dest_dir, info)
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -86,7 +87,7 @@ def test_generate_replaces_both_year_cases_without_false_warning(dest_dir, info,
 def test_generate_keeps_tvct_and_removes_tnls_by_default(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
-        section_nghiem_thu.generate(session, dest_dir, info)
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
     finally:
         session.quit()
 
@@ -98,7 +99,7 @@ def test_generate_selects_tnls_form_and_removes_tvct_when_research_type_is_tnls(
     tnls_info = dataclasses.replace(info, research_type="TNLS")
     session = word_writer.Session(force_backend="docx")
     try:
-        section_nghiem_thu.generate(session, dest_dir, tnls_info)
+        section_nghiem_thu.generate(session, dest_dir, tnls_info, tokens.build_common_tokens(tnls_info))
     finally:
         session.quit()
 
@@ -113,6 +114,6 @@ def test_generate_raises_for_unrecognized_research_type(dest_dir, info):
     session = word_writer.Session(force_backend="docx")
     try:
         with pytest.raises(ValueError):
-            section_nghiem_thu.generate(session, dest_dir, bad_info)
+            section_nghiem_thu.generate(session, dest_dir, bad_info, tokens.build_common_tokens(bad_info))
     finally:
         session.quit()
