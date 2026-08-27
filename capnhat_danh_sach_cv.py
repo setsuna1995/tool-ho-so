@@ -22,10 +22,11 @@ def _refresh_lists_sheet(wb, cv_filenames: list) -> int:
     return len(cv_filenames)
 
 
-def _clear_existing_validations(ws, cell_refs: set) -> None:
+def _clear_existing_validations(ws, target_refs: set) -> None:
     keep = []
     for dv in ws.data_validations.dataValidation:
-        if not any(ref in str(dv.sqref) for ref in cell_refs):
+        dv_cells = set(str(dv.sqref).split())
+        if not (dv_cells & target_refs):
             keep.append(dv)
     ws.data_validations.dataValidation = keep
 
