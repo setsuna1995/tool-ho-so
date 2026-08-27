@@ -25,6 +25,30 @@ def _nhan_su_row_count(wb) -> int:
     return max(ws.max_row - 1, 0)
 
 
+def _load_nhan_su_registry(wb) -> dict:
+    """Doc sheet _NhanSu thanh {ten: (hoc_ham_hoc_vi, don_vi)}.
+
+    Cot D/E cua sheet du an duoc dien bang GIA TRI that (Python tra cuu san),
+    khong phai cong thuc VLOOKUP: excel_reader.load_project_data mo workbook
+    voi data_only=True nen openpyxl khong bao gio tinh cong thuc - cong thuc
+    se doc ra rong va lam mat hoc ham/don vi trong moi tai lieu sinh ra.
+    """
+    ws = wb[NHAN_SU_SHEET_NAME]
+    registry = {}
+    for row_i in range(2, ws.max_row + 1):
+        raw_name = ws.cell(row=row_i, column=1).value
+        if raw_name is None or not str(raw_name).strip():
+            continue
+        name = str(raw_name).strip()
+        degree = ws.cell(row=row_i, column=2).value
+        org = ws.cell(row=row_i, column=3).value
+        registry[name] = (
+            "" if degree is None else str(degree).strip(),
+            "" if org is None else str(org).strip(),
+        )
+    return registry
+
+
 def _clear_existing_person_validations(ws, target_refs: set) -> None:
     keep = []
     for dv in ws.data_validations.dataValidation:
