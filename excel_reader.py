@@ -64,6 +64,7 @@ class ProjectInfo:
     acceptance_committee: CommitteeData
     head_cv_filename: str
     expert_cvs: List[ExpertCvEntry]
+    common_tokens: dict = field(default_factory=dict)
 
 
 def _build_code_index(ws) -> dict:
@@ -81,7 +82,7 @@ def _cell_text(ws, row: int, col: int) -> str:
     return "" if value is None else str(value).strip()
 
 
-def _read_person(ws, index: dict, code: str) -> Optional[Person]:
+def read_person(ws, index: dict, code: str) -> Optional[Person]:
     row = index.get(code)
     if row is None:
         raise KeyError(f"Không tìm thấy mã mục '{code}' trong checklist")
@@ -91,7 +92,7 @@ def _read_person(ws, index: dict, code: str) -> Optional[Person]:
     return Person(name=name, degree=_cell_text(ws, row, 4), org=_cell_text(ws, row, 5))
 
 
-def _read_text(ws, index: dict, code: str) -> str:
+def read_text(ws, index: dict, code: str) -> str:
     row = index.get(code)
     if row is None:
         raise KeyError(f"Không tìm thấy mã mục '{code}' trong checklist")
@@ -99,25 +100,25 @@ def _read_text(ws, index: dict, code: str) -> str:
 
 
 def parse_committee(ws, index: dict, prefix: str) -> CommitteeData:
-    chair = _read_person(ws, index, f"{prefix}01")
+    chair = read_person(ws, index, f"{prefix}01")
     if chair is None:
         raise ValueError(f"Chủ tịch hội đồng ({prefix}01) là bắt buộc nhưng đang trống")
 
     reviewers = []
     for code in (f"{prefix}02", f"{prefix}03", f"{prefix}06"):
-        person = _read_person(ws, index, code)
+        person = read_person(ws, index, code)
         if person:
             reviewers.append(person)
 
     members = []
     for code in (f"{prefix}04", f"{prefix}05", f"{prefix}07", f"{prefix}08"):
-        person = _read_person(ws, index, code)
+        person = read_person(ws, index, code)
         if person:
             members.append(person)
 
     secretaries = []
     for code in (f"{prefix}09", f"{prefix}10"):
-        person = _read_person(ws, index, code)
+        person = read_person(ws, index, code)
         if person is None:
             raise ValueError(f"Thư ký hội đồng ({code}) là bắt buộc nhưng đang trống")
         secretaries.append(person)
@@ -152,7 +153,12 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     ws = wb[sheet_name]
     index = _build_code_index(ws)
 
-    title = _read_text(ws, index, "A01")
+    # Import cuc bo de tranh vong lap import (token_rules import excel_reader
+    # de dung read_text/read_person/parse_timeline).
+    import token_rules
+    common_tokens = token_rules.resolve_tokens(wb, ws, index)
+
+    title = read_text(ws, index, "A01")
     if not title:
         raise ValueError("Tên đề tài (A01) đang trống trong checklist")
 
@@ -160,7 +166,7 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     if year_raw is None:
         raise ValueError("Năm thực hiện hồ sơ (A03) đang trống trong checklist")
 
-    head = _read_person(ws, index, "B01")
+    head = read_person(ws, index, "B01")
     if head is None:
         raise ValueError("Chủ nhiệm đề tài (B01) là bắt buộc nhưng đang trống")
 
@@ -169,12 +175,12 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         code = f"B{i:02d}"
         if code not in index:
             continue
-        person = _read_person(ws, index, code)
+        person = read_person(ws, index, code)
         if person:
             researchers.append(person)
 
-    partner_org = _read_text(ws, index, "A06") if "A06" in index else ""
-    research_location = _read_text(ws, index, "A07") if "A07" in index else ""
+    partner_org = read_text(ws, index, "A06") if "A06" in index else ""
+    research_location = read_text(ws, index, "A07") if "A07" in index else ""
 
     head_cv_filename = _cell_text(ws, index["F01"], 5) if "F01" in index else ""
     if not head_cv_filename:
@@ -182,19 +188,20 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
 
     return ProjectInfo(
         title=title,
-        research_type=_read_text(ws, index, "A02"),
+        research_type=read_text(ws, index, "A02"),
         year=int(year_raw),
-        host_org=_read_text(ws, index, "A04"),
+        host_org=read_text(ws, index, "A04"),
         partner_org=partner_org or None,
         research_location=research_location or None,
-        timeline=_read_text(ws, index, "A05"),
+        timeline=read_text(ws, index, "A05"),
         head=head,
-        co_head=_read_person(ws, index, "B02"),
-        project_secretary=_read_person(ws, index, "B03"),
+        co_head=read_person(ws, index, "B02"),
+        project_secretary=read_person(ws, index, "B03"),
         researchers=researchers,
         ethics_committee=parse_committee(ws, index, "C"),
         proposal_committee=parse_committee(ws, index, "D"),
         acceptance_committee=parse_committee(ws, index, "E"),
         head_cv_filename=head_cv_filename,
         expert_cvs=read_expert_cvs(ws, index),
+        common_tokens=common_tokens,
     )
