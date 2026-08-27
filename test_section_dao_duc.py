@@ -110,7 +110,17 @@ def test_generate_with_word_com_writes_head_without_raising(dest_dir, info):
 
 
 def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
-    custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
+    custom_timeline = "Tháng 03/2027 đến tháng 09/2028"
+    start, end = excel_reader.parse_timeline(custom_timeline)
+    custom_info = dataclasses.replace(
+        info,
+        timeline=custom_timeline,
+        common_tokens={
+            **info.common_tokens,
+            "{{THOI_GIAN_BAT_DAU}}": start,
+            "{{THOI_GIAN_KET_THUC}}": end,
+        },
+    )
     session = word_writer.Session(force_backend="docx")
     try:
         section_dao_duc.generate(session, dest_dir, custom_info, tokens.build_common_tokens(custom_info))

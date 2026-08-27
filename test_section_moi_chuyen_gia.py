@@ -42,7 +42,17 @@ def test_generate_replaces_title_and_removes_colostrum_intro(dest_dir, info):
 
 
 def test_generate_uses_parsed_timeline_not_just_year(dest_dir, info):
-    custom_info = dataclasses.replace(info, timeline="Tháng 03/2027 đến tháng 09/2028")
+    custom_timeline = "Tháng 03/2027 đến tháng 09/2028"
+    start, end = excel_reader.parse_timeline(custom_timeline)
+    custom_info = dataclasses.replace(
+        info,
+        timeline=custom_timeline,
+        common_tokens={
+            **info.common_tokens,
+            "{{THOI_GIAN_BAT_DAU}}": start,
+            "{{THOI_GIAN_KET_THUC}}": end,
+        },
+    )
     session = word_writer.Session(force_backend="docx")
     try:
         section_moi_chuyen_gia.generate(session, dest_dir, custom_info, tokens.build_common_tokens(custom_info))
