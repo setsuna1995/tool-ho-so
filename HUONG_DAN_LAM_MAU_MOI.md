@@ -77,5 +77,17 @@ mẫu, để người dùng tự điền tay sau khi hồ sơ được tạo ra.
 ## Thêm token dùng chung mới
 
 Đặt tên `{{VIET_HOA_CO_GACH_DUOI}}`, có ý nghĩa rõ ràng bằng tiếng Việt.
-Thêm vào bảng ở đầu tài liệu này và vào `build_common_tokens()` trong
-`tokens.py` cùng lúc, để tài liệu này luôn khớp với code thật.
+
+**Thêm vào sheet `_Tokens` trong file Excel `Form checklist hồ sơ dự án.xlsx`:**
+
+1. Mở file `Form checklist hồ sơ dự án.xlsx`
+2. Vào sheet `_Tokens` (nếu sheet này bị ẩn, unhide nó bằng cách click chuột phải vào tab sheet, chọn "Unhide")
+3. Thêm một dòng mới với:
+   - **Cột A (Kind):** `common` (cho token dùng chung) hoặc loại token khác nếu cần riêng cho một phần hồ sơ
+   - **Cột B (Code):** Tên token viết hoa-gạch-dưới (ví dụ: `TEN_DE_TAI`, `HANHHUYEN`)
+4. Lưu file Excel
+5. Mở file `tokens.py`, tìm hàm `build_common_tokens(info)`, thêm một dòng mới để tính giá trị của token từ dữ liệu `info` (ví dụ: `result["HANHHUYEN"] = info.province`)
+6. Thêm token vào bảng ở đầu file này (`HUONG_DAN_LAM_MAU_MOI.md`) cùng với định nghĩa của nó để tài liệu luôn khớp với code thật
+7. Viết/cập nhật test trong `test_token_rules.py` hoặc file test tương ứng
+8. Chạy `pytest` để xác nhận test đã pass
+9. Bây giờ bạn có thể dùng `{{HANHHUYEN}}` trong file mẫu `.docx`, nó sẽ tự điền giá trị từ `info.province` khi script chạy

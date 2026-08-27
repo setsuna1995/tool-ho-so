@@ -215,6 +215,38 @@ Xem hướng dẫn chi tiết tại [`HUONG_DAN_LAM_MAU_MOI.md`](HUONG_DAN_LAM_M
 — quy trình đã đổi sang dùng token `{{TEN_BIEN}}` thay vì tìm-thay theo câu
 chữ mẫu cũ.
 
+### 6.4 Quản lý danh sách nhân sự (sheet _NhanSu) và cập nhật thông tin học hàm/đơn vị
+
+Công cụ hỗ trợ dropdown tự động để chọn tên nhân sự và auto-fill thông tin học hàm/đơn vị:
+
+**Để thêm một người mới vào danh sách nhân sự:**
+
+1. Mở file `Form checklist hồ sơ dự án.xlsx`
+2. Vào sheet `_NhanSu` (sheet này bình thường bị ẩn — để unhide nó, click chuột phải vào tab sheet bất kỳ, chọn "Unhide", rồi chọn `_NhanSu`)
+   - Nếu không thấy tùy chọn "Unhide", hoặc gặp khó khăn, liên hệ người quản trị công cụ để unhide sheet này giúp
+3. Thêm một dòng mới với:
+   - **Cột A (Tên):** Tên đầy đủ của người (ví dụ: "Trương Hồng Sơn")
+   - **Cột B (Học hàm):** Học vị/học hàm (ví dụ: "TS.BS.", "GS.TS."), hay để trống nếu không có
+   - **Cột C (Đơn vị):** Đơn vị công tác (ví dụ: "VIAM", "Hội đồng Đạo đức"), hay để trống nếu không có
+4. Lưu file Excel (Ctrl + S)
+5. Chạy script `capnhat_nhan_su.bat` (double-click nó trong thư mục công cụ) để cập nhật dropdown và công thức lookup trên toàn bộ sheet dự án
+   - Đợi đến khi thấy dòng "Da gan dropdown..." xuất hiện, rồi đóng cửa sổ Terminal
+
+**Sau khi chạy `capnhat_nhan_su.bat`:**
+
+- Khi bạn click vào ô column C (tên nhân sự) trong bất kỳ dòng người nào ở sheet dự án, bạn sẽ thấy một dropdown danh sách chọn tên
+- Khi bạn chọn một tên từ dropdown, column D (học hàm) và column E (đơn vị) sẽ **tự động điền** dữ liệu tương ứng từ sheet `_NhanSu` thông qua công thức VLOOKUP
+- Nếu người dùng muốn sửa đơi học hàm/đơn vị riêng cho dự án này (khác với trong `_NhanSu`), họ có thể click vào ô đó và gõ trực tiếp — công thức sẽ được giữ lại, chỉ giá trị hiển thị sẽ thay đổi
+
+**Lưu ý quan trọng về công thức Excel và cached values:**
+
+Khi chạy `capnhat_nhan_su.py` (được gọi từ `capnhat_nhan_su.bat`), công cụ sẽ viết các công thức Excel (VLOOKUP dạng `=IFERROR(VLOOKUP(...))`) vào cột học hàm/đơn vị. Những công thức này **chưa có giá trị cached** cho đến khi bạn:
+- Mở file Excel bằng Excel (chứ không phải các tool khác)
+- Rồi lưu lại file (Ctrl + S) ít nhất một lần
+
+Cho đến lúc đó, những ô công thức có thể hiển thị trống trong Excel, nhưng **công thức vẫn đúng và sẽ hoạt động sau khi bạn mở/lưu file**. Đây không phải lỗi — nó là cách Excel tính công thức lại khi file được mở lại.
+- Nếu gặp tình huống này, hãy mở file bằng Excel, rồi lưu nó (Ctrl + S) — những ô công thức sẽ hiển thị giá trị đúng ngay sau đó.
+
 ## 7. Xử lý lỗi thường gặp
 
 Nếu gặp lỗi, bạn có thể tham khảo danh sách các lỗi phổ biến dưới đây:
