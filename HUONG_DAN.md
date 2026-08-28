@@ -168,9 +168,21 @@ Trong thư mục công cụ, có các file script chạy một lần sau:
 - `migrate_add_research_location.py`
 - `migrate_remove_template_config_sheet.py`
 - `migrate_fix_f01_cv_filename.py`
+- `migrate_add_tokens_sheet.py`
+- `migrate_add_nhan_su_sheet.py`
 - `convert_doc_templates.py`
 
 **Những script này chỉ cần chạy MỘT LẦN duy nhất** khi công cụ được thiết lập lần đầu (hoặc khi có hướng dẫn nâng cấp). Bạn **KHÔNG** cần chạy lại chúng cho mỗi dự án mới.
+
+**Quan trọng — sheet `_Tokens` bắt buộc phải có:** danh sách token dùng chung
+(`{{TEN_DE_TAI}}`, `{{NAM}}`, `{{CHU_NHIEM_HO_TEN}}`...) được khai báo trong
+sheet ẩn `_Tokens` của file Excel checklist, do `migrate_add_tokens_sheet.py`
+tạo ra. Script này **đã được chạy một lần** cho file
+`Form checklist hồ sơ dự án.xlsx` hiện tại, nên bình thường bạn không phải làm
+gì thêm. Nhưng nếu bạn dùng một **bản checklist cũ/khác** chưa từng chạy script
+này, công cụ sẽ **không báo lỗi** — nó chỉ âm thầm điền chuỗi rỗng vào toàn bộ
+token dùng chung, làm hồ sơ sinh ra bị trống hàng loạt. Nếu thấy hiện tượng đó,
+hãy chạy `python migrate_add_tokens_sheet.py` một lần cho file checklist đang dùng.
 
 Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.2) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
 
@@ -229,29 +241,32 @@ Công cụ hỗ trợ dropdown tự động để chọn tên nhân sự và aut
    - **Cột B (Học hàm):** Học vị/học hàm (ví dụ: "TS.BS.", "GS.TS."), hay để trống nếu không có
    - **Cột C (Đơn vị):** Đơn vị công tác (ví dụ: "VIAM", "Hội đồng Đạo đức"), hay để trống nếu không có
 4. Lưu file Excel (Ctrl + S)
-5. Chạy script `capnhat_nhan_su.bat` (double-click nó trong thư mục công cụ) để cập nhật dropdown và công thức lookup trên toàn bộ sheet dự án
+5. Chạy script `capnhat_nhan_su.bat` (double-click nó trong thư mục công cụ) để cập nhật dropdown và điền lại học hàm/đơn vị trên toàn bộ sheet dự án
    - Đợi đến khi thấy dòng "Da gan dropdown..." xuất hiện, rồi đóng cửa sổ Terminal
 
 **Sau khi chạy `capnhat_nhan_su.bat`:**
 
 - Khi bạn click vào ô column C (tên nhân sự) trong bất kỳ dòng người nào ở sheet dự án, bạn sẽ thấy một dropdown danh sách chọn tên
-- Khi bạn chọn một tên từ dropdown, column D (học hàm) và column E (đơn vị) sẽ **tự động điền** dữ liệu tương ứng từ sheet `_NhanSu` thông qua công thức VLOOKUP
+- Column D (học hàm) và column E (đơn vị) đã được script **điền sẵn giá trị thật**, tra từ sheet `_NhanSu` theo đúng cái tên đang có ở cột C tại lúc chạy script
 
-**Quan trọng — Cột D/E là cột dẫn xuất, không phải ô nhập tay:**
+**Quan trọng — thứ tự làm việc: chọn tên trước, chạy script sau**
 
-- Column D (học hàm) và E (đơn vị) được **quản lý bởi công thức VLOOKUP**, không phải ô để nhập tay
-- Nếu bạn click vào ô D hoặc E và gõ một giá trị tay, giá trị đó sẽ **thay thế công thức** (công thức sẽ bị xóa vĩnh viễn)
-- Nếu bạn chạy lại script `capnhat_nhan_su.bat` sau đó (ví dụ: sau khi thêm người mới vào `_NhanSu`), **công thức VLOOKUP sẽ được viết lại**, ghi đè lên bất kỳ giá trị tay nào bạn đã nhập — những sửa đổi tay sẽ bị mất
-- **Cách đúng để sửa thông tin:** Nếu một người cần có học hàm/đơn vị khác với những người khác có cùng tên, hãy sửa trực tiếp trong sheet `_NhanSu` (cột B, C), không phải gõ trong ô D/E của sheet dự án
+Cột D/E chứa **giá trị thật** (chữ, số), **không phải công thức** — nên chúng
+**không tự cập nhật** khi bạn đổi tên ở cột C. Quy trình đúng là:
 
-**Lưu ý quan trọng về công thức Excel và cached values:**
+1. Chọn/đổi tên ở cột C cho các dòng nhân sự, lưu file
+2. Chạy `capnhat_nhan_su.bat` → cột D/E được điền lại theo tên mới
+3. Nếu tên ở cột C không có trong `_NhanSu` (hoặc đang để trống), D/E sẽ được để trống
 
-Khi chạy `capnhat_nhan_su.py` (được gọi từ `capnhat_nhan_su.bat`), công cụ sẽ viết các công thức Excel (VLOOKUP dạng `=IFERROR(VLOOKUP(...))`) vào cột học hàm/đơn vị. Những công thức này **chưa có giá trị cached** cho đến khi bạn:
-- Mở file Excel bằng Excel (chứ không phải các tool khác)
-- Rồi lưu lại file (Ctrl + S) ít nhất một lần
+Sở dĩ dùng giá trị thật thay vì công thức VLOOKUP: công cụ đọc file Excel bằng
+thư viện Python (openpyxl), thư viện này **không tính được công thức Excel** —
+nếu D/E là công thức thì công cụ sẽ đọc ra rỗng và mọi hồ sơ sinh ra đều **mất
+học hàm/đơn vị** mà không có cảnh báo gì.
 
-Cho đến lúc đó, những ô công thức có thể hiển thị trống trong Excel, nhưng **công thức vẫn đúng và sẽ hoạt động sau khi bạn mở/lưu file**. Đây không phải lỗi — nó là cách Excel tính công thức lại khi file được mở lại.
-- Nếu gặp tình huống này, hãy mở file bằng Excel, rồi lưu nó (Ctrl + S) — những ô công thức sẽ hiển thị giá trị đúng ngay sau đó.
+**Cột D/E là cột dẫn xuất, không phải ô nhập tay:**
+
+- Nếu bạn gõ tay một giá trị vào ô D hoặc E, lần chạy `capnhat_nhan_su.bat` tiếp theo sẽ **ghi đè** lên nó — sửa đổi tay sẽ bị mất
+- **Cách đúng để sửa thông tin:** sửa trực tiếp trong sheet `_NhanSu` (cột B, C), rồi chạy lại `capnhat_nhan_su.bat`
 
 ## 7. Xử lý lỗi thường gặp
 
