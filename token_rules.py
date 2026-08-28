@@ -38,6 +38,10 @@ def _resolve_raw(ws, index, spec: TokenSpec) -> str:
 
 
 def _resolve_raw_or_placeholder(ws, index, spec: TokenSpec) -> str:
+    """Ma muc chua co trong checklist (ban copy cu) duoc coi nhu o trong,
+    tra ve placeholder thay vi nem KeyError."""
+    if spec.code not in index:
+        return spec.param
     value = excel_reader.read_text(ws, index, spec.code)
     return value or spec.param
 

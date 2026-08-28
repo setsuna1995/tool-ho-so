@@ -40,17 +40,37 @@ def test_wire_person_dropdowns_adds_name_dropdown_on_person_rows(tmp_path):
     assert "C5" in refs  # B01 row
 
 
-def test_wire_person_dropdowns_sets_degree_and_org_lookup_formulas(tmp_path):
+def test_wire_person_dropdowns_writes_literal_degree_and_org_values(tmp_path):
     path = _build_checklist(tmp_path)
 
     wiring.wire_person_dropdowns(path)
 
+    # data_only=True mo phong dung cach excel_reader.load_project_data doc file:
+    # neu D/E la cong thuc thi se doc ra None -> mat hoc ham/don vi.
+    wb = openpyxl.load_workbook(path, data_only=True)
+    ws = wb["Đề tài - Bánh ăn dặm VIAM 2027"]
+    assert ws.cell(row=5, column=4).value == "TS.BS."
+    assert ws.cell(row=5, column=5).value == "VIAM"
+    assert ws.cell(row=6, column=4).value == "GS.TS."
+    assert ws.cell(row=6, column=5).value == "Hội đồng Đạo đức"
+
+
+def test_wire_person_dropdowns_clears_stale_degree_and_org_when_name_blank(tmp_path):
+    path = _build_checklist(tmp_path)
     wb = openpyxl.load_workbook(path)
     ws = wb["Đề tài - Bánh ăn dặm VIAM 2027"]
-    degree_formula = ws.cell(row=5, column=4).value
-    org_formula = ws.cell(row=5, column=5).value
-    assert degree_formula.startswith("=IFERROR(VLOOKUP(C5,")
-    assert org_formula.startswith("=IFERROR(VLOOKUP(C5,")
+    # Dong nhan su co ma muc nhung chua chon ten, D/E con sot du lieu cu.
+    ws.cell(row=7, column=1, value="C02")
+    ws.cell(row=7, column=4, value="RÁC CŨ")
+    ws.cell(row=7, column=5, value="ĐƠN VỊ CŨ")
+    wb.save(path)
+
+    wiring.wire_person_dropdowns(path)
+
+    wb = openpyxl.load_workbook(path, data_only=True)
+    ws = wb["Đề tài - Bánh ăn dặm VIAM 2027"]
+    assert not ws.cell(row=7, column=4).value
+    assert not ws.cell(row=7, column=5).value
 
 
 def test_wire_person_dropdowns_is_idempotent_no_duplicate_validations(tmp_path):

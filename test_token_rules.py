@@ -64,6 +64,34 @@ def test_resolve_tokens_raw_or_placeholder_kind_uses_param_when_blank(tmp_path):
     assert result["{{DIA_DIEM}}"] == "……"
 
 
+def test_resolve_tokens_raw_or_placeholder_kind_tolerates_absent_code(tmp_path):
+    """Ban checklist cu chua co ma muc A07/A06 -> dung placeholder, khong KeyError."""
+    path = _build_workbook(
+        tmp_path,
+        token_rows=[("DIA_DIEM", "A07", "raw_or_placeholder", "……")],
+        project_rows=[("A01", "Đề tài mẫu", None, None)],
+    )
+    wb = openpyxl.load_workbook(path)
+    ws = wb["Đề tài - Test"]
+    index = _code_index(ws)
+    assert "A07" not in index
+    result = token_rules.resolve_tokens(wb, ws, index)
+    assert result["{{DIA_DIEM}}"] == "……"
+
+
+def test_resolve_tokens_raw_or_placeholder_kind_empty_param_absent_code(tmp_path):
+    """DON_VI_DOI_TAC (A06) co param rong -> tra ve chuoi rong, khong KeyError."""
+    path = _build_workbook(
+        tmp_path,
+        token_rows=[("DON_VI_DOI_TAC", "A06", "raw_or_placeholder", "")],
+        project_rows=[("A01", "Đề tài mẫu", None, None)],
+    )
+    wb = openpyxl.load_workbook(path)
+    ws = wb["Đề tài - Test"]
+    result = token_rules.resolve_tokens(wb, ws, _code_index(ws))
+    assert result["{{DON_VI_DOI_TAC}}"] == ""
+
+
 def test_resolve_tokens_person_ho_ten_kind_combines_degree_and_name(tmp_path):
     path = _build_workbook(
         tmp_path,
@@ -151,6 +179,16 @@ def test_real_checklist_resolves_new_and_existing_tokens_correctly():
     import excel_reader as er
 
     data = er.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+
+    # Gia tri LITERAL doc tay tu checklist that (A01/A03/A07) - khong suy ra
+    # tu chinh `data`, de test khong tu chung minh chinh no.
+    assert (
+        data.common_tokens["{{TEN_DE_TAI}}"]
+        == "Tư vấn hiệu quả công thức sản phẩm Bánh ăn dặm VIAM"
+    )
+    assert data.common_tokens["{{NAM}}"] == "2027"
+    # A07 dang trong trong checklist that -> dung placeholder tu cot `param`.
+    assert data.common_tokens["{{DIA_DIEM_TRIEN_KHAI}}"] == "……………………………"
 
     assert data.common_tokens["{{CHU_NHIEM_HO_TEN}}"] == f"{data.head.degree} {data.head.name}".strip()
     assert data.common_tokens["{{DONG_CHU_NHIEM_HO_TEN}}"] == (

@@ -14,7 +14,7 @@ TOKEN_SPECS = [
     ("TEN_DE_TAI", "A01", "raw", "", "Tên đề tài"),
     ("NAM", "A03", "raw", "", "Năm thực hiện hồ sơ"),
     ("DON_VI_CHU_TRI", "A04", "raw", "", "Cơ quan chủ trì"),
-    ("DON_VI_DOI_TAC", "A06", "raw", "", "Cơ quan phối hợp"),
+    ("DON_VI_DOI_TAC", "A06", "raw_or_placeholder", "", "Cơ quan phối hợp"),
     ("CHU_NHIEM_HO_TEN", "B01", "person_ho_ten", "", "Chủ nhiệm đề tài - có học hàm/học vị"),
     ("CHU_NHIEM_TEN", "B01", "person_ten", "", "Chủ nhiệm đề tài - chỉ tên"),
     ("DONG_CHU_NHIEM_TEN", "B02", "person_ten", "", "Đồng chủ nhiệm đề tài - chỉ tên"),

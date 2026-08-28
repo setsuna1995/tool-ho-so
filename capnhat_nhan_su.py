@@ -67,6 +67,8 @@ def wire_person_dropdowns(checklist_path: Path = CHECKLIST_PATH) -> None:
         wb.save(checklist_path)
         return
 
+    registry = _load_nhan_su_registry(wb)
+
     for sheet_name in SHEET_NAMES:
         ws = wb[sheet_name]
         index = _build_code_index(ws)
@@ -81,20 +83,15 @@ def wire_person_dropdowns(checklist_path: Path = CHECKLIST_PATH) -> None:
         ws.add_data_validation(name_dv)
         for row in person_rows:
             name_dv.add(ws.cell(row=row, column=3))
-            ws.cell(
-                row=row,
-                column=4,
-                value=f'=IFERROR(VLOOKUP(C{row},{NHAN_SU_SHEET_NAME}!$A:$C,2,FALSE),"")',
-            )
-            ws.cell(
-                row=row,
-                column=5,
-                value=f'=IFERROR(VLOOKUP(C{row},{NHAN_SU_SHEET_NAME}!$A:$C,3,FALSE),"")',
-            )
+            raw_name = ws.cell(row=row, column=3).value
+            name = "" if raw_name is None else str(raw_name).strip()
+            degree, org = registry.get(name, ("", ""))
+            ws.cell(row=row, column=4, value=degree)
+            ws.cell(row=row, column=5, value=org)
 
     wb.save(checklist_path)
 
 
 if __name__ == "__main__":
     wire_person_dropdowns()
-    print("Da gan dropdown chon ten + cong thuc tra cuu hoc ham/don vi cho toan bo dong nhan su.")
+    print("Da gan dropdown chon ten + dien gia tri hoc ham/don vi cho toan bo dong nhan su.")
