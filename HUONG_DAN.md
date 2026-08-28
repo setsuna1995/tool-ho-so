@@ -168,9 +168,21 @@ Trong thư mục công cụ, có các file script chạy một lần sau:
 - `migrate_add_research_location.py`
 - `migrate_remove_template_config_sheet.py`
 - `migrate_fix_f01_cv_filename.py`
+- `migrate_add_tokens_sheet.py`
+- `migrate_add_nhan_su_sheet.py`
 - `convert_doc_templates.py`
 
 **Những script này chỉ cần chạy MỘT LẦN duy nhất** khi công cụ được thiết lập lần đầu (hoặc khi có hướng dẫn nâng cấp). Bạn **KHÔNG** cần chạy lại chúng cho mỗi dự án mới.
+
+**Quan trọng — sheet `_Tokens` bắt buộc phải có:** danh sách token dùng chung
+(`{{TEN_DE_TAI}}`, `{{NAM}}`, `{{CHU_NHIEM_HO_TEN}}`...) được khai báo trong
+sheet ẩn `_Tokens` của file Excel checklist, do `migrate_add_tokens_sheet.py`
+tạo ra. Script này **đã được chạy một lần** cho file
+`Form checklist hồ sơ dự án.xlsx` hiện tại, nên bình thường bạn không phải làm
+gì thêm. Nhưng nếu bạn dùng một **bản checklist cũ/khác** chưa từng chạy script
+này, công cụ sẽ **không báo lỗi** — nó chỉ âm thầm điền chuỗi rỗng vào toàn bộ
+token dùng chung, làm hồ sơ sinh ra bị trống hàng loạt. Nếu thấy hiện tượng đó,
+hãy chạy `python migrate_add_tokens_sheet.py` một lần cho file checklist đang dùng.
 
 Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.2) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
 
@@ -214,6 +226,47 @@ Nguồn: 01. Hồ sơ đạo đức đề cương - MẪU/00. QĐ Giao đề tà
 Xem hướng dẫn chi tiết tại [`HUONG_DAN_LAM_MAU_MOI.md`](HUONG_DAN_LAM_MAU_MOI.md)
 — quy trình đã đổi sang dùng token `{{TEN_BIEN}}` thay vì tìm-thay theo câu
 chữ mẫu cũ.
+
+### 6.4 Quản lý danh sách nhân sự (sheet _NhanSu) và cập nhật thông tin học hàm/đơn vị
+
+Công cụ hỗ trợ dropdown tự động để chọn tên nhân sự và auto-fill thông tin học hàm/đơn vị:
+
+**Để thêm một người mới vào danh sách nhân sự:**
+
+1. Mở file `Form checklist hồ sơ dự án.xlsx`
+2. Vào sheet `_NhanSu` (sheet này bình thường bị ẩn — để unhide nó, click chuột phải vào tab sheet bất kỳ, chọn "Unhide", rồi chọn `_NhanSu`)
+   - Nếu không thấy tùy chọn "Unhide", hoặc gặp khó khăn, liên hệ người quản trị công cụ để unhide sheet này giúp
+3. Thêm một dòng mới với:
+   - **Cột A (Tên):** Tên đầy đủ của người (ví dụ: "Trương Hồng Sơn")
+   - **Cột B (Học hàm):** Học vị/học hàm (ví dụ: "TS.BS.", "GS.TS."), hay để trống nếu không có
+   - **Cột C (Đơn vị):** Đơn vị công tác (ví dụ: "VIAM", "Hội đồng Đạo đức"), hay để trống nếu không có
+4. Lưu file Excel (Ctrl + S)
+5. Chạy script `capnhat_nhan_su.bat` (double-click nó trong thư mục công cụ) để cập nhật dropdown và điền lại học hàm/đơn vị trên toàn bộ sheet dự án
+   - Đợi đến khi thấy dòng "Da gan dropdown..." xuất hiện, rồi đóng cửa sổ Terminal
+
+**Sau khi chạy `capnhat_nhan_su.bat`:**
+
+- Khi bạn click vào ô column C (tên nhân sự) trong bất kỳ dòng người nào ở sheet dự án, bạn sẽ thấy một dropdown danh sách chọn tên
+- Column D (học hàm) và column E (đơn vị) đã được script **điền sẵn giá trị thật**, tra từ sheet `_NhanSu` theo đúng cái tên đang có ở cột C tại lúc chạy script
+
+**Quan trọng — thứ tự làm việc: chọn tên trước, chạy script sau**
+
+Cột D/E chứa **giá trị thật** (chữ, số), **không phải công thức** — nên chúng
+**không tự cập nhật** khi bạn đổi tên ở cột C. Quy trình đúng là:
+
+1. Chọn/đổi tên ở cột C cho các dòng nhân sự, lưu file
+2. Chạy `capnhat_nhan_su.bat` → cột D/E được điền lại theo tên mới
+3. Nếu tên ở cột C không có trong `_NhanSu` (hoặc đang để trống), D/E sẽ được để trống
+
+Sở dĩ dùng giá trị thật thay vì công thức VLOOKUP: công cụ đọc file Excel bằng
+thư viện Python (openpyxl), thư viện này **không tính được công thức Excel** —
+nếu D/E là công thức thì công cụ sẽ đọc ra rỗng và mọi hồ sơ sinh ra đều **mất
+học hàm/đơn vị** mà không có cảnh báo gì.
+
+**Cột D/E là cột dẫn xuất, không phải ô nhập tay:**
+
+- Nếu bạn gõ tay một giá trị vào ô D hoặc E, lần chạy `capnhat_nhan_su.bat` tiếp theo sẽ **ghi đè** lên nó — sửa đổi tay sẽ bị mất
+- **Cách đúng để sửa thông tin:** sửa trực tiếp trong sheet `_NhanSu` (cột B, C), rồi chạy lại `capnhat_nhan_su.bat`
 
 ## 7. Xử lý lỗi thường gặp
 

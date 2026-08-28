@@ -77,5 +77,64 @@ mẫu, để người dùng tự điền tay sau khi hồ sơ được tạo ra.
 ## Thêm token dùng chung mới
 
 Đặt tên `{{VIET_HOA_CO_GACH_DUOI}}`, có ý nghĩa rõ ràng bằng tiếng Việt.
-Thêm vào bảng ở đầu tài liệu này và vào `build_common_tokens()` trong
-`tokens.py` cùng lúc, để tài liệu này luôn khớp với code thật.
+
+Danh sách token dùng chung **được khai báo bằng dữ liệu** trong sheet ẩn
+`_Tokens` của file `Form checklist hồ sơ dự án.xlsx` — không phải bằng code.
+`excel_reader.load_project_data` đọc sheet đó qua `token_rules.resolve_tokens`
+và tính sẵn toàn bộ token một lần (`info.common_tokens`);
+`tokens.build_common_tokens(info)` chỉ là hàm trả thẳng lại giá trị đó, **không
+còn logic riêng cho từng token để thêm vào nữa**.
+
+Vì vậy, trong đa số trường hợp thêm token mới **không cần sửa code Python** —
+chỉ cần thêm một dòng vào sheet `_Tokens`.
+
+### Cấu trúc sheet `_Tokens` (5 cột)
+
+| Cột | Tên cột | Ý nghĩa |
+|---|---|---|
+| A | `token_name` | Tên token VIẾT_HOA_GẠCH_DƯỚI, **không** kèm dấu `{{ }}`. Trong file `.docx` bạn gõ `{{TEN_NAY}}`. |
+| B | `code` | Mã mục trong checklist mà token này đọc (ví dụ `A08`) |
+| C | `kind` | Kiểu xử lý giá trị — một trong 6 giá trị hợp lệ ở bảng dưới |
+| D | `param` | Tham số phụ, **chỉ** `raw_or_placeholder` dùng đến |
+| E | `note` | Mô tả tự do bằng tiếng Việt, để người sau đọc hiểu |
+
+### 6 giá trị `kind` hợp lệ
+
+| `kind` | Làm gì |
+|---|---|
+| `raw` | Đọc thẳng nội dung ô (cột C của dòng mã mục đó) |
+| `raw_or_placeholder` | Như `raw`, nhưng nếu ô trống — hoặc mã mục chưa có trong checklist — thì dùng giá trị ở cột `param` làm chỗ đánh dấu (ví dụ `……`) |
+| `person_ho_ten` | Dòng nhân sự → `"<học hàm/học vị> <tên>"` (rỗng nếu chưa khai tên) |
+| `person_ten` | Dòng nhân sự → chỉ tên, không kèm học hàm/học vị |
+| `timeline_start` | Ô mốc thời gian → mốc bắt đầu dạng `MM/YYYY` |
+| `timeline_end` | Ô mốc thời gian → mốc kết thúc dạng `MM/YYYY` |
+
+Danh sách này là bản sao của dict `TRANSFORMS` trong `token_rules.py` — nếu gõ
+một `kind` không nằm trong 6 giá trị trên, công cụ sẽ **báo lỗi rõ ràng** ngay
+khi chạy chứ không âm thầm bỏ qua.
+
+### Các bước
+
+1. Mở file `Form checklist hồ sơ dự án.xlsx`.
+2. Nếu token cần một trường dữ liệu chưa có trong checklist: thêm mã mục mới
+   vào 2 sheet dự án trước (theo mẫu `migrate_add_research_location.py`).
+3. Vào sheet `_Tokens` (sheet này bình thường bị ẩn — click chuột phải vào tab
+   sheet bất kỳ, chọn "Unhide", rồi chọn `_Tokens`).
+4. Thêm một dòng mới, điền đủ 5 cột theo bảng trên. Ví dụ, thêm token
+   `{{DIA_BAN_TINH}}` đọc mã mục `A08`, nếu bỏ trống thì hiện dấu chấm chấm:
+
+   | token_name | code | kind | param | note |
+   |---|---|---|---|---|
+   | `DIA_BAN_TINH` | `A08` | `raw_or_placeholder` | `……` | Tỉnh/thành triển khai |
+
+5. Lưu file Excel (Ctrl + S).
+6. **Chỉ khi** không có `kind` nào trong 6 kiểu trên phù hợp: mở `token_rules.py`,
+   viết thêm một hàm `_resolve_<ten_kind>(ws, index, spec)` và đăng ký nó vào
+   dict `TRANSFORMS`. Đây là trường hợp **duy nhất** phải sửa code xử lý token.
+7. Thêm token vào bảng ở đầu file này (`HUONG_DAN_LAM_MAU_MOI.md`) để tài liệu
+   luôn khớp với sheet `_Tokens` thật.
+8. Viết/cập nhật test trong `test_token_rules.py` cho token mới.
+9. Chạy `pytest` để xác nhận test đã pass.
+10. Bây giờ bạn có thể gõ `{{DIA_BAN_TINH}}` trong file mẫu `.docx` — nó sẽ được
+    điền tự động khi chạy công cụ (miễn là mẫu đó đã có hàm `_ten_ham` gọi
+    `fill_tokens` như ở Cách 1 bước 3).
