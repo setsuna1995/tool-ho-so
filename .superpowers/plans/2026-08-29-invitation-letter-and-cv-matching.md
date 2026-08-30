@@ -29,7 +29,7 @@
 - Test: `test_cv_matching.py`
 
 **Interfaces:**
-- Produces: `find_cv_file(cv_dir: Path, person_name: str, context: str = "") -> Path`, raises `FileNotFoundError` on zero or multiple matches.
+- Produces: `find_cv_file(cv_dir: Path, person_name: str, context: str = "") -> Path`, raises `FileNotFoundError` on zero or multiple matches at whichever tier is used.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -54,19 +54,28 @@ def test_finds_exact_match_with_diacritics(tmp_path):
     assert result.name == "Lý lịch khoa học - Trương Hồng Sơn.docx"
 
 
-def test_finds_match_ignoring_diacritics_and_case(tmp_path):
+def test_falls_back_to_diacritics_insensitive_match_when_no_exact_match(tmp_path):
     cv_dir = _make_cv_dir(tmp_path, ["TM-Gs. Nguyen Cong Khan.pdf"])
     result = cv_matching.find_cv_file(cv_dir, "Nguyễn Công Khẩn")
     assert result.name == "TM-Gs. Nguyen Cong Khan.pdf"
 
 
-def test_raises_when_no_file_matches(tmp_path):
+def test_prefers_exact_diacritics_match_over_ambiguous_stripped_match(tmp_path):
+    """Bo dau se khien 'Đặng Thị Bình' va 'Đăng Thị Bình' trung nhau (ca hai
+    deu rut gon ve 'dang thi binh') - vong khop dung dau phai phan biet
+    duoc 2 nguoi nay, khong duoc roi xuong vong bo dau va bao loi mo ho."""
+    cv_dir = _make_cv_dir(tmp_path, ["CV Đặng Thị Bình.docx", "CV Đăng Thị Bình.docx"])
+    result = cv_matching.find_cv_file(cv_dir, "Đặng Thị Bình")
+    assert result.name == "CV Đặng Thị Bình.docx"
+
+
+def test_raises_when_no_file_matches_at_either_tier(tmp_path):
     cv_dir = _make_cv_dir(tmp_path, ["TM-Gs. Nguyen Cong Khan.pdf"])
     with pytest.raises(FileNotFoundError, match="Lưu Liên Hương"):
         cv_matching.find_cv_file(cv_dir, "Lưu Liên Hương")
 
 
-def test_raises_when_multiple_files_match(tmp_path):
+def test_raises_when_multiple_files_match_with_no_diacritics_to_disambiguate(tmp_path):
     cv_dir = _make_cv_dir(tmp_path, ["CV Nguyen Van A - ban 1.docx", "CV Nguyen Van A - ban 2.docx"])
     with pytest.raises(FileNotFoundError, match="Nguyễn Văn A"):
         cv_matching.find_cv_file(cv_dir, "Nguyễn Văn A")
@@ -98,48 +107,74 @@ import unicodedata
 from pathlib import Path
 
 
-def _normalize_for_match(text: str) -> str:
-    text = text.replace("đ", "d").replace("Đ", "D")
-    decomposed = unicodedata.normalize("NFKD", text)
-    without_marks = "".join(c for c in decomposed if not unicodedata.combining(c))
-    return re.sub(r"[^a-zA-Z0-9]+", " ", without_marks).strip().lower()
+def _normalize(text: str, strip_diacritics: bool) -> str:
+    if strip_diacritics:
+        text = text.replace("đ", "d").replace("Đ", "D")
+        text = "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c))
+    return re.sub(r"[^\w]+", " ", text, flags=re.UNICODE).strip().lower()
+
+
+def _search(cv_dir: Path, person_name: str, strip_diacritics: bool):
+    target = _normalize(person_name, strip_diacritics)
+    candidates = sorted((f for f in cv_dir.iterdir() if f.is_file()), key=lambda f: f.name)
+    return [f for f in candidates if target in _normalize(f.stem, strip_diacritics)]
+
+
+def _not_found_error(cv_dir: Path, person_name: str, context: str) -> FileNotFoundError:
+    return FileNotFoundError(
+        f"Không tìm thấy file CV nào khớp tên '{person_name}'{context} trong thư mục "
+        f"'{cv_dir.name}/'. Vui lòng đặt file CV có tên chứa '{person_name}' vào thư mục đó."
+    )
+
+
+def _ambiguous_error(cv_dir: Path, person_name: str, context: str, matches) -> FileNotFoundError:
+    names = ", ".join(f"'{m.name}'" for m in matches)
+    return FileNotFoundError(
+        f"Tìm thấy nhiều hơn 1 file CV khớp tên '{person_name}'{context} trong thư mục "
+        f"'{cv_dir.name}/': {names}. Vui lòng đổi tên file để chỉ còn đúng 1 file khớp."
+    )
 
 
 def find_cv_file(cv_dir: Path, person_name: str, context: str = "") -> Path:
     """Tim file trong cv_dir co ten (khong ke phan mo rong) chua cum
-    `person_name` LIEN NHAU, dung thu tu, sau khi chuan hoa (bo dau tieng
-    Viet, khong phan biet hoa/thuong, moi ky tu khong phai chu/so gop
-    thanh 1 khoang trang). Nem FileNotFoundError neu 0 hoac >1 file khop."""
-    target = _normalize_for_match(person_name)
-    candidates = sorted((f for f in cv_dir.iterdir() if f.is_file()), key=lambda f: f.name)
-    matches = [f for f in candidates if target in _normalize_for_match(f.stem)]
+    `person_name` LIEN NHAU, dung thu tu. Uu tien khop DUNG DAU truoc (chi
+    chuan hoa hoa/thuong + khoang trang, giu nguyen dau tieng Viet) - chi
+    khi khong file nao khop dung dau moi thu lai sau khi bo dau (de van
+    khop duoc file dat ten khong dau nhu "TM-Gs. Nguyen Cong Khan.pdf").
+    Neu vong khop dung dau ra >1 ket qua, bao loi mo ho ngay, khong roi
+    xuong vong bo dau (vi bo dau se khong lam het mo ho, chi lam mo ho
+    hon). Nem FileNotFoundError neu 0 hoac >1 file khop o vong duoc dung."""
+    exact_matches = _search(cv_dir, person_name, strip_diacritics=False)
+    if len(exact_matches) == 1:
+        return exact_matches[0]
+    if len(exact_matches) > 1:
+        raise _ambiguous_error(cv_dir, person_name, context, exact_matches)
 
-    if not matches:
-        raise FileNotFoundError(
-            f"Không tìm thấy file CV nào khớp tên '{person_name}'{context} trong thư mục "
-            f"'{cv_dir.name}/'. Vui lòng đặt file CV có tên chứa '{person_name}' vào thư mục đó."
-        )
-    if len(matches) > 1:
-        names = ", ".join(f"'{m.name}'" for m in matches)
-        raise FileNotFoundError(
-            f"Tìm thấy nhiều hơn 1 file CV khớp tên '{person_name}'{context} trong thư mục "
-            f"'{cv_dir.name}/': {names}. Vui lòng đổi tên file để chỉ còn đúng 1 file khớp."
-        )
-    return matches[0]
+    loose_matches = _search(cv_dir, person_name, strip_diacritics=True)
+    if not loose_matches:
+        raise _not_found_error(cv_dir, person_name, context)
+    if len(loose_matches) > 1:
+        raise _ambiguous_error(cv_dir, person_name, context, loose_matches)
+    return loose_matches[0]
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `pytest test_cv_matching.py -v`
-Expected: 6 passed
+Expected: 7 passed
 
 - [ ] **Step 5: Commit**
 
 ```bash
 git add cv_matching.py test_cv_matching.py
 git commit -m "$(cat <<'EOF'
-feat: add diacritics-insensitive CV name matching
+feat: add two-tier (exact-diacritics then diacritics-insensitive) CV name matching
 
+Exact-diacritics pass runs first so two different names that would
+collide once stripped (e.g. Đặng Thị Bình / Đăng Thị Bình) still
+resolve correctly; the diacritics-stripped pass only kicks in when the
+exact pass finds zero matches, for filenames with no Vietnamese
+diacritics at all (e.g. TM-Gs. Nguyen Cong Khan.pdf).
 EOF
 )"
 ```

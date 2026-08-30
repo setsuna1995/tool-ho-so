@@ -90,17 +90,21 @@ New optional checklist code **A08** "Đầu mối liên hệ (họ tên, đơn v
 
 *Tự động khớp file CV theo tên (thay cột "TÊN FILE CV")*
 
-**New module `cv_matching.py`:**
+**New module `cv_matching.py`, two-tier matching:**
 
 ```python
 def find_cv_file(cv_dir: Path, person_name: str, context: str = "") -> Path:
     """Tim file trong cv_dir co ten (khong ke phan mo rong) chua cum
-    `person_name` LIEN NHAU, dung thu tu, sau khi chuan hoa (bo dau tieng
-    Viet, khong phan biet hoa/thuong, moi ky tu khong phai chu/so gop thanh
-    1 khoang trang). Nem FileNotFoundError neu 0 hoac >1 file khop."""
+    `person_name` LIEN NHAU, dung thu tu. Uu tien khop DUNG DAU truoc (chi
+    chuan hoa hoa/thuong + khoang trang, giu nguyen dau tieng Viet) - chi
+    khi khong file nao khop dung dau moi thu lai sau khi bo dau (de van
+    khop duoc file dat ten khong dau nhu "TM-Gs. Nguyen Cong Khan.pdf").
+    Nem FileNotFoundError neu 0 hoac >1 file khop o vong duoc dung."""
 ```
 
-Example: `"Nguyễn Công Khẩn"` → normalized `"nguyen cong khan"` is found as a contiguous substring inside normalized `"TM-Gs. Nguyen Cong Khan.pdf"` → `"tm gs nguyen cong khan pdf"`. Zero matches or more than one match raises a clear, actionable error (same tone as existing `copy_head_cv`/`copy_expert_cvs` errors), naming the declared person and, on ambiguity, listing every matching filename.
+Rationale: stripping diacritics unconditionally would let two genuinely different Vietnamese names collide (e.g. "Đặng Thị Bình" and "Đăng Thị Bình" both reduce to `"dang thi binh"`). Trying an exact-diacritics pass first resolves such cases correctly whenever the CV filename was typed with correct diacritics; the diacritics-stripped pass only kicks in when the exact pass finds **zero** matches (i.e. the filename likely has no Vietnamese diacritics at all, as with the `TM-*.pdf` files). If the exact pass finds more than one match, that is a real ambiguity and is reported immediately without falling back — falling back would not resolve a genuine duplicate anyway.
+
+Example: `"Nguyễn Công Khẩn"` finds zero exact-diacritics matches against `"TM-Gs. Nguyen Cong Khan.pdf"`, falls back to the diacritics-stripped pass, and matches there. Zero matches (at the final tier used) or more than one match raises a clear, actionable error (same tone as existing `copy_head_cv`/`copy_expert_cvs` errors), naming the declared person and, on ambiguity, listing every matching filename.
 
 **Applied uniformly to both CV attachment points:**
 - Head's CV (previously `F01`'s filename column, previously a required field): now resolved via `cv_matching.find_cv_file(cv_dir, info.head.name, " (chủ nhiệm đề tài)")`, using the already-existing `info.head.name` — the F01 row's filename column stops being read entirely.
@@ -142,7 +146,7 @@ Example: `"Nguyễn Công Khẩn"` → normalized `"nguyen cong khan"` is found 
 *Chiến lược kiểm thử*
 
 - `expert_invitation.py`: page count matches qualifying-recipient count; each page's tokens match only that recipient (no cross-page bleed); empty-recipients returns `False` without modifying the file; common tokens fill on every page.
-- `cv_matching.py`: exact/diacritics-insensitive/prefix-tolerant match succeeds; zero-match and ambiguous-match both raise `FileNotFoundError` with the person's name in the message.
+- `cv_matching.py`: exact-diacritics match wins when available (including the case where a diacritics-stripped match would have been ambiguous); diacritics-stripped fallback succeeds when no exact match exists; zero-match and ambiguous-match (at whichever tier is used) both raise `FileNotFoundError` with the person's name in the message.
 - `section_moi_chuyen_gia.py`: filtering excludes host-org members and secretaries; dedup collapses a person present on both ethics and proposal committees; nghiệm thu letter only pulls from `acceptance_committee`.
 - `committee_writer.py`: new `org_col=None` case does not touch the org column (regression test against the "Số tiền" corruption risk described in §6).
 - `excel_reader.py`: `ExpertCvEntry`/`read_expert_cvs` keyed on name; rewritten fixtures in `test_tao_ho_so_moi.py`/`test_excel_reader.py` drop `filename`.
