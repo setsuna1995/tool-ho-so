@@ -18,6 +18,19 @@ theo câu chữ dự án mẫu cũ nữa.
 | `{{THU_KY_DE_TAI}}` | `"<học vị> <tên>"` của thư ký đề tài (rỗng nếu không có) | B03 |
 | `{{THOI_GIAN_BAT_DAU}}` / `{{THOI_GIAN_KET_THUC}}` | tách từ mốc thời gian | A05 |
 | `{{DIA_DIEM_TRIEN_KHAI}}` | địa điểm triển khai (dấu `……` nếu không khai) | A07 |
+| `{{DAU_MOI_LIEN_HE}}` | `info.common_tokens` | A08 |
+
+## Token riêng theo trang (chỉ dùng trong thư mời chuyên gia)
+
+Khác với bảng token dùng chung ở trên (1 giá trị/dự án, khai qua sheet
+`_Tokens`), thư mời chuyên gia (`expert_invitation.py`) còn có 2 token
+**riêng theo từng trang**, tính động lúc sinh hồ sơ theo từng người nhận,
+không khai báo qua Excel:
+
+| Token | Ý nghĩa |
+|---|---|
+| `{{CHUYEN_GIA_HO_TEN}}` | `"<học vị> <tên>"` của người nhận trang đó |
+| `{{CHUYEN_GIA_DON_VI}}` | Đơn vị công tác của người nhận trang đó |
 
 ## Cách 1 — Mẫu chỉ cần token dùng chung (không cần logic riêng, nhưng vẫn cần một hàm 3 dòng)
 

@@ -62,21 +62,19 @@ Sheet mới sẽ có các ô được tô nền **vàng** — đây là những 
 - **Thư ký hội đồng khoa học** (D09, D10) — **bắt buộc**
 - **Thư ký hội đồng nghiệm thu** (E09, E10) — **bắt buộc**
 - **Các thành viên hội đồng** (Chủ tịch, phản biện, ủy viên của 3 hội đồng)
-- **Hồ sơ Chủ nhiệm đề tài** (F01) — **bắt buộc**. Cột "TÊN FILE CV" phải ghi **đúng tên file** (kể cả hoa/thường, khoảng trắng) của file CV chủ nhiệm đề tài — xem chi tiết ở mục 3.5.
+- **Hồ sơ Chủ nhiệm đề tài** (F01) — **bắt buộc**. Chỉ cần tên ở B01 đã điền, công cụ tự tìm CV trong `CV chuyên gia/` khớp theo tên (xem mục 3.4).
 
 **Lưu ý:** Bạn có thể điền thêm các ô không tô vàng (như đơn vị đối tác, cộng tác viên), nhưng nó không bắt buộc.
 
-### 3.4 Chuẩn bị file CV chủ nhiệm đề tài
+### 3.4 Chuẩn bị file CV chủ nhiệm đề tài và chuyên gia
 
-Công cụ tự động đính kèm CV chủ nhiệm đề tài vào hồ sơ đạo đức, lấy theo đúng tên file bạn khai ở mã mục **F01** (cột "TÊN FILE CV"). Để việc này chạy đúng:
+Công cụ tự động đính kèm CV vào hồ sơ, **tự khớp theo tên** — không cần gõ tên file nữa.
 
-1. Đặt file CV (`.docx`) của chủ nhiệm đề tài vào thư mục **`CV chuyên gia/`** ở thư mục gốc công cụ.
-2. Mở Excel, vào ô F01 (cột thứ 3 trong bảng — "TÊN FILE CV"), gõ **đúng tên file** bạn vừa đặt vào thư mục đó, kể cả hoa/thường và khoảng trắng.
-3. Nếu chủ nhiệm đề tài dự án mới khác với dự án trước, chỉ cần đổi tên file trong ô F01 cho khớp file CV mới — **không cần sửa code**.
+1. Đặt file CV (`.docx`/`.pdf`) vào thư mục **`CV chuyên gia/`** ở thư mục gốc công cụ. Tên file chỉ cần **chứa** tên người đó (không dấu hay có dấu đều được, hoa/thường không quan trọng) — ví dụ file `"TM-Gs. Nguyen Cong Khan.pdf"` tự khớp với người tên "Nguyễn Công Khẩn" khai ở checklist.
+2. Chủ nhiệm đề tài: chỉ cần tên ở mã mục **B01** đã điền — công cụ tự tìm CV khớp tên đó trong `CV chuyên gia/`.
+3. Chuyên gia khác cần đính kèm CV: khai tên ở **PHẦN F, mã mục F02–F10** (tên + vai trò) — không còn cột "TÊN FILE CV" nữa. Dòng nào để trống tên thì bỏ qua.
 
-Nếu tên file trong F01 không khớp file nào trong thư mục `CV chuyên gia/`, script sẽ báo lỗi rõ ràng ngay khi chạy, kèm hướng dẫn khắc phục.
-
-Ngoài chủ nhiệm đề tài, nếu dự án có thêm chuyên gia cần đính kèm CV (ví dụ chuyên gia mời họp, cộng tác viên...), khai báo ở **PHẦN F, các mã mục F02–F10**: mỗi dòng gồm tên chuyên gia, vai trò và tên file CV (cột "TÊN FILE CV", ghi giống hệt tên file bạn đặt trong thư mục `CV chuyên gia/`). Dòng nào để trống tên file thì công cụ bỏ qua, không bắt buộc phải điền hết cả 9 dòng. Với mỗi dòng có khai tên file, công cụ (hàm `copy_expert_cvs`) sẽ tự copy đúng file đó vào thư mục `03. Công văn mời chuyên gia` của hồ sơ đầu ra — giống cách F01 hoạt động ở trên, chỉ khác là copy vào thư mục khác.
+Nếu một cái tên không khớp đúng 1 file (khớp 0 file hoặc khớp nhiều hơn 1 file), script sẽ báo lỗi rõ ràng ngay khi chạy, nêu rõ tên nào đang gây lỗi và cách khắc phục (xem mục 7.2d).
 
 ### 3.5 Lưu file Excel
 - Nhấn **Ctrl + S** để lưu
@@ -167,9 +165,11 @@ Trong thư mục công cụ, có các file script chạy một lần sau:
 - `migrate_add_partner_org.py`
 - `migrate_add_research_location.py`
 - `migrate_remove_template_config_sheet.py`
-- `migrate_fix_f01_cv_filename.py`
 - `migrate_add_tokens_sheet.py`
 - `migrate_add_nhan_su_sheet.py`
+- `migrate_add_contact_person.py`
+- `migrate_remove_cv_filename_column.py`
+- `migrate_tokenize_invitation_letters.py`
 - `convert_doc_templates.py`
 
 **Những script này chỉ cần chạy MỘT LẦN duy nhất** khi công cụ được thiết lập lần đầu (hoặc khi có hướng dẫn nâng cấp). Bạn **KHÔNG** cần chạy lại chúng cho mỗi dự án mới.
@@ -184,29 +184,11 @@ này, công cụ sẽ **không báo lỗi** — nó chỉ âm thầm điền chu
 token dùng chung, làm hồ sơ sinh ra bị trống hàng loạt. Nếu thấy hiện tượng đó,
 hãy chạy `python migrate_add_tokens_sheet.py` một lần cho file checklist đang dùng.
 
-Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.2) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
+Bạn chỉ cần chạy lại `convert_doc_templates.py` nếu bạn thêm một file mẫu `.doc` mới vào một trong 4 thư mục "- MẪU" (xem mục 6.1) — công cụ sẽ **tự nhận ra** file `.doc` nào chưa có bản `.docx` song song, không cần khai báo ở đâu cả.
 
 Nếu không chắc, hãy liên hệ với người tạo công cụ.
 
-### 6.1 Script cần chạy LẠI mỗi khi đổi danh sách CV chuyên gia
-
-Khác với các script một-lần ở trên, `capnhat_danh_sach_cv.bat` (chạy
-`capnhat_danh_sach_cv.py`) là script bạn cần chạy **lại mỗi khi** thêm, xoá
-hoặc đổi tên file trong thư mục `CV chuyên gia/`. Nó cập nhật lại danh sách
-dropdown chọn "TÊN FILE CV" (cột F01, F02–F10) trong Excel checklist, để
-dropdown luôn khớp với các file CV thật đang có trong thư mục.
-
-Cách chạy: double-click `capnhat_danh_sach_cv.bat` trong thư mục công cụ,
-đợi đến khi thấy dòng "Da cap nhat...", rồi đóng cửa sổ Terminal.
-
-**Lưu ý:** việc cập nhật này chỉ áp dụng cho sheet mẫu trắng
-`Đề tài - Mẫu trắng dự án mới`. Nếu bạn đã **copy** sheet mẫu trắng thành
-sheet dự án mới (xem mục 3.2) **trước khi** chạy cập nhật, sheet dự án đó
-vẫn giữ nguyên dropdown cũ tại thời điểm copy — hãy chạy
-`capnhat_danh_sach_cv.bat` **trước** khi tạo sheet dự án mới nếu muốn
-dropdown của sheet mới là danh sách CV mới nhất.
-
-### 6.2 Quy ước đặt tên và tổ chức thư mục/file mẫu
+### 6.1 Quy ước đặt tên và tổ chức thư mục/file mẫu
 
 Toàn bộ 4 thư mục mẫu gốc ở thư mục gốc dự án (`01. Hồ sơ đạo đức đề cương - MẪU`, `02. Hồ sơ khoa học đề cương - MẪU`, `03. Công văn mời chuyên gia - MẪU`, `04. Hồ sơ nghiệm thu - MẪU`) đều theo **đúng một quy ước duy nhất**:
 
@@ -221,13 +203,13 @@ Nguồn: 01. Hồ sơ đạo đức đề cương - MẪU/00. QĐ Giao đề tà
 Đích:  01. Hồ sơ đạo đức đề cương/00. QĐ Giao đề tài.docx
 ```
 
-### 6.3 Khi cần thêm một mẫu tài liệu hoàn toàn mới
+### 6.2 Khi cần thêm một mẫu tài liệu hoàn toàn mới
 
 Xem hướng dẫn chi tiết tại [`HUONG_DAN_LAM_MAU_MOI.md`](HUONG_DAN_LAM_MAU_MOI.md)
 — quy trình đã đổi sang dùng token `{{TEN_BIEN}}` thay vì tìm-thay theo câu
 chữ mẫu cũ.
 
-### 6.4 Quản lý danh sách nhân sự (sheet _NhanSu) và cập nhật thông tin học hàm/đơn vị
+### 6.3 Quản lý danh sách nhân sự (sheet _NhanSu) và cập nhật thông tin học hàm/đơn vị
 
 Công cụ hỗ trợ dropdown tự động để chọn tên nhân sự và auto-fill thông tin học hàm/đơn vị:
 
@@ -314,20 +296,16 @@ Nếu gặp lỗi, bạn có thể tham khảo danh sách các lỗi phổ biế
 
 **Cách khắc phục:** Sửa ô A05 theo đúng mẫu có 2 mốc `MM/YYYY`, ví dụ "Tháng 01/2027 đến tháng 12/2027", lưu Excel rồi chạy lại.
 
-### 7.2d Lỗi: Không tìm thấy file CV chuyên gia
-**Dấu hiệu:** Script báo lỗi kiểu: "Không tìm thấy file CV '...' (khai báo ở mã mục F01) trong thư mục 'CV chuyên gia/'"
+### 7.2d Lỗi: Không tìm thấy (hoặc khớp nhiều hơn 1) file CV chuyên gia
+**Dấu hiệu:** Script báo lỗi kiểu: "Không tìm thấy file CV nào khớp tên '...' trong thư mục 'CV chuyên gia/'" hoặc "Tìm thấy nhiều hơn 1 file CV khớp tên '...'".
 
-Nếu file CV thiếu là của một chuyên gia khai ở PHẦN F (F02–F10, xem mục 3.4)
-thay vì của chủ nhiệm đề tài, lỗi có dạng tương tự nhưng nêu đúng mã mục và
-tên chuyên gia đó, ví dụ: "Không tìm thấy file CV '...' (khai báo ở mã mục
-F04 - Nguyễn Văn A) trong thư mục 'CV chuyên gia/'".
-
-**Nguyên nhân:** Tên file khai ở ô F01 (hoặc F02–F10) không khớp (kể cả sai một ký tự, hoa/thường, khoảng trắng) với tên file thật trong thư mục `CV chuyên gia/`, hoặc bạn quên đặt file CV vào đó.
+**Nguyên nhân:** Tên khai trong checklist (B01 hoặc F02–F10) không khớp đúng 1 file trong thư mục `CV chuyên gia/` sau khi so khớp không dấu/không phân biệt hoa-thường.
 
 **Cách khắc phục:**
-1. Mở thư mục `CV chuyên gia/`, kiểm tra tên file CV thật
-2. Sửa ô F01 (hoặc mã mục F02–F10 được nêu trong thông báo lỗi) cho khớp chính xác tên file đó (hoặc đổi tên file cho khớp)
-3. Lưu Excel rồi chạy lại
+1. Mở thư mục `CV chuyên gia/`, kiểm tra tên file CV thật.
+2. Nếu không khớp: đổi tên file (hoặc tên khai trong checklist) sao cho tên người xuất hiện liền nhau, đúng thứ tự trong tên file.
+3. Nếu khớp nhiều hơn 1 file: đổi tên bớt các file trùng khớp để chỉ còn đúng 1 file khớp tên đó.
+4. Lưu rồi chạy lại.
 
 ### 7.3 Lỗi: File đang mở trong Word
 **Dấu hiệu:**
