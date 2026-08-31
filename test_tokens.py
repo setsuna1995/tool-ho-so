@@ -18,7 +18,6 @@ def _make_info(common_tokens):
         ethics_committee=excel_reader.CommitteeData(chair=excel_reader.Person(name="C")),
         proposal_committee=excel_reader.CommitteeData(chair=excel_reader.Person(name="C")),
         acceptance_committee=excel_reader.CommitteeData(chair=excel_reader.Person(name="C")),
-        head_cv_filename="cv.docx",
         expert_cvs=[],
         common_tokens=common_tokens,
     )
