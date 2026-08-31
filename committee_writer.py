@@ -11,7 +11,7 @@ def write_committee_roster(
     committee: CommitteeData,
     roles: List[str],
     name_col: int = 1,
-    org_col: int = 2,
+    org_col: Optional[int] = 2,
     role_col: Optional[int] = None,
     start_row: int = 1,
 ) -> None:
@@ -24,7 +24,8 @@ def write_committee_roster(
         row = start_row + offset
         display_name = f"{person.degree} {person.name}".strip()
         session.set_cell(doc, table_index, row, name_col, display_name)
-        session.set_cell(doc, table_index, row, org_col, person.org)
+        if org_col is not None:
+            session.set_cell(doc, table_index, row, org_col, person.org)
         if role_col is not None:
             session.set_cell(doc, table_index, row, role_col, role)
 

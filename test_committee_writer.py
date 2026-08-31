@@ -99,3 +99,25 @@ def test_write_committee_roster_raises_on_role_count_mismatch(tmp_path):
 def test_roster_size_excludes_secretaries():
     committee = _sample_committee()
     assert committee_writer.roster_size(committee) == 3
+
+
+def test_write_committee_roster_skips_org_column_when_org_col_is_none(tmp_path):
+    src = _table_fixture(tmp_path, rows=3, cols=3)
+    session = word_writer.Session(force_backend="docx")
+    try:
+        doc = session.open(src)
+        committee = _sample_committee()
+        committee_writer.write_committee_roster(
+            session, doc, 1, committee,
+            roles=["Chủ tịch Hội đồng", "Thành viên", "Thành viên"],
+            name_col=1, org_col=None, role_col=None,
+        )
+        session.save_close(doc)
+    finally:
+        session.quit()
+
+    check = docx.Document(str(src))
+    table = check.tables[0]
+    assert table.cell(0, 0).text.strip() == "GS.TS. Nguyễn Công Khẩn"
+    assert table.cell(0, 1).text.strip() == ""
+
