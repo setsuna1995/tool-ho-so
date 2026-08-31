@@ -131,5 +131,145 @@
     "kind": "person_ten",
     "param": "",
     "note": "Chủ tịch Hội đồng Nghiệm thu - chỉ tên"
+  },
+  {
+    "token_name": "BOI_CANH_DU_AN",
+    "code": "G01",
+    "kind": "raw_or_placeholder",
+    "param": "",
+    "note": "Bối cảnh / lý do triển khai đề tài"
+  },
+  {
+    "token_name": "DIA_DIEM_HOP",
+    "code": "G02",
+    "kind": "raw_or_placeholder",
+    "param": "Viện Y học ứng dụng Việt Nam - Tầng 02, tòa nhà ACE, Số 12 Hoàng Cầu, Phường Ô Chợ Dừa, Quận Đống Đa, Hà Nội",
+    "note": "Địa điểm họp Hội đồng"
+  },
+  {
+    "token_name": "THOI_GIAN_HOP",
+    "code": "G03",
+    "kind": "raw_or_placeholder",
+    "param": "…… giờ ……, ngày …… tháng …… năm",
+    "note": "Thời gian họp Hội đồng (giờ, ngày tháng)"
+  },
+  {
+    "token_name": "SO_CONG_VAN",
+    "code": "G04",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số công văn mời chuyên gia"
+  },
+  {
+    "token_name": "NGAY_CONG_VAN",
+    "code": "G05",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký công văn mời chuyên gia"
+  },
+  {
+    "token_name": "SO_QD_GIAO_DE_TAI",
+    "code": "G06",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số Quyết định giao đề tài (00)"
+  },
+  {
+    "token_name": "NGAY_QD_GIAO_DE_TAI",
+    "code": "G07",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký QĐ giao đề tài"
+  },
+  {
+    "token_name": "SO_QD_TLHD_DAO_DUC",
+    "code": "G08",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số QĐ TLHĐ Đạo đức (01)"
+  },
+  {
+    "token_name": "NGAY_QD_TLHD_DAO_DUC",
+    "code": "G09",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký QĐ TLHĐ Đạo đức"
+  },
+  {
+    "token_name": "SO_QD_TLHD_KHOA_HOC",
+    "code": "G10",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số QĐ TLHĐ Khoa học (05)"
+  },
+  {
+    "token_name": "NGAY_QD_TLHD_KHOA_HOC",
+    "code": "G11",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký QĐ TLHĐ Khoa học"
+  },
+  {
+    "token_name": "SO_QD_TLHD_NGHIEM_THU",
+    "code": "G12",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số QĐ TLHĐ Nghiệm thu (9)"
+  },
+  {
+    "token_name": "NGAY_QD_TLHD_NGHIEM_THU",
+    "code": "G13",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký QĐ TLHĐ Nghiệm thu"
+  },
+  {
+    "token_name": "SO_QD_PHE_DUYET",
+    "code": "G14",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số QĐ Phê duyệt đề tài (08)"
+  },
+  {
+    "token_name": "NGAY_QD_PHE_DUYET",
+    "code": "G15",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký QĐ Phê duyệt đề tài"
+  },
+  {
+    "token_name": "SO_QD_CONG_NHAN",
+    "code": "G16",
+    "kind": "raw_or_placeholder",
+    "param": "……",
+    "note": "Số QĐ Công nhận kết quả (12)"
+  },
+  {
+    "token_name": "NGAY_QD_CONG_NHAN",
+    "code": "G17",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày ký QĐ Công nhận kết quả"
+  },
+  {
+    "token_name": "NGAY_HOP_DAO_DUC",
+    "code": "G18",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày họp HĐ Đạo đức (02, 03)"
+  },
+  {
+    "token_name": "NGAY_HOP_KHOA_HOC",
+    "code": "G19",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày họp HĐ Khoa học (06, 07)"
+  },
+  {
+    "token_name": "NGAY_HOP_NGHIEM_THU",
+    "code": "G20",
+    "kind": "date_vietnamese",
+    "param": "ngày …… tháng …… năm",
+    "note": "Ngày họp HĐ Nghiệm thu (10, 11)"
   }
 ]

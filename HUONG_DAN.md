@@ -49,47 +49,58 @@ File Excel có sẵn các sheet:
 Các ô có nền **màu vàng** là các ô **bắt buộc**:
 
 - **Tên đề tài** (`A01`): Tên đầy đủ của đề tài nghiên cứu.
-- **Kiểu nghiên cứu** (`A02`): Chỉ chấp nhận 1 trong 2 giá trị chính xác:
-  - `TVCT_ĐGHQ` (Tư vấn công thức / Đánh giá hiệu quả)
-  - `TNLS` (Thử nghiệm lâm sàng)
-  *(Công cụ dựa vào ô này để tự động chọn đúng mẫu Phiếu chấm điểm nghiệm thu).*
+- **Kiểu nghiên cứu** (`A02`): Chọn từ danh sách thả xuống (Dropdown):
+  - `Nghiên cứu can thiệp`
+  - `Nghiên cứu quan sát`
+  - `Thử nghiệm lâm sàng`
+  - `Đánh giá hiệu quả công thức`
+  - `Khác`
 - **Năm thực hiện** (`A03`): Ví dụ `2027`.
 - **Đơn vị chủ trì** (`A04`): Ví dụ `Viện Y học ứng dụng Việt Nam`.
 - **Thời gian triển khai NC** (`A05`): Bắt buộc chứa 2 mốc `MM/YYYY`, ví dụ `Tháng 01/2027 đến tháng 12/2027` hoặc `Từ 03/2027 đến 09/2028`.
 - **Đơn vị đối tác** (`A06`): Đơn vị phối hợp (nếu có, không bắt buộc).
 - **Địa điểm triển khai** (`A07`): Tỉnh/thành phố triển khai nghiên cứu (nếu để trống, mẫu sẽ giữ dấu `……` để điền tay).
 - **Đầu mối liên hệ** (`A08`): Thông tin cán bộ đầu mối liên hệ trong thư mời chuyên gia (nếu để trống sẽ hiện `……`).
-- **Chủ nhiệm đề tài** (`B01`): Họ và tên, học vị (PGS.TS., TS.BS...), đơn vị công tác.
+- **Chọn nhân sự & Tự động điền học vị (OneDrive / Excel):**
+  - Tại cột **Họ và tên** (`B01–E10`): Click vào ô và **chọn tên từ danh sách Dropdown**.
+  - Hệ thống sẽ **tự động tra cứu học hàm/học vị và đơn vị công tác** từ danh mục nhân sự chung (`_NhanSu`), bạn không cần phải gõ tay nhiều lần!
+  - Để thêm nhân sự mới vào danh mục: Mở sheet `_NhanSu`, thêm dòng họ tên, học vị, đơn vị rồi chạy `capnhat_nhan_su.bat`.
 - **Nghiên cứu viên** (`B04–B20`): Danh sách các thành viên thực hiện đề tài (tự động đánh số thứ tự `1. `, `2. ` trong Quyết định giao đề tài).
 - **Thư ký các hội đồng**:
   - Thư ký HĐ Đạo đức (`C09`, `C10`): Bắt buộc đủ 2 người.
   - Thư ký HĐ Khoa học (`D09`, `D10`): Bắt buộc đủ 2 người.
   - Thư ký HĐ Nghiệm thu (`E09`, `E10`): Bắt buộc đủ 2 người.
-- **Thành viên các hội đồng**: Điền Chủ tịch, phản biện 1, phản biện 2, các ủy viên của 3 hội đồng (Đạo đức, Khoa học, Nghiệm thu).
 
 ### 3.4 Chuẩn bị file Lý lịch khoa học
 Công cụ tự động tìm và đính kèm file Lý lịch khoa học (CV) vào hồ sơ theo tên:
 
-1. Đặt file Lý lịch khoa học (`.docx` hoặc `.pdf`) vào thư mục **`Lý lịch khoa học/`** ở thư mục gốc.
+1. Đặt file Lý lịch khoa học (`.docx` hoặc `.pdf`) vào thư mục **`templates/Lý lịch khoa học/`**.
 2. Tên file chỉ cần chứa họ tên của người đó (không phân biệt hoa/thường, có dấu hay không dấu) — ví dụ: `Lý lịch khoa học - Trương Hồng Sơn.docx`.
-3. **Chủ nhiệm đề tài:** Chỉ cần tên ở `B01` đã khai, công cụ tự động tìm file lý lịch khoa học khớp tên trong thư mục `Lý lịch khoa học/` và copy vào `01. Hồ sơ đạo đức đề cương/`.
-4. **Chuyên gia khác (nếu có CV cần kèm theo):** Khai tên ở `F02–F10` trong checklist; công cụ sẽ tự tìm file tương ứng trong `Lý lịch khoa học/`.
+3. **Chủ nhiệm đề tài:** Chỉ cần tên ở `B01` đã khai, công cụ tự động tìm file lý lịch khoa học khớp tên trong thư mục `templates/Lý lịch khoa học/` và copy vào `01. Hồ sơ đạo đức đề cương/`.
+4. **Chuyên gia khác (nếu có CV cần kèm theo):** Khai tên ở `F02–F10` trong checklist; công cụ sẽ tự tìm file tương ứng trong `templates/Lý lịch khoa học/`.
 
 ### 3.5 Lưu file Excel
 - Nhấn **Ctrl + S** để lưu lại các thay đổi.
+- Khi làm việc trên **OneDrive**, tính năng AutoSave tự động đồng bộ thời gian thực giữa các thành viên.
 
 ---
 
 ## 4. Chạy tạo hồ sơ
 
-1. Chạy file **`chay_tao_ho_so.bat`** (hoặc mở Terminal gõ: `python tao_ho_so_moi.py`).
-2. Nếu trong file Excel có nhiều sheet dự án, công cụ sẽ liệt kê danh sách để bạn chọn số thứ tự dự án cần tạo.
-3. Chờ script xử lý:
-   - Tự động copy file mẫu từ các thư mục `- MẪU`.
-   - Tự động đính kèm file Lý lịch khoa học của Chủ nhiệm.
+1. Chạy file **`tao-ho-so-moi.ps1`** (hoặc mở Terminal gõ: `python tao_ho_so_moi.py`).
+2. **Chọn Sheet dự án:** Nếu trong file Excel có nhiều sheet, nhập số thứ tự sheet dự án cần tạo.
+3. **Chọn Bộ hồ sơ muốn tạo:** Hệ thống hiển thị danh sách các bộ hồ sơ:
+   - `1. Trọn bộ đầy đủ (Tất cả 4 phần)` *(Nhấn Enter để chọn nhanh)*
+   - `2. Bộ hồ sơ Đạo đức đề cương` (Phần 1 + Thư mời chuyên gia + CV)
+   - `3. Bộ hồ sơ Khoa học đề cương` (Phần 2 + Thư mời chuyên gia)
+   - `4. Bộ hồ sơ Nghiệm thu đề tài` (Phần 4 + Thư mời chuyên gia)
+   *(Bạn cũng có thể chạy lệnh trực tiếp: `python tao_ho_so_moi.py "Tên sheet" --package dao_duc`)*
+4. Chờ script xử lý:
+   - Tự động copy file mẫu tương ứng với bộ hồ sơ đã chọn từ thư mục **`templates/`**.
+   - Tự động đính kèm file Lý lịch khoa học của Chủ nhiệm và các chuyên gia.
    - Tự động điền tất cả các token, thông tin hội đồng, danh sách nghiên cứu viên.
    - Tự động tạo công văn mời chuyên gia ngoài cho từng hội đồng.
-4. Khi hoàn thành, công cụ thông báo đường dẫn thư mục hồ sơ đầu ra dạng: `Hồ sơ - <Tên đề tài> (<Năm>)`.
+5. Khi hoàn thành, công cụ thông báo đường dẫn thư mục hồ sơ đầu ra dạng: `Hồ sơ - <Tên đề tài> (<Năm>)`.
 
 ---
 
