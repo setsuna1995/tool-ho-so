@@ -1,56 +1,56 @@
 [
   {
     "token_name": "TEN_DE_TAI",
-    "code": "A01",
+    "code": "{{TEN_DE_TAI}}",
     "kind": "raw",
     "param": "",
     "note": "Tên đề tài"
   },
   {
     "token_name": "NAM",
-    "code": "A03",
+    "code": "{{NAM}}",
     "kind": "raw",
     "param": "",
     "note": "Năm thực hiện hồ sơ"
   },
   {
     "token_name": "DON_VI_CHU_TRI",
-    "code": "A04",
+    "code": "{{DON_VI_CHU_TRI}}",
     "kind": "raw",
     "param": "",
     "note": "Cơ quan chủ trì"
   },
   {
     "token_name": "DON_VI_DOI_TAC",
-    "code": "A06",
+    "code": "{{DON_VI_DOI_TAC}}",
     "kind": "raw_or_placeholder",
     "param": "",
     "note": "Cơ quan phối hợp (rỗng nếu không khai)"
   },
   {
     "token_name": "THOI_GIAN_BAT_DAU",
-    "code": "A05",
+    "code": "{{THOI_GIAN_BAT_DAU}}",
     "kind": "timeline_start",
     "param": "",
     "note": "Mốc bắt đầu (MM/YYYY)"
   },
   {
     "token_name": "THOI_GIAN_KET_THUC",
-    "code": "A05",
+    "code": "{{THOI_GIAN_BAT_DAU}}",
     "kind": "timeline_end",
     "param": "",
     "note": "Mốc kết thúc (MM/YYYY)"
   },
   {
     "token_name": "DIA_DIEM_TRIEN_KHAI",
-    "code": "A07",
+    "code": "{{DIA_DIEM_TRIEN_KHAI}}",
     "kind": "raw_or_placeholder",
     "param": "……………………………",
     "note": "Địa điểm triển khai nghiên cứu"
   },
   {
     "token_name": "DAU_MOI_LIEN_HE",
-    "code": "A08",
+    "code": "{{DAU_MOI_LIEN_HE}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Đầu mối liên hệ (thư mời chuyên gia)"
@@ -64,14 +64,14 @@
   },
   {
     "token_name": "CHU_NHIEM_TEN",
-    "code": "B01",
+    "code": "{{CHU_NHIEM_HO_TEN}}",
     "kind": "person_ten",
     "param": "",
     "note": "Chủ nhiệm đề tài - chỉ tên"
   },
   {
     "token_name": "CHU_NHIEM_DON_VI",
-    "code": "B01",
+    "code": "{{CHU_NHIEM_HO_TEN}}",
     "kind": "person_org",
     "param": "",
     "note": "Đơn vị công tác chủ nhiệm đề tài"
@@ -85,7 +85,7 @@
   },
   {
     "token_name": "DONG_CHU_NHIEM_TEN",
-    "code": "B02",
+    "code": "{{DONG_CHU_NHIEM_HO_TEN}}",
     "kind": "person_ten",
     "param": "",
     "note": "Đồng chủ nhiệm đề tài - chỉ tên (rỗng nếu không có)"
@@ -105,169 +105,232 @@
     "note": "Danh sách thành viên nghiên cứu viên (có đánh số thứ tự)"
   },
   {
+    "token_name": "NGHIEN_CUU_VIEN_1",
+    "code": "B04",
+    "kind": "single_researcher_ho_ten",
+    "param": "",
+    "note": "Nghiên cứu viên 1 - có học hàm/học vị"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_1_TEN",
+    "code": "B04",
+    "kind": "single_researcher_ten",
+    "param": "",
+    "note": "Nghiên cứu viên 1 - chỉ tên"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_1_DON_VI",
+    "code": "B04",
+    "kind": "single_researcher_org",
+    "param": "",
+    "note": "Nghiên cứu viên 1 - đơn vị công tác"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_2",
+    "code": "B05",
+    "kind": "single_researcher_ho_ten",
+    "param": "",
+    "note": "Nghiên cứu viên 2 - có học hàm/học vị"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_2_TEN",
+    "code": "B05",
+    "kind": "single_researcher_ten",
+    "param": "",
+    "note": "Nghiên cứu viên 2 - chỉ tên"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_2_DON_VI",
+    "code": "B05",
+    "kind": "single_researcher_org",
+    "param": "",
+    "note": "Nghiên cứu viên 2 - đơn vị công tác"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_3",
+    "code": "B06",
+    "kind": "single_researcher_ho_ten",
+    "param": "",
+    "note": "Nghiên cứu viên 3 - có học hàm/học vị"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_3_TEN",
+    "code": "B06",
+    "kind": "single_researcher_ten",
+    "param": "",
+    "note": "Nghiên cứu viên 3 - chỉ tên"
+  },
+  {
+    "token_name": "NGHIEN_CUU_VIEN_3_DON_VI",
+    "code": "B06",
+    "kind": "single_researcher_org",
+    "param": "",
+    "note": "Nghiên cứu viên 3 - đơn vị công tác"
+  },
+  {
     "token_name": "CHU_TICH_HD_DAO_DUC",
-    "code": "C01",
+    "code": "{{CHU_TICH_HD_DAO_DUC}}",
     "kind": "person_ho_ten",
     "param": "",
     "note": "Chủ tịch Hội đồng Đạo đức"
   },
   {
     "token_name": "CHU_TICH_HD_KHOA_HOC",
-    "code": "D01",
+    "code": "{{CHU_TICH_HD_KHOA_HOC}}",
     "kind": "person_ho_ten",
     "param": "",
     "note": "Chủ tịch Hội đồng Khoa học"
   },
   {
     "token_name": "CHU_TICH_HD_NGHIEM_THU",
-    "code": "E01",
+    "code": "{{CHU_TICH_HD_NGHIEM_THU}}",
     "kind": "person_ho_ten",
     "param": "",
     "note": "Chủ tịch Hội đồng Nghiệm thu"
   },
   {
     "token_name": "CHU_TICH_HD_NGHIEM_THU_TEN",
-    "code": "E01",
+    "code": "{{CHU_TICH_HD_NGHIEM_THU}}",
     "kind": "person_ten",
     "param": "",
     "note": "Chủ tịch Hội đồng Nghiệm thu - chỉ tên"
   },
   {
     "token_name": "BOI_CANH_DU_AN",
-    "code": "G01",
+    "code": "{{BOI_CANH_DU_AN}}",
     "kind": "raw_or_placeholder",
     "param": "",
     "note": "Bối cảnh / lý do triển khai đề tài"
   },
   {
     "token_name": "DIA_DIEM_HOP",
-    "code": "G02",
+    "code": "{{DIA_DIEM_HOP}}",
     "kind": "raw_or_placeholder",
     "param": "Viện Y học ứng dụng Việt Nam - Tầng 02, tòa nhà ACE, Số 12 Hoàng Cầu, Phường Ô Chợ Dừa, Quận Đống Đa, Hà Nội",
     "note": "Địa điểm họp Hội đồng"
   },
   {
     "token_name": "THOI_GIAN_HOP",
-    "code": "G03",
+    "code": "{{THOI_GIAN_HOP}}",
     "kind": "raw_or_placeholder",
     "param": "…… giờ ……, ngày …… tháng …… năm",
     "note": "Thời gian họp Hội đồng (giờ, ngày tháng)"
   },
   {
     "token_name": "SO_CONG_VAN",
-    "code": "G04",
+    "code": "{{SO_CONG_VAN}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số công văn mời chuyên gia"
   },
   {
     "token_name": "NGAY_CONG_VAN",
-    "code": "G05",
+    "code": "{{NGAY_CONG_VAN}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký công văn mời chuyên gia"
   },
   {
     "token_name": "SO_QD_GIAO_DE_TAI",
-    "code": "G06",
+    "code": "{{SO_QD_GIAO_DE_TAI}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số Quyết định giao đề tài (00)"
   },
   {
     "token_name": "NGAY_QD_GIAO_DE_TAI",
-    "code": "G07",
+    "code": "{{NGAY_QD_GIAO_DE_TAI}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký QĐ giao đề tài"
   },
   {
     "token_name": "SO_QD_TLHD_DAO_DUC",
-    "code": "G08",
+    "code": "{{SO_QD_TLHD_DAO_DUC}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số QĐ TLHĐ Đạo đức (01)"
   },
   {
     "token_name": "NGAY_QD_TLHD_DAO_DUC",
-    "code": "G09",
+    "code": "{{NGAY_QD_TLHD_DAO_DUC}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký QĐ TLHĐ Đạo đức"
   },
   {
     "token_name": "SO_QD_TLHD_KHOA_HOC",
-    "code": "G10",
+    "code": "{{SO_QD_TLHD_KHOA_HOC}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số QĐ TLHĐ Khoa học (05)"
   },
   {
     "token_name": "NGAY_QD_TLHD_KHOA_HOC",
-    "code": "G11",
+    "code": "{{NGAY_QD_TLHD_KHOA_HOC}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký QĐ TLHĐ Khoa học"
   },
   {
     "token_name": "SO_QD_TLHD_NGHIEM_THU",
-    "code": "G12",
+    "code": "{{SO_QD_TLHD_NGHIEM_THU}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số QĐ TLHĐ Nghiệm thu (9)"
   },
   {
     "token_name": "NGAY_QD_TLHD_NGHIEM_THU",
-    "code": "G13",
+    "code": "{{NGAY_QD_TLHD_NGHIEM_THU}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký QĐ TLHĐ Nghiệm thu"
   },
   {
     "token_name": "SO_QD_PHE_DUYET",
-    "code": "G14",
+    "code": "{{SO_QD_PHE_DUYET}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số QĐ Phê duyệt đề tài (08)"
   },
   {
     "token_name": "NGAY_QD_PHE_DUYET",
-    "code": "G15",
+    "code": "{{NGAY_QD_PHE_DUYET}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký QĐ Phê duyệt đề tài"
   },
   {
     "token_name": "SO_QD_CONG_NHAN",
-    "code": "G16",
+    "code": "{{SO_QD_CONG_NHAN}}",
     "kind": "raw_or_placeholder",
     "param": "……",
     "note": "Số QĐ Công nhận kết quả (12)"
   },
   {
     "token_name": "NGAY_QD_CONG_NHAN",
-    "code": "G17",
+    "code": "{{NGAY_QD_CONG_NHAN}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày ký QĐ Công nhận kết quả"
   },
   {
     "token_name": "NGAY_HOP_DAO_DUC",
-    "code": "G18",
+    "code": "{{NGAY_HOP_DAO_DUC}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày họp HĐ Đạo đức (02, 03)"
   },
   {
     "token_name": "NGAY_HOP_KHOA_HOC",
-    "code": "G19",
+    "code": "{{NGAY_HOP_KHOA_HOC}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày họp HĐ Khoa học (06, 07)"
   },
   {
     "token_name": "NGAY_HOP_NGHIEM_THU",
-    "code": "G20",
+    "code": "{{NGAY_HOP_NGHIEM_THU}}",
     "kind": "date_vietnamese",
     "param": "ngày …… tháng …… năm",
     "note": "Ngày họp HĐ Nghiệm thu (10, 11)"

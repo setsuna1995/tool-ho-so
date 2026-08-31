@@ -62,10 +62,12 @@ class ProjectInfo:
     proposal_committee: CommitteeData
     acceptance_committee: CommitteeData
     expert_cvs: List[ExpertCvEntry]
+    package_id: Optional[str] = None
     common_tokens: dict = field(default_factory=dict)
 
 
 CODE_ALIASES: dict = {
+    "CFG_PACKAGE": ["CFG_PACKAGE", "{{CFG_PACKAGE}}", "BO_HO_SO", "{{BO_HO_SO}}", "A09"],
     "A01": ["A01", "TEN_DE_TAI", "{{TEN_DE_TAI}}"],
     "A02": ["A02", "LOAI_HINH_NC", "{{LOAI_HINH_NC}}", "KIEU_NGHIEN_CUU", "{{KIEU_NGHIEN_CUU}}"],
     "A03": ["A03", "NAM", "{{NAM}}"],
@@ -74,9 +76,47 @@ CODE_ALIASES: dict = {
     "A06": ["A06", "DON_VI_DOI_TAC", "{{DON_VI_DOI_TAC}}", "CO_QUAN_PHOI_HOP"],
     "A07": ["A07", "DIA_DIEM_TRIEN_KHAI", "{{DIA_DIEM_TRIEN_KHAI}}"],
     "A08": ["A08", "DAU_MOI_LIEN_HE", "{{DAU_MOI_LIEN_HE}}"],
+    "A09": ["A09", "CFG_PACKAGE", "{{CFG_PACKAGE}}", "BO_HO_SO", "{{BO_HO_SO}}"],
     "B01": ["B01", "CHU_NHIEM_HO_TEN", "{{CHU_NHIEM_HO_TEN}}", "CHU_NHIEM_TEN", "{{CHU_NHIEM_TEN}}", "CHU_NHIEM_DON_VI", "{{CHU_NHIEM_DON_VI}}"],
     "B02": ["B02", "DONG_CHU_NHIEM_HO_TEN", "{{DONG_CHU_NHIEM_HO_TEN}}", "DONG_CHU_NHIEM_TEN", "{{DONG_CHU_NHIEM_TEN}}"],
     "B03": ["B03", "THU_KY_DE_TAI", "{{THU_KY_DE_TAI}}"],
+    "B04": ["B04", "B04_1", "NGHIEN_CUU_VIEN_1", "{{NGHIEN_CUU_VIEN_1}}", "DANH_SACH_NGHIEN_CUU_VIEN", "{{DANH_SACH_NGHIEN_CUU_VIEN}}"],
+    "B05": ["B05", "B04_2", "NGHIEN_CUU_VIEN_2", "{{NGHIEN_CUU_VIEN_2}}"],
+    "B06": ["B06", "B04_3", "NGHIEN_CUU_VIEN_3", "{{NGHIEN_CUU_VIEN_3}}"],
+    "B07": ["B07", "B04_4", "NGHIEN_CUU_VIEN_4", "{{NGHIEN_CUU_VIEN_4}}"],
+    "B08": ["B08", "B04_5", "NGHIEN_CUU_VIEN_5", "{{NGHIEN_CUU_VIEN_5}}"],
+    "B09": ["B09", "B04_6", "NGHIEN_CUU_VIEN_6", "{{NGHIEN_CUU_VIEN_6}}"],
+    "B10": ["B10", "B04_7", "NGHIEN_CUU_VIEN_7", "{{NGHIEN_CUU_VIEN_7}}"],
+    "B11": ["B11", "B04_8", "NGHIEN_CUU_VIEN_8", "{{NGHIEN_CUU_VIEN_8}}"],
+    "B12": ["B12", "B04_9", "NGHIEN_CUU_VIEN_9", "{{NGHIEN_CUU_VIEN_9}}"],
+    "B13": ["B13", "B04_10", "NGHIEN_CUU_VIEN_10", "{{NGHIEN_CUU_VIEN_10}}"],
+    "B14": ["B14", "B04_11", "NGHIEN_CUU_VIEN_11", "{{NGHIEN_CUU_VIEN_11}}"],
+    "B15": ["B15", "B04_12", "NGHIEN_CUU_VIEN_12", "{{NGHIEN_CUU_VIEN_12}}"],
+    "B16": ["B16", "B04_13", "NGHIEN_CUU_VIEN_13", "{{NGHIEN_CUU_VIEN_13}}"],
+    "B17": ["B17", "B04_14", "NGHIEN_CUU_VIEN_14", "{{NGHIEN_CUU_VIEN_14}}"],
+    "B18": ["B18", "B04_15", "NGHIEN_CUU_VIEN_15", "{{NGHIEN_CUU_VIEN_15}}"],
+    "B19": ["B19", "B04_16", "NGHIEN_CUU_VIEN_16", "{{NGHIEN_CUU_VIEN_16}}"],
+    "B20": ["B20", "B04_17", "NGHIEN_CUU_VIEN_17", "{{NGHIEN_CUU_VIEN_17}}"],
+    "B04_1": ["B04_1", "B04", "NGHIEN_CUU_VIEN_1", "{{NGHIEN_CUU_VIEN_1}}"],
+    "B04_2": ["B04_2", "B05", "NGHIEN_CUU_VIEN_2", "{{NGHIEN_CUU_VIEN_2}}"],
+    "B04_3": ["B04_3", "B06", "NGHIEN_CUU_VIEN_3", "{{NGHIEN_CUU_VIEN_3}}"],
+    "B04_4": ["B04_4", "B07", "NGHIEN_CUU_VIEN_4", "{{NGHIEN_CUU_VIEN_4}}"],
+    "B04_5": ["B04_5", "B08", "NGHIEN_CUU_VIEN_5", "{{NGHIEN_CUU_VIEN_5}}"],
+    "B04_6": ["B04_6", "B09", "NGHIEN_CUU_VIEN_6", "{{NGHIEN_CUU_VIEN_6}}"],
+    "B04_7": ["B04_7", "B10", "NGHIEN_CUU_VIEN_7", "{{NGHIEN_CUU_VIEN_7}}"],
+    "B04_8": ["B04_8", "B11", "NGHIEN_CUU_VIEN_8", "{{NGHIEN_CUU_VIEN_8}}"],
+    "B04_9": ["B04_9", "B12", "NGHIEN_CUU_VIEN_9", "{{NGHIEN_CUU_VIEN_9}}"],
+    "B04_10": ["B04_10", "B13", "NGHIEN_CUU_VIEN_10", "{{NGHIEN_CUU_VIEN_10}}"],
+    "B04_11": ["B04_11", "B14", "NGHIEN_CUU_VIEN_11", "{{NGHIEN_CUU_VIEN_11}}"],
+    "B04_12": ["B04_12", "B15", "NGHIEN_CUU_VIEN_12", "{{NGHIEN_CUU_VIEN_12}}"],
+    "B04_13": ["B04_13", "B16", "NGHIEN_CUU_VIEN_13", "{{NGHIEN_CUU_VIEN_13}}"],
+    "B04_14": ["B04_14", "B17", "NGHIEN_CUU_VIEN_14", "{{NGHIEN_CUU_VIEN_14}}"],
+    "B04_15": ["B04_15", "B18", "NGHIEN_CUU_VIEN_15", "{{NGHIEN_CUU_VIEN_15}}"],
+    "B04_16": ["B04_16", "B19", "NGHIEN_CUU_VIEN_16", "{{NGHIEN_CUU_VIEN_16}}"],
+    "B04_17": ["B04_17", "B20", "NGHIEN_CUU_VIEN_17", "{{NGHIEN_CUU_VIEN_17}}"],
+    "B04_18": ["B04_18", "NGHIEN_CUU_VIEN_18", "{{NGHIEN_CUU_VIEN_18}}"],
+    "B04_19": ["B04_19", "NGHIEN_CUU_VIEN_19", "{{NGHIEN_CUU_VIEN_19}}"],
+    "B04_20": ["B04_20", "NGHIEN_CUU_VIEN_20", "{{NGHIEN_CUU_VIEN_20}}"],
     "C01": ["C01", "CHU_TICH_HD_DAO_DUC", "{{CHU_TICH_HD_DAO_DUC}}"],
     "D01": ["D01", "CHU_TICH_HD_KHOA_HOC", "{{CHU_TICH_HD_KHOA_HOC}}"],
     "E01": ["E01", "CHU_TICH_HD_NGHIEM_THU", "{{CHU_TICH_HD_NGHIEM_THU}}", "CHU_TICH_HD_NGHIEM_THU_TEN", "{{CHU_TICH_HD_NGHIEM_THU_TEN}}"],
@@ -85,7 +125,7 @@ CODE_ALIASES: dict = {
 
 def _build_code_index(ws) -> dict:
     index = {}
-    for row in ws.iter_rows(min_row=5, max_col=1):
+    for row in ws.iter_rows(min_row=3, max_col=1):
         cell = row[0]
         code = cell.value
         if isinstance(code, str) and not code.startswith("SEC_"):
@@ -107,9 +147,11 @@ def _build_code_index(ws) -> dict:
 def _resolve_row(index: dict, code: str) -> Optional[int]:
     if code in index:
         return index[code]
-    for alias in CODE_ALIASES.get(code, []):
-        if alias in index:
-            return index[alias]
+    for k, aliases in CODE_ALIASES.items():
+        if code == k or code in aliases:
+            for alias in [k] + aliases:
+                if alias in index:
+                    return index[alias]
     clean = code.replace("{{", "").replace("}}", "").strip()
     if clean in index:
         return index[clean]
@@ -176,10 +218,14 @@ def read_text(ws, index: dict, code: str) -> str:
 
 
 
-def parse_committee(ws, index: dict, prefix: str, registry: Optional[dict] = None) -> CommitteeData:
+def parse_committee(
+    ws, index: dict, prefix: str, registry: Optional[dict] = None, required: bool = True
+) -> CommitteeData:
     chair = read_person(ws, index, f"{prefix}01", registry=registry)
     if chair is None:
-        raise ValueError(f"Chủ tịch hội đồng ({prefix}01) là bắt buộc nhưng đang trống")
+        if required:
+            raise ValueError(f"Chủ tịch hội đồng ({prefix}01) là bắt buộc nhưng đang trống")
+        chair = Person(name="", degree="", org="")
 
     reviewers = []
     for code in (f"{prefix}02", f"{prefix}03", f"{prefix}06"):
@@ -197,7 +243,9 @@ def parse_committee(ws, index: dict, prefix: str, registry: Optional[dict] = Non
     for code in (f"{prefix}09", f"{prefix}10"):
         person = read_person(ws, index, code, registry=registry)
         if person is None:
-            raise ValueError(f"Thư ký hội đồng ({code}) là bắt buộc nhưng đang trống")
+            if required:
+                raise ValueError(f"Thư ký hội đồng ({code}) là bắt buộc nhưng đang trống")
+            person = Person(name="", degree="", org="")
         secretaries.append(person)
 
     return CommitteeData(chair=chair, reviewers=reviewers, members=members, secretaries=secretaries)
@@ -210,7 +258,7 @@ def read_expert_cvs(ws, index: dict) -> List[ExpertCvEntry]:
     entries = []
     for i in range(2, 11):
         code = f"F{i:02d}"
-        row = index.get(code)
+        row = _resolve_row(index, code)
         if row is None:
             continue
         name = _cell_text(ws, row, 3)
@@ -224,7 +272,8 @@ def read_researchers(ws, index: dict, registry: Optional[dict] = None) -> List[P
     researchers = []
     for i in range(4, 21):
         code = f"B{i:02d}"
-        if code not in index:
+        row = _resolve_row(index, code)
+        if row is None:
             continue
         person = read_person(ws, index, code, registry=registry)
         if person:
@@ -247,7 +296,10 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     if not title:
         raise ValueError("Tên đề tài (A01) đang trống trong checklist")
 
-    year_raw = ws.cell(row=index["A03"], column=3).value
+    row_a03 = _resolve_row(index, "A03")
+    if row_a03 is None:
+        raise ValueError("Không tìm thấy dòng cho Năm thực hiện hồ sơ (A03)")
+    year_raw = ws.cell(row=row_a03, column=3).value
     if year_raw is None:
         raise ValueError("Năm thực hiện hồ sơ (A03) đang trống trong checklist")
 
@@ -259,6 +311,30 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
 
     partner_org = read_text(ws, index, "A06") if "A06" in index else ""
     research_location = read_text(ws, index, "A07") if "A07" in index else ""
+
+    pkg_row = _resolve_row(index, "CFG_PACKAGE") or _resolve_row(index, "BO_HO_SO") or _resolve_row(index, "A09")
+    package_id = None
+    if pkg_row:
+        val = ws.cell(row=pkg_row, column=3).value
+        package_id = str(val).strip() if val is not None and str(val).strip() else None
+
+    # Xác định các section cần bắt buộc dựa trên package_id
+    import dossier_packages
+    active_sections = None
+    if package_id:
+        try:
+            pkg = dossier_packages.get_package(package_id)
+            active_sections = set(pkg.sections)
+        except (KeyError, ValueError):
+            pass
+
+    ethics_required = active_sections is None or "dao_duc" in active_sections
+    proposal_required = active_sections is None or "khoa_hoc" in active_sections
+    acceptance_required = active_sections is None or "nghiem_thu" in active_sections
+
+    ethics_committee = parse_committee(ws, index, "C", registry=registry, required=ethics_required)
+    proposal_committee = parse_committee(ws, index, "D", registry=registry, required=proposal_required)
+    acceptance_committee = parse_committee(ws, index, "E", registry=registry, required=acceptance_required)
 
     return ProjectInfo(
         title=title,
@@ -272,9 +348,10 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         co_head=read_person(ws, index, "B02", registry=registry),
         project_secretary=read_person(ws, index, "B03", registry=registry),
         researchers=researchers,
-        ethics_committee=parse_committee(ws, index, "C", registry=registry),
-        proposal_committee=parse_committee(ws, index, "D", registry=registry),
-        acceptance_committee=parse_committee(ws, index, "E", registry=registry),
+        ethics_committee=ethics_committee,
+        proposal_committee=proposal_committee,
+        acceptance_committee=acceptance_committee,
         expert_cvs=read_expert_cvs(ws, index),
+        package_id=package_id,
         common_tokens=common_tokens,
     )

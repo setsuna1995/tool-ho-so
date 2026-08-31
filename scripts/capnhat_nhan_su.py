@@ -111,6 +111,15 @@ RESEARCH_TYPE_CHOICES = [
     "Đánh giá hiệu quả công thức",
     "Khác",
 ]
+DOSSIER_PACKAGE_CHOICES = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "A_dao_duc",
+    "A_khoa_hoc",
+    "A_nghiem_thu",
+]
 
 
 TOKENS_SHEET_NAME = "_Tokens"
@@ -129,7 +138,18 @@ DEFAULT_TOKEN_LIST = [
     ("{{CHU_NHIEM_DON_VI}}", "B01", "Đơn vị công tác Chủ nhiệm đề tài"),
     ("{{DONG_CHU_NHIEM_HO_TEN}}", "B02", "Họ tên Đồng chủ nhiệm đề tài"),
     ("{{THU_KY_DE_TAI}}", "B03", "Họ tên Thư ký đề tài"),
-    ("{{DANH_SACH_NGHIEN_CUU_VIEN}}", "B04-B20", "Danh sách nghiên cứu viên"),
+    ("{{DANH_SACH_NGHIEN_CUU_VIEN}}", "B04-B20", "Danh sách nghiên cứu viên (có đánh số)"),
+    ("{{NGHIEN_CUU_VIEN_1}}", "B04", "Nghiên cứu viên 1 - Họ tên có học vị"),
+    ("{{NGHIEN_CUU_VIEN_1_TEN}}", "B04", "Nghiên cứu viên 1 - Chỉ họ tên"),
+    ("{{NGHIEN_CUU_VIEN_1_DON_VI}}", "B04", "Nghiên cứu viên 1 - Đơn vị công tác"),
+    ("{{NGHIEN_CUU_VIEN_2}}", "B05", "Nghiên cứu viên 2 - Họ tên có học vị"),
+    ("{{NGHIEN_CUU_VIEN_2_TEN}}", "B05", "Nghiên cứu viên 2 - Chỉ họ tên"),
+    ("{{NGHIEN_CUU_VIEN_2_DON_VI}}", "B05", "Nghiên cứu viên 2 - Đơn vị công tác"),
+    ("{{NGHIEN_CUU_VIEN_3}}", "B06", "Nghiên cứu viên 3 - Họ tên có học vị"),
+    ("{{NGHIEN_CUU_VIEN_3_TEN}}", "B06", "Nghiên cứu viên 3 - Chỉ họ tên"),
+    ("{{NGHIEN_CUU_VIEN_3_DON_VI}}", "B06", "Nghiên cứu viên 3 - Đơn vị công tác"),
+    ("{{NGHIEN_CUU_VIEN_4}}", "B07", "Nghiên cứu viên 4 - Họ tên có học vị"),
+    ("{{NGHIEN_CUU_VIEN_5}}", "B08", "Nghiên cứu viên 5 - Họ tên có học vị"),
     ("{{CHU_TICH_HD_DAO_DUC}}", "C01", "Chủ tịch HĐ Đạo đức"),
     ("{{CHU_TICH_HD_KHOA_HOC}}", "D01", "Chủ tịch HĐ Khoa học"),
     ("{{CHU_TICH_HD_NGHIEM_THU}}", "E01", "Chủ tịch HĐ Nghiệm thu"),
@@ -198,6 +218,35 @@ def wire_token_dropdowns(checklist_path: Path = CHECKLIST_PATH) -> None:
     wb.save(checklist_path)
 
 
+BO_HO_SO_SHEET_NAME = "_BoHoSo"
+
+
+def sync_bo_ho_so_sheet(wb) -> int:
+    """Tạo và đồng bộ sheet _BoHoSo với danh mục các Bộ hồ sơ trong hệ thống."""
+    import dossier_packages
+    packages = dossier_packages.get_available_packages()
+
+    if BO_HO_SO_SHEET_NAME in wb.sheetnames:
+        ws = wb[BO_HO_SO_SHEET_NAME]
+    else:
+        ws = wb.create_sheet(BO_HO_SO_SHEET_NAME)
+
+    ws.cell(row=1, column=1, value="MÃ_BỘ")
+    ws.cell(row=1, column=2, value="TÊN_BỘ_HỒ_SƠ")
+    ws.cell(row=1, column=3, value="MÔ_TẢ_PHẠM_VI")
+    ws.cell(row=1, column=4, value="CÁC_PHẦN_XUẤT")
+    ws.cell(row=1, column=5, value="THƯ_MỤC_MẪU")
+
+    for i, pkg in enumerate(packages, start=2):
+        ws.cell(row=i, column=1, value=pkg.id)
+        ws.cell(row=i, column=2, value=pkg.name)
+        ws.cell(row=i, column=3, value=pkg.description)
+        ws.cell(row=i, column=4, value=", ".join(pkg.sections))
+        ws.cell(row=i, column=5, value=", ".join(pkg.template_dirs))
+
+    return len(packages)
+
+
 def wire_extended_validations(checklist_path: Path = CHECKLIST_PATH, protect: bool = False) -> None:
     from openpyxl.styles import Protection
 
@@ -205,16 +254,26 @@ def wire_extended_validations(checklist_path: Path = CHECKLIST_PATH, protect: bo
     wire_token_dropdowns(checklist_path)
 
     wb = openpyxl.load_workbook(checklist_path)
+    num_pkgs = sync_bo_ho_so_sheet(wb)
+
     target_sheets = [s for s in SHEET_NAMES if s in wb.sheetnames]
     if not target_sheets:
-        target_sheets = [s for s in wb.sheetnames if s not in (NHAN_SU_SHEET_NAME, TOKENS_SHEET_NAME)]
+        target_sheets = [s for s in wb.sheetnames if s not in (NHAN_SU_SHEET_NAME, TOKENS_SHEET_NAME, BO_HO_SO_SHEET_NAME)]
 
     degree_formula = f'"{",".join(DEGREE_CHOICES)}"'
     research_formula = f'"{",".join(RESEARCH_TYPE_CHOICES)}"'
+    pkg_formula = f"='{BO_HO_SO_SHEET_NAME}'!$A$2:$A${num_pkgs + 1}"
 
     for sheet_name in target_sheets:
         ws = wb[sheet_name]
         index = _build_code_index(ws)
+
+        # 0. Dropdown cho CFG_PACKAGE / Header Row 3
+        pkg_row = index.get("CFG_PACKAGE") or index.get("BO_HO_SO") or 3
+        _clear_existing_person_validations(ws, {f"C{pkg_row}"})
+        pkg_dv = DataValidation(type="list", formula1=pkg_formula, allow_blank=True)
+        ws.add_data_validation(pkg_dv)
+        pkg_dv.add(ws.cell(row=pkg_row, column=3))
 
         # 1. Dropdown cho A02 (Loại hình nghiên cứu)
         if "A02" in index:

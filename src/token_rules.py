@@ -43,6 +43,42 @@ def _resolve_raw(ws, index, spec: TokenSpec) -> str:
     return excel_reader.read_text(ws, index, spec.code)
 
 
+def _resolve_single_researcher(ws, index, spec: TokenSpec) -> str:
+    """Resolve a token for a specific numbered researcher.
+    Supports spec.code or spec.name like:
+    - B04_1, B04_2, ..., B04_20
+    - B04, B05, ..., B20
+    - NGHIEN_CUU_VIEN_1, ..., NGHIEN_CUU_VIEN_20
+    """
+    target_idx = None
+    m = re.search(r"NGHIEN_CUU_VIEN_(\d+)", spec.name)
+    if m:
+        target_idx = int(m.group(1)) - 1
+    elif spec.code:
+        m2 = re.search(r"_(\d+)$", spec.code)
+        if m2:
+            target_idx = int(m2.group(1)) - 1
+        else:
+            m_b = re.match(r"^B(\d{2})$", spec.code)
+            if m_b:
+                b_num = int(m_b.group(1))
+                if 4 <= b_num <= 20:
+                    target_idx = b_num - 4
+
+    if target_idx is None:
+        return ""
+
+    researchers = excel_reader.read_researchers(ws, index)
+    if 0 <= target_idx < len(researchers):
+        p = researchers[target_idx]
+        if spec.kind in ("person_ten", "single_researcher_ten") or spec.name.endswith("_TEN"):
+            return p.name
+        if spec.kind in ("person_org", "single_researcher_org") or spec.name.endswith("_DON_VI"):
+            return p.org
+        return f"{p.degree} {p.name}".strip()
+    return ""
+
+
 def _resolve_raw_or_placeholder(ws, index, spec: TokenSpec) -> str:
     """Ma muc chua co trong checklist (ban copy cu) duoc coi nhu o trong,
     tra ve placeholder thay vi nem KeyError."""
@@ -127,6 +163,10 @@ TRANSFORMS: Dict[str, Callable] = {
     "numbered_researchers": _resolve_numbered_researchers,
     "timeline_start": _resolve_timeline_start,
     "timeline_end": _resolve_timeline_end,
+    "single_researcher": _resolve_single_researcher,
+    "single_researcher_ho_ten": _resolve_single_researcher,
+    "single_researcher_ten": _resolve_single_researcher,
+    "single_researcher_org": _resolve_single_researcher,
 }
 
 
@@ -160,10 +200,29 @@ def resolve_tokens(arg1, arg2=None, arg3=None, config_path: Optional[Path] = Non
             )
         result[f"{{{{{spec.name}}}}}"] = transform(ws, index, spec)
 
+    # Tự động điền đầy đủ các token đích danh từng Nghiên cứu viên NGHIEN_CUU_VIEN_1..20
+    if specs and (config_path is None or config_path == DEFAULT_CONFIG_PATH or any("NGHIEN_CUU_VIEN" in s.name for s in specs)):
+        researchers = excel_reader.read_researchers(ws, index)
+        for i in range(1, 21):
+            if i <= len(researchers):
+                p = researchers[i - 1]
+                full_name = f"{p.degree} {p.name}".strip()
+                name_only = p.name
+                org_only = p.org
+            else:
+                full_name = ""
+                name_only = ""
+                org_only = ""
+
+            result.setdefault(f"{{{{NGHIEN_CUU_VIEN_{i}}}}}", full_name)
+            result.setdefault(f"{{{{NGHIEN_CUU_VIEN_{i}_HO_TEN}}}}", full_name)
+            result.setdefault(f"{{{{NGHIEN_CUU_VIEN_{i}_TEN}}}}", name_only)
+            result.setdefault(f"{{{{NGHIEN_CUU_VIEN_{i}_DON_VI}}}}", org_only)
+
     # Dynamic Token Discovery: Quét toàn bộ các dòng ở Cột A
     # Nếu có token mới dạng {{TOKEN_NAME}} hoặc TOKEN_NAME chưa có trong config
     known_keys = set(result.keys())
-    for row in ws.iter_rows(min_row=5, max_col=5):
+    for row in ws.iter_rows(min_row=3, max_col=5):
         cell_a = row[0].value
         if not cell_a or not isinstance(cell_a, str) or cell_a.startswith("SEC_"):
             continue

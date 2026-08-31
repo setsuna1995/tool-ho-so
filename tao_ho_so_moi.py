@@ -61,14 +61,14 @@ def choose_package() -> dossier_packages.DossierPackage:
     packages = dossier_packages.get_available_packages()
     print("\nChon bo ho so muon tao:")
     for i, pkg in enumerate(packages, start=1):
-        default_tag = " [Mac dinh]" if pkg.id == "full" else ""
+        default_tag = " [Mac dinh]" if pkg.id in ("A", "full") else ""
         print(f"  {i}. {pkg.name}{default_tag}")
         print(f"     -> {pkg.description}")
 
     while True:
         raw = input(f"Nhap so thu tu (1-{len(packages)}, nhan Enter de chon [1]): ").strip()
         if not raw:
-            return dossier_packages.get_package("full")
+            return dossier_packages.get_package("A")
         if raw.isdigit() and 1 <= int(raw) <= len(packages):
             return packages[int(raw) - 1]
         print(f"  [LOI] Vui long nhap so tu 1 den {len(packages)}.")
@@ -95,12 +95,7 @@ def parse_cli_args(xlsx_path: Path) -> tuple:
     if sheet_name is None:
         sheet_name = choose_sheet_name(xlsx_path)
 
-    if package_id:
-        package = dossier_packages.get_package(package_id)
-    else:
-        package = choose_package()
-
-    return sheet_name, package
+    return sheet_name, package_id
 
 
 def _get_allowed_template_dirs(package: dossier_packages.DossierPackage) -> set:
@@ -227,10 +222,21 @@ def main() -> None:
     sheet_name = None
 
     try:
-        sheet_name, package = parse_cli_args(checklist_path)
+        sheet_name, cli_package_id = parse_cli_args(checklist_path)
 
         print(f"Dang doc du lieu tu Excel checklist (Sheet: '{sheet_name}')...")
         info = excel_reader.load_project_data(checklist_path, sheet_name)
+        
+        # Determine package
+        package_id = cli_package_id or info.package_id
+        if not package_id:
+            package = choose_package()
+        else:
+            try:
+                package = dossier_packages.get_package(package_id)
+            except ValueError:
+                print(f"  [LOI] Bo ho so '{package_id}' tu Excel/CLI khong hop le. Xin chon lai:")
+                package = choose_package()
 
         session = word_writer.Session()
         print(f"Che do ghi Word dang dung: {session.backend}")

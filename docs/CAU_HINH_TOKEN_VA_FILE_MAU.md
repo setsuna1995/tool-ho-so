@@ -33,8 +33,11 @@ Tất cả các token dưới đây được quản lý tập trung trong file c
 | `{{DONG_CHU_NHIEM_HO_TEN}}` | Họ tên có học vị Đồng chủ nhiệm (nếu có) | `B02` | `person_ho_ten` |
 | `{{DONG_CHU_NHIEM_TEN}}` | Chỉ tên Đồng chủ nhiệm đề tài (nếu có) | `B02` | `person_ten` |
 | `{{THU_KY_DE_TAI}}` | Họ tên có học vị Thư ký đề tài (nếu có) | `B03` | `person_ho_ten` |
-| `{{DANH_SACH_NGHIEN_CUU_VIEN}}` | Danh sách nghiên cứu viên có đánh số `1. ...
-2. ...` | `B04–B20` | `numbered_researchers` |
+| `{{DANH_SACH_NGHIEN_CUU_VIEN}}` | Danh sách toàn bộ NCV có đánh số `1. ...` | `B04–B20` | `numbered_researchers` |
+| `{{NGHIEN_CUU_VIEN_1}}` | NCV 1 - Họ tên có học vị | `B04` | `single_researcher_ho_ten` |
+| `{{NGHIEN_CUU_VIEN_1_TEN}}` | NCV 1 - Chỉ họ tên | `B04` | `single_researcher_ten` |
+| `{{NGHIEN_CUU_VIEN_1_DON_VI}}` | NCV 1 - Đơn vị công tác | `B04` | `single_researcher_org` |
+| `{{NGHIEN_CUU_VIEN_2}}` | NCV 2 - Họ tên có học vị (tương tự đến NCV 20) | `B05` | `single_researcher_ho_ten` |
 | `{{CHU_TICH_HD_DAO_DUC}}` | Họ tên có học vị Chủ tịch HĐ Đạo đức | `C01` | `person_ho_ten` |
 | `{{CHU_TICH_HD_KHOA_HOC}}` | Họ tên có học vị Chủ tịch HĐ Khoa học | `D01` | `person_ho_ten` |
 | `{{CHU_TICH_HD_NGHIEM_THU}}` | Họ tên có học vị Chủ tịch HĐ Nghiệm thu | `E01` | `person_ho_ten` |
@@ -164,31 +167,55 @@ Toàn bộ token dùng chung được khai báo độc lập trong file **[`conf
 
 ## 6. Hệ thống Bộ hồ sơ (Dossier Package System)
 
-Công cụ cho phép quản lý và xuất tài liệu theo từng **Bộ hồ sơ** độc lập hoặc trọn bộ:
+Công cụ cho phép quản lý và xuất tài liệu theo từng **Bộ hồ sơ** (A, B, C, D...) độc lập hoặc trọn bộ.
 
-### 6.1 Các Bộ hồ sơ mặc định trong `src/dossier_packages.py`
-1. **`full` (Trọn bộ đầy đủ):** Sinh toàn bộ 4 phần hồ sơ (`01.`, `02.`, `03.`, `04.`).
-2. **`dao_duc` (Bộ hồ sơ Đạo đức đề cương):** Chỉ sinh `01. Hồ sơ đạo đức đề cương` và `03. Công văn mời chuyên gia` (kèm CV Chủ nhiệm).
-3. **`khoa_hoc` (Bộ hồ sơ Khoa học đề cương):** Chỉ sinh `02. Hồ sơ khoa học đề cương` và `03. Công văn mời chuyên gia`.
-4. **`nghiem_thu` (Bộ hồ sơ Nghiệm thu đề tài):** Chỉ sinh `04. Hồ sơ nghiệm thu` và `03. Công văn mời chuyên gia`.
+### 6.1 Vị trí cấu hình trong file Excel
+Ô chọn Bộ hồ sơ được đặt ở **Dòng 3 (Khu vực Header / Trên cùng)** của bảng tính:
+* **Mã mục**: `CFG_PACKAGE` (hoặc `BO_HO_SO`)
+* **Hạng mục**: `CHỌN BỘ HỒ SƠ CẦN XUẤT`
+* **Dropdown lựa chọn**: `A`, `B`, `C`, `D`, `A_dao_duc`, `A_khoa_hoc`, `A_nghiem_thu`
 
-### 6.2 Cách thêm một Bộ hồ sơ mới trong tương lai
-Mở file **[`src/dossier_packages.py`](file:///f:/tool-ho-so/src/dossier_packages.py)** và thêm vào danh sách `_DEFAULT_PACKAGES`:
-```python
-DossierPackage(
-    id="thu_nghiem_lam_sang",
-    name="Bộ hồ sơ Thử nghiệm lâm sàng pha 3",
-    description="Hồ sơ phục vụ nghiệm thu đề tài thử nghiệm lâm sàng",
-    sections=["dao_duc", "khoa_hoc", "nghiem_thu"],
-    template_dirs=[
-        "01. Hồ sơ đạo đức đề cương - MẪU",
-        "04. Hồ sơ nghiệm thu - MẪU",
-    ],
-    copy_head_cv=True,
-    copy_expert_cvs=True,
-)
+---
+
+### 6.2 Danh mục Bộ hồ sơ chuẩn (quản lý qua `config_packages.json`)
+
+Toàn bộ các bộ hồ sơ được cấu hình tập trung trong file **[`config_packages.json`](file:///f:/tool-ho-so/config_packages.json)** ở thư mục gốc:
+
+| Mã Bộ | Tên Bộ hồ sơ | Ý nghĩa / Phạm vi áp dụng | Các phần sinh ra |
+|---|---|---|---|
+| **`A`** *(Mặc định)* | **Bộ A**: NCKH & Đánh giá hiệu quả công thức | Bộ hồ sơ trọn bộ hiện tại của Viện VIAM | Đạo đức + Khoa học + Nghiệm thu |
+| **`A_dao_duc`** | **Bộ A (Phần 1)**: Đạo đức đề cương | Chỉ xuất hồ sơ Hội đồng Đạo đức | 01. Hồ sơ đạo đức + Thư mời |
+| **`A_khoa_hoc`** | **Bộ A (Phần 2)**: Khoa học đề cương | Chỉ xuất hồ sơ Hội đồng Khoa học | 02. Hồ sơ khoa học + Thư mời |
+| **`A_nghiem_thu`** | **Bộ A (Phần 3)**: Nghiệm thu đề tài | Chỉ xuất hồ sơ Hội đồng Nghiệm thu | 04. Hồ sơ nghiệm thu + Thư mời |
+| **`B`** | **Bộ B**: Thử nghiệm lâm sàng (TNLS) | Dành cho đề tài can thiệp / TNLS đa trung tâm *(Đã setup sẵn)* | Tùy chỉnh theo mẫu TNLS |
+| **`C`** | **Bộ C**: Nghiên cứu quan sát & Dịch tễ | Dành cho khảo sát cắt ngang, dịch tễ *(Đã setup sẵn)* | Tùy chỉnh theo mẫu dịch tễ |
+| **`D`** | **Bộ D**: Chuyển giao công nghệ & Tư vấn | Dành cho dự án tư vấn công thức & chuyển giao *(Đã setup sẵn)* | Tùy chỉnh theo mẫu chuyển giao |
+
+---
+
+### 6.3 Cách setup thêm hoặc tùy chỉnh Bộ hồ sơ mới (Không cần sửa Code)
+
+Mở file **[`config_packages.json`](file:///f:/tool-ho-so/config_packages.json)** và thêm một khối JSON:
+
+```json
+{
+  "id": "E",
+  "aliases": ["E", "BO_E", "Bộ E"],
+  "name": "Bộ E: Hồ sơ Đào tạo & Bồi dưỡng Y học",
+  "description": "Bộ hồ sơ phục vụ các khóa đào tạo ngắn hạn và cấp chứng chỉ",
+  "sections": ["dao_duc", "khoa_hoc"],
+  "template_dirs": [
+    "01. Hồ sơ đạo đức đề cương - MẪU",
+    "02. Hồ sơ khoa học đề cương - MẪU"
+  ],
+  "copy_head_cv": true,
+  "copy_expert_cvs": true
+}
 ```
-Khi chạy `tao_ho_so_moi.py`, bộ hồ sơ mới sẽ tự động xuất hiện trong menu lựa chọn!
+
+Sau khi lưu file `config_packages.json`:
+1. Chạy `capnhat_nhan_su.bat` để cập nhật Dropdown vào Excel.
+2. Khi chạy `tao_ho_so_moi.py`, bộ hồ sơ mới sẽ tự động xuất hiện trong hệ thống!
 
 ## 7. Quy trình Kiểm thử & Xác minh
 

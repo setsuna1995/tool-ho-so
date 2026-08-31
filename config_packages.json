@@ -1,0 +1,94 @@
+[
+  {
+    "id": "A",
+    "aliases": ["A", "full", "BO_A", "Bộ A", "Bộ A - NCKH & Đánh giá công thức VIAM"],
+    "name": "Bộ A: Hồ sơ NCKH & Đánh giá hiệu quả công thức (Trọn bộ)",
+    "description": "Bao gồm đầy đủ 3 Hội đồng: Đạo đức, Khoa học và Nghiệm thu (kèm Thư mời chuyên gia & CV)",
+    "sections": ["dao_duc", "khoa_hoc", "nghiem_thu"],
+    "template_dirs": [
+      "01. Hồ sơ đạo đức đề cương - MẪU",
+      "02. Hồ sơ khoa học đề cương - MẪU",
+      "04. Hồ sơ nghiệm thu - MẪU"
+    ],
+    "copy_head_cv": true,
+    "copy_expert_cvs": true
+  },
+  {
+    "id": "A_dao_duc",
+    "aliases": ["dao_duc", "A_dao_duc", "Bộ A - Đạo đức"],
+    "name": "Bộ A (Phần 1): Hồ sơ Đạo đức đề cương",
+    "description": "Gồm hồ sơ Hội đồng Đạo đức (kèm Thư mời chuyên gia đạo đức & CV Chủ nhiệm)",
+    "sections": ["dao_duc"],
+    "template_dirs": [
+      "01. Hồ sơ đạo đức đề cương - MẪU"
+    ],
+    "copy_head_cv": true,
+    "copy_expert_cvs": true
+  },
+  {
+    "id": "A_khoa_hoc",
+    "aliases": ["khoa_hoc", "A_khoa_hoc", "Bộ A - Khoa học"],
+    "name": "Bộ A (Phần 2): Hồ sơ Khoa học đề cương",
+    "description": "Gồm hồ sơ Hội đồng Khoa học xét duyệt đề cương (kèm Thư mời chuyên gia khoa học)",
+    "sections": ["khoa_hoc"],
+    "template_dirs": [
+      "02. Hồ sơ khoa học đề cương - MẪU"
+    ],
+    "copy_head_cv": false,
+    "copy_expert_cvs": true
+  },
+  {
+    "id": "A_nghiem_thu",
+    "aliases": ["nghiem_thu", "A_nghiem_thu", "Bộ A - Nghiệm thu"],
+    "name": "Bộ A (Phần 3): Hồ sơ Nghiệm thu đề tài",
+    "description": "Gồm hồ sơ Hội đồng Nghiệm thu kết quả (kèm Thư mời chuyên gia nghiệm thu)",
+    "sections": ["nghiem_thu"],
+    "template_dirs": [
+      "04. Hồ sơ nghiệm thu - MẪU"
+    ],
+    "copy_head_cv": false,
+    "copy_expert_cvs": true
+  },
+  {
+    "id": "B",
+    "aliases": ["B", "BO_B", "Bộ B", "Bộ B - Thử nghiệm lâm sàng"],
+    "name": "Bộ B: Hồ sơ Thử nghiệm lâm sàng (TNLS)",
+    "description": "Bộ hồ sơ phục vụ đề tài Thử nghiệm lâm sàng / Can thiệp lâm sàng (Setup sẵn cho tương lai)",
+    "sections": ["dao_duc", "khoa_hoc", "nghiem_thu"],
+    "template_dirs": [
+      "01. Hồ sơ đạo đức đề cương - MẪU",
+      "02. Hồ sơ khoa học đề cương - MẪU",
+      "04. Hồ sơ nghiệm thu - MẪU"
+    ],
+    "copy_head_cv": true,
+    "copy_expert_cvs": true
+  },
+  {
+    "id": "C",
+    "aliases": ["C", "BO_C", "Bộ C", "Bộ C - Nghiên cứu quan sát & Dịch tễ"],
+    "name": "Bộ C: Hồ sơ Nghiên cứu quan sát & Khảo sát dịch tễ",
+    "description": "Bộ hồ sơ phục vụ nghiên cứu quan sát, điều tra dịch tễ cộng đồng (Setup sẵn cho tương lai)",
+    "sections": ["dao_duc", "khoa_hoc", "nghiem_thu"],
+    "template_dirs": [
+      "01. Hồ sơ đạo đức đề cương - MẪU",
+      "02. Hồ sơ khoa học đề cương - MẪU",
+      "04. Hồ sơ nghiệm thu - MẪU"
+    ],
+    "copy_head_cv": true,
+    "copy_expert_cvs": true
+  },
+  {
+    "id": "D",
+    "aliases": ["D", "BO_D", "Bộ D", "Bộ D - Chuyển giao công nghệ & Tư vấn"],
+    "name": "Bộ D: Hồ sơ Tư vấn sản phẩm & Chuyển giao công nghệ",
+    "description": "Bộ hồ sơ phục vụ dự án tư vấn công thức và chuyển giao công nghệ sản phẩm (Setup sẵn cho tương lai)",
+    "sections": ["dao_duc", "khoa_hoc", "nghiem_thu"],
+    "template_dirs": [
+      "01. Hồ sơ đạo đức đề cương - MẪU",
+      "02. Hồ sơ khoa học đề cương - MẪU",
+      "04. Hồ sơ nghiệm thu - MẪU"
+    ],
+    "copy_head_cv": true,
+    "copy_expert_cvs": true
+  }
+]

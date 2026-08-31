@@ -313,3 +313,72 @@ def test_resolve_tokens_date_vietnamese_kind(tmp_path):
     assert result["{{NGAY_TRONG}}"] == "ngày …… tháng …… năm"
 
 
+def test_resolve_tokens_individual_researchers(tmp_path):
+    path, cfg_path = _build_workbook_and_config(
+        tmp_path,
+        token_rows=[],
+        project_rows=[
+            ("B04", "Lê Việt Anh", "ThS.", "Trung tâm NCKH"),
+            ("B05", "Lê Minh Khánh", "BS.", "Phòng khám VIAM"),
+        ],
+    )
+    wb = openpyxl.load_workbook(path)
+    ws = wb["Đề tài - Test"]
+    idx = excel_reader._build_code_index(ws)
+    result = token_rules.resolve_tokens(ws, idx, config_path=cfg_path)
+
+    assert result["{{NGHIEN_CUU_VIEN_1}}"] == "ThS. Lê Việt Anh"
+    assert result["{{NGHIEN_CUU_VIEN_1_HO_TEN}}"] == "ThS. Lê Việt Anh"
+    assert result["{{NGHIEN_CUU_VIEN_1_TEN}}"] == "Lê Việt Anh"
+    assert result["{{NGHIEN_CUU_VIEN_1_DON_VI}}"] == "Trung tâm NCKH"
+
+    assert result["{{NGHIEN_CUU_VIEN_2}}"] == "BS. Lê Minh Khánh"
+    assert result["{{NGHIEN_CUU_VIEN_2_TEN}}"] == "Lê Minh Khánh"
+    assert result["{{NGHIEN_CUU_VIEN_2_DON_VI}}"] == "Phòng khám VIAM"
+
+    # Researcher 3 (empty) should resolve to empty string without error
+    assert result["{{NGHIEN_CUU_VIEN_3}}"] == ""
+    assert result["{{NGHIEN_CUU_VIEN_3_TEN}}"] == ""
+    assert result["{{NGHIEN_CUU_VIEN_3_DON_VI}}"] == ""
+
+
+def test_load_project_data_reads_cfg_package_header(tmp_path):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Đề tài - Test"
+
+    # Header Row 3
+    ws.cell(row=3, column=1, value="CFG_PACKAGE")
+    ws.cell(row=3, column=2, value="Bộ hồ sơ cần xuất")
+    ws.cell(row=3, column=3, value="dao_duc")
+
+    ws.cell(row=5, column=1, value="A01")
+    ws.cell(row=5, column=3, value="Đề tài mẫu")
+    ws.cell(row=6, column=1, value="A02")
+    ws.cell(row=6, column=3, value="TVCT")
+    ws.cell(row=7, column=1, value="A03")
+    ws.cell(row=7, column=3, value=2027)
+    ws.cell(row=8, column=1, value="A04")
+    ws.cell(row=8, column=3, value="Viện VIAM")
+    ws.cell(row=9, column=1, value="A05")
+    ws.cell(row=9, column=3, value="Tháng 01/2027 đến tháng 12/2027")
+    ws.cell(row=10, column=1, value="B01")
+    ws.cell(row=10, column=3, value="Nguyễn Văn A")
+
+    # Committees minimal setup
+    for pfx in ("C", "D", "E"):
+        ws.cell(row=11, column=1, value=f"{pfx}01")
+        ws.cell(row=11, column=3, value="Chủ tịch")
+        ws.cell(row=12, column=1, value=f"{pfx}09")
+        ws.cell(row=12, column=3, value="Thư ký 1")
+        ws.cell(row=13, column=1, value=f"{pfx}10")
+        ws.cell(row=13, column=3, value="Thư ký 2")
+
+    path = tmp_path / "checklist.xlsx"
+    wb.save(path)
+
+    info = excel_reader.load_project_data(path, "Đề tài - Test")
+    assert info.package_id == "dao_duc"
+
+
+

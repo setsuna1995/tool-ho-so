@@ -202,15 +202,15 @@ def test_generate_all_keeps_staging_dir_and_reports_path_on_failure(tmp_path, mo
 
 def test_parse_cli_args_with_package_flag(monkeypatch):
     monkeypatch.setattr("sys.argv", ["tao_ho_so_moi.py", "Đề tài - Bánh ăn dặm VIAM 2027", "--package", "dao_duc"])
-    sheet, pkg = tao_ho_so_moi.parse_cli_args(CHECKLIST_PATH)
+    sheet, pkg_id = tao_ho_so_moi.parse_cli_args(CHECKLIST_PATH)
     assert sheet == "Đề tài - Bánh ăn dặm VIAM 2027"
-    assert pkg.id == "dao_duc"
+    assert pkg_id == "dao_duc"
 
 
 def test_choose_package_defaults_to_full_on_empty_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "")
     pkg = tao_ho_so_moi.choose_package()
-    assert pkg.id == "full"
+    assert pkg.id in ("A", "full")
 
 
 def test_generate_all_with_dao_duc_package_only_creates_dao_duc_and_invitation(tmp_path):
