@@ -46,3 +46,19 @@ def test_add_tokens_sheet_row_maps_kind_and_code_correctly(tmp_path):
     assert ws.cell(row=r, column=2).value == "A07"
     assert ws.cell(row=r, column=3).value == "raw_or_placeholder"
     assert ws.cell(row=r, column=4).value == "……………………………"
+
+
+def test_add_tokens_sheet_row_maps_contact_person_token(tmp_path):
+    checklist_path = tmp_path / "checklist.xlsx"
+    openpyxl.Workbook().save(checklist_path)
+
+    migrate.add_tokens_sheet(checklist_path)
+
+    wb = openpyxl.load_workbook(checklist_path)
+    ws = wb[migrate.TOKENS_SHEET_NAME]
+    rows = {ws.cell(row=r, column=1).value: r for r in range(2, ws.max_row + 1)}
+    r = rows["DAU_MOI_LIEN_HE"]
+    assert ws.cell(row=r, column=2).value == "A08"
+    assert ws.cell(row=r, column=3).value == "raw_or_placeholder"
+    assert ws.cell(row=r, column=4).value == "……"
+

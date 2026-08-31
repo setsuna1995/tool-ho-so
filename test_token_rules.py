@@ -189,6 +189,8 @@ def test_real_checklist_resolves_new_and_existing_tokens_correctly():
     assert data.common_tokens["{{NAM}}"] == "2027"
     # A07 dang trong trong checklist that -> dung placeholder tu cot `param`.
     assert data.common_tokens["{{DIA_DIEM_TRIEN_KHAI}}"] == "……………………………"
+    # A08 chua duoc dien trong checklist that -> dung placeholder tu cot `param`.
+    assert data.common_tokens["{{DAU_MOI_LIEN_HE}}"] == "……"
 
     assert data.common_tokens["{{CHU_NHIEM_HO_TEN}}"] == f"{data.head.degree} {data.head.name}".strip()
     assert data.common_tokens["{{DONG_CHU_NHIEM_HO_TEN}}"] == (

@@ -23,6 +23,7 @@ TOKEN_SPECS = [
     ("THOI_GIAN_BAT_DAU", "A05", "timeline_start", "", "Mốc bắt đầu (MM/YYYY)"),
     ("THOI_GIAN_KET_THUC", "A05", "timeline_end", "", "Mốc kết thúc (MM/YYYY)"),
     ("DIA_DIEM_TRIEN_KHAI", "A07", "raw_or_placeholder", "……………………………", "Địa điểm triển khai nghiên cứu"),
+    ("DAU_MOI_LIEN_HE", "A08", "raw_or_placeholder", "……", "Đầu mối liên hệ (thư mời chuyên gia)"),
 ]
 
 
@@ -46,4 +47,4 @@ def add_tokens_sheet(checklist_path: Path = CHECKLIST_PATH) -> None:
 
 if __name__ == "__main__":
     add_tokens_sheet()
-    print("Da tao/cap nhat sheet _Tokens voi 12 token mac dinh.")
+    print("Da tao/cap nhat sheet _Tokens voi 13 token mac dinh.")
