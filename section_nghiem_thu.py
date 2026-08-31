@@ -86,6 +86,10 @@ def _phieu_cham_diem_nghiem_thu(session, dest_dir, info, common_tokens):
 def _phieu_ky_nhan_tien(session, dest_dir, info, common_tokens):
     doc = session.open(dest_dir / "Phiếu ký nhận tiền.docx")
     session.fill_tokens(doc, common_tokens)
+    committee_writer.write_committee_roster(
+        session, doc, 2, info.acceptance_committee, roles=ROLES,
+        name_col=2, org_col=None, role_col=None, start_row=2,
+    )
     secretary = info.acceptance_committee.secretaries[0]
     session.set_cell(doc, 2, 7, 2, secretary.name)
     session.save_close(doc)

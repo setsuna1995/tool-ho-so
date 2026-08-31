@@ -143,3 +143,20 @@ def test_generate_raises_for_unrecognized_research_type(dest_dir, info):
             section_nghiem_thu.generate(session, dest_dir, bad_info, tokens.build_common_tokens(bad_info))
     finally:
         session.quit()
+
+
+def test_generate_writes_acceptance_committee_roster_in_payment_slip(dest_dir, info):
+    session = word_writer.Session(force_backend="docx")
+    try:
+        section_nghiem_thu.generate(session, dest_dir, info, tokens.build_common_tokens(info))
+    finally:
+        session.quit()
+
+    doc = docx.Document(str(dest_dir / "Phiếu ký nhận tiền.docx"))
+    table = doc.tables[1]
+    committee = info.acceptance_committee
+    people = [committee.chair] + committee.reviewers + committee.members
+    for offset, person in enumerate(people):
+        expected = f"{person.degree} {person.name}".strip()
+        assert table.cell(1 + offset, 1).text.strip() == expected
+
