@@ -6,6 +6,7 @@ from pathlib import Path
 
 import openpyxl
 
+import cv_matching
 import excel_reader
 import paths
 import section_dao_duc
@@ -63,31 +64,22 @@ def copy_templates(root: Path, dest_root: Path) -> None:
 
 
 def copy_head_cv(root: Path, dest_root: Path, info) -> None:
-    src = root / "CV chuyên gia" / info.head_cv_filename
-    if not src.exists():
-        raise FileNotFoundError(
-            f"Không tìm thấy file CV '{info.head_cv_filename}' (khai báo ở mã mục F01) "
-            f"trong thư mục 'CV chuyên gia/'. Vui lòng đặt đúng file vào đó hoặc sửa lại "
-            "tên file trong checklist cho khớp."
-        )
-    dst = dest_root / "01. Hồ sơ đạo đức đề cương" / info.head_cv_filename
+    cv_dir = root / "CV chuyên gia"
+    src = cv_matching.find_cv_file(cv_dir, info.head.name, context=" (chủ nhiệm đề tài)")
+    dst = dest_root / "01. Hồ sơ đạo đức đề cương" / src.name
     dst.parent.mkdir(parents=True, exist_ok=True)
     dst.write_bytes(src.read_bytes())
 
 
 def copy_expert_cvs(root: Path, dest_root: Path, info) -> None:
-    for entry in info.expert_cvs:
-        src = root / "CV chuyên gia" / entry.filename
-        if not src.exists():
-            raise FileNotFoundError(
-                f"Không tìm thấy file CV '{entry.filename}' (khai báo ở mã mục {entry.code} - "
-                f"{entry.name}) trong thư mục 'CV chuyên gia/'. Vui lòng đặt đúng file vào đó "
-                "hoặc sửa lại tên file trong checklist cho khớp."
-            )
+    cv_dir = root / "CV chuyên gia"
+    resolved = [
+        cv_matching.find_cv_file(cv_dir, entry.name, context=f" (mã mục {entry.code} - {entry.role})")
+        for entry in info.expert_cvs
+    ]
 
-    for entry in info.expert_cvs:
-        src = root / "CV chuyên gia" / entry.filename
-        dst = dest_root / "03. Công văn mời chuyên gia" / entry.filename
+    for src in resolved:
+        dst = dest_root / "03. Công văn mời chuyên gia" / src.name
         dst.parent.mkdir(parents=True, exist_ok=True)
         dst.write_bytes(src.read_bytes())
 
