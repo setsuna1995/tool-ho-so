@@ -50,14 +50,19 @@ class OpenDoc:
 
 
 def _docx_replace_in_paragraph(paragraph, find: str, replace: str) -> bool:
-    full_text = "".join(run.text for run in paragraph.runs)
+    full_text = paragraph.text
     if find not in full_text:
         return False
     new_text = full_text.replace(find, replace)
+    for child in list(paragraph._element):
+        if child.tag.endswith("hyperlink"):
+            paragraph._element.remove(child)
     if paragraph.runs:
         paragraph.runs[0].text = new_text
         for run in paragraph.runs[1:]:
             run.text = ""
+    else:
+        paragraph.text = new_text
     return True
 
 
