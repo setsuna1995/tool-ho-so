@@ -142,35 +142,18 @@ def test_parse_timeline_raises_when_two_dates_not_found():
         excel_reader.parse_timeline("Chưa xác định")
 
 
-def test_head_cv_filename_is_read_from_f01(tmp_path):
-    path = _build_minimal_workbook(tmp_path)
-    data = excel_reader.load_project_data(path, "Test")
-    assert data.head_cv_filename == "cv.docx"
-
-
-def test_missing_f01_cv_filename_raises_value_error(tmp_path):
-    path = _build_minimal_workbook(tmp_path, overrides={"F01": ("Chủ nhiệm", "Chủ nhiệm đề tài", "")})
-    with pytest.raises(ValueError):
-        excel_reader.load_project_data(path, "Test")
-
-
-def test_real_checklist_head_cv_filename():
-    data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
-    assert data.head_cv_filename
-
-
-def test_read_expert_cvs_skips_blank_filename_rows(tmp_path):
-    path = _build_minimal_workbook(tmp_path, overrides={"F03": ("Tên", "Vai trò", None)})
+def test_read_expert_cvs_skips_blank_name_rows(tmp_path):
+    path = _build_minimal_workbook(tmp_path, overrides={"F03": (None, None, None)})
     data = excel_reader.load_project_data(path, "Test")
     assert data.expert_cvs == []
 
 
-def test_read_expert_cvs_reads_declared_rows(tmp_path):
+def test_read_expert_cvs_reads_declared_rows_by_name(tmp_path):
     path = _build_minimal_workbook(
         tmp_path,
         overrides={
-            "F03": ("Thư ký C", "Thư ký Đề tài", "cv_thuky.docx"),
-            "F04": ("Chuyên gia D", "Ủy viên", "cv_d.docx"),
+            "F03": ("Thư ký C", "Thư ký Đề tài", None),
+            "F04": ("Chuyên gia D", "Ủy viên", None),
         },
     )
     data = excel_reader.load_project_data(path, "Test")
@@ -178,9 +161,9 @@ def test_read_expert_cvs_reads_declared_rows(tmp_path):
     assert set(codes) == {"F03", "F04"}
     assert codes["F03"].name == "Thư ký C"
     assert codes["F03"].role == "Thư ký Đề tài"
-    assert codes["F03"].filename == "cv_thuky.docx"
 
 
 def test_real_checklist_expert_cvs_has_at_least_one_entry():
     data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
     assert len(data.expert_cvs) >= 1
+

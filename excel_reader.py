@@ -35,7 +35,6 @@ class ExpertCvEntry:
     code: str
     name: str
     role: str
-    filename: str
 
 
 @dataclass
@@ -62,7 +61,6 @@ class ProjectInfo:
     ethics_committee: CommitteeData
     proposal_committee: CommitteeData
     acceptance_committee: CommitteeData
-    head_cv_filename: str
     expert_cvs: List[ExpertCvEntry]
     common_tokens: dict = field(default_factory=dict)
 
@@ -127,24 +125,19 @@ def parse_committee(ws, index: dict, prefix: str) -> CommitteeData:
 
 
 def read_expert_cvs(ws, index: dict) -> List[ExpertCvEntry]:
-    """Doc PHAN F, ma F02-F10 (F01 la CV chu nhiem, da co duong doc rieng bat buoc)."""
+    """Doc PHAN F, ma F02-F10 (F01 la chu nhiem, CV cua chu nhiem khop truc
+    tiep qua info.head.name, khong doc rieng F01 nua). Dong nao ten (cot 3)
+    de trong thi bo qua - khong con phu thuoc vao cot filename nua."""
     entries = []
     for i in range(2, 11):
         code = f"F{i:02d}"
         row = index.get(code)
         if row is None:
             continue
-        filename = _cell_text(ws, row, 5)
-        if not filename:
+        name = _cell_text(ws, row, 3)
+        if not name:
             continue
-        entries.append(
-            ExpertCvEntry(
-                code=code,
-                name=_cell_text(ws, row, 3),
-                role=_cell_text(ws, row, 4),
-                filename=filename,
-            )
-        )
+        entries.append(ExpertCvEntry(code=code, name=name, role=_cell_text(ws, row, 4)))
     return entries
 
 
@@ -182,10 +175,6 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     partner_org = read_text(ws, index, "A06") if "A06" in index else ""
     research_location = read_text(ws, index, "A07") if "A07" in index else ""
 
-    head_cv_filename = _cell_text(ws, index["F01"], 5) if "F01" in index else ""
-    if not head_cv_filename:
-        raise ValueError("Tên file CV của chủ nhiệm đề tài (F01) là bắt buộc nhưng đang trống")
-
     return ProjectInfo(
         title=title,
         research_type=read_text(ws, index, "A02"),
@@ -201,7 +190,6 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
         ethics_committee=parse_committee(ws, index, "C"),
         proposal_committee=parse_committee(ws, index, "D"),
         acceptance_committee=parse_committee(ws, index, "E"),
-        head_cv_filename=head_cv_filename,
         expert_cvs=read_expert_cvs(ws, index),
         common_tokens=common_tokens,
     )
