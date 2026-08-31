@@ -141,6 +141,18 @@ def read_expert_cvs(ws, index: dict) -> List[ExpertCvEntry]:
     return entries
 
 
+def read_researchers(ws, index: dict) -> List[Person]:
+    researchers = []
+    for i in range(4, 21):
+        code = f"B{i:02d}"
+        if code not in index:
+            continue
+        person = read_person(ws, index, code)
+        if person:
+            researchers.append(person)
+    return researchers
+
+
 def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     wb = openpyxl.load_workbook(xlsx_path, data_only=True)
     ws = wb[sheet_name]
@@ -149,7 +161,7 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     # Import cuc bo de tranh vong lap import (token_rules import excel_reader
     # de dung read_text/read_person/parse_timeline).
     import token_rules
-    common_tokens = token_rules.resolve_tokens(wb, ws, index)
+    common_tokens = token_rules.resolve_tokens(ws, index)
 
     title = read_text(ws, index, "A01")
     if not title:
@@ -163,14 +175,7 @@ def load_project_data(xlsx_path: Path, sheet_name: str) -> ProjectInfo:
     if head is None:
         raise ValueError("Chủ nhiệm đề tài (B01) là bắt buộc nhưng đang trống")
 
-    researchers = []
-    for i in range(4, 21):
-        code = f"B{i:02d}"
-        if code not in index:
-            continue
-        person = read_person(ws, index, code)
-        if person:
-            researchers.append(person)
+    researchers = read_researchers(ws, index)
 
     partner_org = read_text(ws, index, "A06") if "A06" in index else ""
     research_location = read_text(ws, index, "A07") if "A07" in index else ""

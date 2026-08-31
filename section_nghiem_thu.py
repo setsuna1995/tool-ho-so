@@ -37,12 +37,6 @@ def _quyet_dinh_thanh_lap(session, dest_dir, info, common_tokens):
 def _bb_hop_hd_nghiem_thu(session, dest_dir, info, common_tokens):
     doc = session.open(dest_dir / "10. Biên bản họp HĐ nghiệm thu.docx")
     session.fill_tokens(doc, common_tokens)
-    chair = info.acceptance_committee.chair
-    session.replace_text(
-        doc,
-        "Tên 3 - Chủ tịch Hội đồng điều khiển phiên họp",
-        f"{chair.name} - Chủ tịch Hội đồng điều khiển phiên họp",
-    )
     member_count = committee_writer.roster_size(info.acceptance_committee)
     session.replace_text(
         doc,

@@ -64,7 +64,7 @@ def copy_templates(root: Path, dest_root: Path) -> None:
 
 
 def copy_head_cv(root: Path, dest_root: Path, info) -> None:
-    cv_dir = root / "CV chuyên gia"
+    cv_dir = root / "Lý lịch khoa học"
     src = cv_matching.find_cv_file(cv_dir, info.head.name, context=" (chủ nhiệm đề tài)")
     dst = dest_root / "01. Hồ sơ đạo đức đề cương" / src.name
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -72,7 +72,7 @@ def copy_head_cv(root: Path, dest_root: Path, info) -> None:
 
 
 def copy_expert_cvs(root: Path, dest_root: Path, info) -> None:
-    cv_dir = root / "CV chuyên gia"
+    cv_dir = root / "Lý lịch khoa học"
     resolved = [
         cv_matching.find_cv_file(cv_dir, entry.name, context=f" (mã mục {entry.code} - {entry.role})")
         for entry in info.expert_cvs

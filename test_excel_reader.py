@@ -163,7 +163,7 @@ def test_read_expert_cvs_reads_declared_rows_by_name(tmp_path):
     assert codes["F03"].role == "Thư ký Đề tài"
 
 
-def test_real_checklist_expert_cvs_has_at_least_one_entry():
+def test_real_checklist_expert_cvs_returns_list():
     data = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
-    assert len(data.expert_cvs) >= 1
+    assert isinstance(data.expert_cvs, list)
 

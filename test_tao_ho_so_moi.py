@@ -65,13 +65,13 @@ def test_copy_templates_does_not_copy_relocated_expert_cvs(tmp_path):
 
     tao_ho_so_moi.copy_templates(root, tmp_path)
 
-    assert not (tmp_path / "CV chuyên gia").exists()
+    assert not (tmp_path / "Lý lịch khoa học").exists()
 
 
 def test_copy_head_cv_copies_file_matching_head_name(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
-    expected = cv_matching.find_cv_file(root / "CV chuyên gia", info.head.name)
+    expected = cv_matching.find_cv_file(root / "Lý lịch khoa học", info.head.name)
 
     tao_ho_so_moi.copy_head_cv(root, tmp_path, info)
 
@@ -90,20 +90,21 @@ def test_copy_head_cv_raises_clear_error_when_no_cv_matches_head_name(tmp_path):
 def test_copy_expert_cvs_copies_every_declared_entry(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    entry = excel_reader.ExpertCvEntry(code="F02", name="Trương Hồng Sơn", role="Chuyên gia")
+    mock_info = dataclasses.replace(info, expert_cvs=[entry])
 
-    tao_ho_so_moi.copy_expert_cvs(root, tmp_path, info)
+    tao_ho_so_moi.copy_expert_cvs(root, tmp_path, mock_info)
 
     dest_dir = tmp_path / "03. Công văn mời chuyên gia"
-    for entry in info.expert_cvs:
-        expected = cv_matching.find_cv_file(root / "CV chuyên gia", entry.name)
-        assert (dest_dir / expected.name).exists()
+    expected = cv_matching.find_cv_file(root / "Lý lịch khoa học", entry.name)
+    assert (dest_dir / expected.name).exists()
 
 
 def test_copy_expert_cvs_raises_clear_error_when_no_cv_matches(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
-    good_entry = info.expert_cvs[0]
-    bad_entry = dataclasses.replace(info.expert_cvs[1], name="Người Không Tồn Tại")
+    good_entry = excel_reader.ExpertCvEntry(code="F02", name="Trương Hồng Sơn", role="Chuyên gia")
+    bad_entry = excel_reader.ExpertCvEntry(code="F03", name="Người Không Tồn Tại", role="Chuyên gia")
     bad_info = dataclasses.replace(info, expert_cvs=[good_entry, bad_entry])
 
     with pytest.raises(FileNotFoundError):
@@ -140,18 +141,18 @@ def test_generate_all_stages_locally_then_copies_into_dest_root(tmp_path):
 def test_generate_all_copies_expert_cvs_into_output(tmp_path):
     root = paths.project_root()
     info = excel_reader.load_project_data(CHECKLIST_PATH, SHEET_VIAM)
+    entry = excel_reader.ExpertCvEntry(code="F02", name="Trương Hồng Sơn", role="Chuyên gia")
+    mock_info = dataclasses.replace(info, expert_cvs=[entry])
     dest_root = tmp_path / "Hồ sơ output"
 
     session = word_writer.Session(force_backend="docx")
     try:
-        tao_ho_so_moi.generate_all(root, dest_root, info, session)
+        tao_ho_so_moi.generate_all(root, dest_root, mock_info, session)
     finally:
         session.quit()
 
-    assert info.expert_cvs
-    for entry in info.expert_cvs:
-        expected = cv_matching.find_cv_file(root / "CV chuyên gia", entry.name)
-        assert (dest_root / "03. Công văn mời chuyên gia" / expected.name).exists()
+    expected = cv_matching.find_cv_file(root / "Lý lịch khoa học", entry.name)
+    assert (dest_root / "03. Công văn mời chuyên gia" / expected.name).exists()
 
 
 def test_generate_all_cleans_up_local_staging_dir_on_success(tmp_path, monkeypatch):

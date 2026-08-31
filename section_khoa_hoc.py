@@ -31,12 +31,6 @@ def _qdtlhd_khoa_hoc(session, dest_dir, info, common_tokens):
 def _bb_hop_thong_qua_de_cuong(session, dest_dir, info, common_tokens):
     doc = session.open(dest_dir / "06. BB họp thông qua đề cương.docx")
     session.fill_tokens(doc, common_tokens)
-    chair = info.proposal_committee.chair
-    session.replace_text(
-        doc,
-        "PGs. Ts. Hoàng Thị Thanh - Chủ tịch Hội đồng điều khiển phiên họp",
-        f"{chair.degree} {chair.name} - Chủ tịch Hội đồng điều khiển phiên họp".strip(),
-    )
     session.save_close(doc)
 
 

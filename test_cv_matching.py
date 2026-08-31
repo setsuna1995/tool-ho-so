@@ -5,7 +5,7 @@ import cv_matching
 
 
 def _make_cv_dir(tmp_path, filenames):
-    cv_dir = tmp_path / "CV chuyên gia"
+    cv_dir = tmp_path / "Lý lịch khoa học"
     cv_dir.mkdir()
     for name in filenames:
         (cv_dir / name).write_text("x")
